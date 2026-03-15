@@ -15437,22 +15437,6 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-router@7.13.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/react-router/dist/development/chunk-LFPYN7LY.mjs
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
-/**
-* react-router v7.13.1
-*
-* Copyright (c) Remix Software Inc.
-*
-* This source code is licensed under the MIT license found in the
-* LICENSE.md file in the root directory of this source tree.
-*
-* @license MIT
-*/
-var __typeError = (msg) => {
-	throw TypeError(msg);
-};
-var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
 var PopStateEventType = "popstate";
 function isLocation(obj) {
 	return typeof obj === "object" && obj != null && "pathname" in obj && "search" in obj && "hash" in obj && "state" in obj && "key" in obj;
@@ -15643,105 +15627,6 @@ function createBrowserURLImpl(to, isAbsolute = false) {
 	if (!isAbsolute && href.startsWith("//")) href = base + href;
 	return new URL(href, base);
 }
-function createContext(defaultValue) {
-	return { defaultValue };
-}
-var _map;
-var RouterContextProvider = class {
-	/**
-	* Create a new `RouterContextProvider` instance
-	* @param init An optional initial context map to populate the provider with
-	*/
-	constructor(init) {
-		__privateAdd(this, _map, /* @__PURE__ */ new Map());
-		if (init) for (let [context, value] of init) this.set(context, value);
-	}
-	/**
-	* Access a value from the context. If no value has been set for the context,
-	* it will return the context's `defaultValue` if provided, or throw an error
-	* if no `defaultValue` was set.
-	* @param context The context to get the value for
-	* @returns The value for the context, or the context's `defaultValue` if no
-	* value was set
-	*/
-	get(context) {
-		if (__privateGet(this, _map).has(context)) return __privateGet(this, _map).get(context);
-		if (context.defaultValue !== void 0) return context.defaultValue;
-		throw new Error("No value found for context");
-	}
-	/**
-	* Set a value for the context. If the context already has a value set, this
-	* will overwrite it.
-	*
-	* @param context The context to set the value for
-	* @param value The value to set for the context
-	* @returns {void}
-	*/
-	set(context, value) {
-		__privateGet(this, _map).set(context, value);
-	}
-};
-_map = /* @__PURE__ */ new WeakMap();
-var unsupportedLazyRouteObjectKeys = /* @__PURE__ */ new Set([
-	"lazy",
-	"caseSensitive",
-	"path",
-	"id",
-	"index",
-	"children"
-]);
-function isUnsupportedLazyRouteObjectKey(key) {
-	return unsupportedLazyRouteObjectKeys.has(key);
-}
-var unsupportedLazyRouteFunctionKeys = /* @__PURE__ */ new Set([
-	"lazy",
-	"caseSensitive",
-	"path",
-	"id",
-	"index",
-	"middleware",
-	"children"
-]);
-function isUnsupportedLazyRouteFunctionKey(key) {
-	return unsupportedLazyRouteFunctionKeys.has(key);
-}
-function isIndexRoute(route) {
-	return route.index === true;
-}
-function convertRoutesToDataRoutes(routes, mapRouteProperties2, parentPath = [], manifest = {}, allowInPlaceMutations = false) {
-	return routes.map((route, index) => {
-		let treePath = [...parentPath, String(index)];
-		let id = typeof route.id === "string" ? route.id : treePath.join("-");
-		invariant(route.index !== true || !route.children, `Cannot specify children on an index route`);
-		invariant(allowInPlaceMutations || !manifest[id], `Found a route id collision on id "${id}".  Route id's must be globally unique within Data Router usages`);
-		if (isIndexRoute(route)) {
-			let indexRoute = {
-				...route,
-				id
-			};
-			manifest[id] = mergeRouteUpdates(indexRoute, mapRouteProperties2(indexRoute));
-			return indexRoute;
-		} else {
-			let pathOrLayoutRoute = {
-				...route,
-				id,
-				children: void 0
-			};
-			manifest[id] = mergeRouteUpdates(pathOrLayoutRoute, mapRouteProperties2(pathOrLayoutRoute));
-			if (route.children) pathOrLayoutRoute.children = convertRoutesToDataRoutes(route.children, mapRouteProperties2, treePath, manifest, allowInPlaceMutations);
-			return pathOrLayoutRoute;
-		}
-	});
-}
-function mergeRouteUpdates(route, updates) {
-	return Object.assign(route, {
-		...updates,
-		...typeof updates.lazy === "object" && updates.lazy != null ? { lazy: {
-			...route.lazy,
-			...updates.lazy
-		} } : {}
-	});
-}
 function matchRoutes(routes, locationArg, basename = "/") {
 	return matchRoutesImpl(routes, locationArg, basename, false);
 }
@@ -15931,11 +15816,7 @@ function stripBasename(pathname, basename) {
 	if (nextChar && nextChar !== "/") return null;
 	return pathname.slice(startIndex) || "/";
 }
-function prependBasename({ basename, pathname }) {
-	return pathname === "/" ? basename : joinPaths([basename, pathname]);
-}
 var ABSOLUTE_URL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
-var isAbsoluteUrl = (url) => ABSOLUTE_URL_REGEX.test(url);
 function resolvePath(to, fromPathname = "/") {
 	let { pathname: toPathname, search = "", hash = "" } = typeof to === "string" ? parsePath(to) : to;
 	let pathname;
@@ -16046,2587 +15927,12 @@ function parseToInfo(_to, basename) {
 		to
 	};
 }
-var UninstrumentedSymbol = Symbol("Uninstrumented");
-function getRouteInstrumentationUpdates(fns, route) {
-	let aggregated = {
-		lazy: [],
-		"lazy.loader": [],
-		"lazy.action": [],
-		"lazy.middleware": [],
-		middleware: [],
-		loader: [],
-		action: []
-	};
-	fns.forEach((fn) => fn({
-		id: route.id,
-		index: route.index,
-		path: route.path,
-		instrument(i) {
-			let keys = Object.keys(aggregated);
-			for (let key of keys) if (i[key]) aggregated[key].push(i[key]);
-		}
-	}));
-	let updates = {};
-	if (typeof route.lazy === "function" && aggregated.lazy.length > 0) {
-		let instrumented = wrapImpl(aggregated.lazy, route.lazy, () => void 0);
-		if (instrumented) updates.lazy = instrumented;
-	}
-	if (typeof route.lazy === "object") {
-		let lazyObject = route.lazy;
-		[
-			"middleware",
-			"loader",
-			"action"
-		].forEach((key) => {
-			let lazyFn = lazyObject[key];
-			let instrumentations = aggregated[`lazy.${key}`];
-			if (typeof lazyFn === "function" && instrumentations.length > 0) {
-				let instrumented = wrapImpl(instrumentations, lazyFn, () => void 0);
-				if (instrumented) updates.lazy = Object.assign(updates.lazy || {}, { [key]: instrumented });
-			}
-		});
-	}
-	["loader", "action"].forEach((key) => {
-		let handler = route[key];
-		if (typeof handler === "function" && aggregated[key].length > 0) {
-			let original = handler[UninstrumentedSymbol] ?? handler;
-			let instrumented = wrapImpl(aggregated[key], original, (...args) => getHandlerInfo(args[0]));
-			if (instrumented) {
-				if (key === "loader" && original.hydrate === true) instrumented.hydrate = true;
-				instrumented[UninstrumentedSymbol] = original;
-				updates[key] = instrumented;
-			}
-		}
-	});
-	if (route.middleware && route.middleware.length > 0 && aggregated.middleware.length > 0) updates.middleware = route.middleware.map((middleware) => {
-		let original = middleware[UninstrumentedSymbol] ?? middleware;
-		let instrumented = wrapImpl(aggregated.middleware, original, (...args) => getHandlerInfo(args[0]));
-		if (instrumented) {
-			instrumented[UninstrumentedSymbol] = original;
-			return instrumented;
-		}
-		return middleware;
-	});
-	return updates;
-}
-function instrumentClientSideRouter(router, fns) {
-	let aggregated = {
-		navigate: [],
-		fetch: []
-	};
-	fns.forEach((fn) => fn({ instrument(i) {
-		let keys = Object.keys(i);
-		for (let key of keys) if (i[key]) aggregated[key].push(i[key]);
-	} }));
-	if (aggregated.navigate.length > 0) {
-		let navigate = router.navigate[UninstrumentedSymbol] ?? router.navigate;
-		let instrumentedNavigate = wrapImpl(aggregated.navigate, navigate, (...args) => {
-			let [to, opts] = args;
-			return {
-				to: typeof to === "number" || typeof to === "string" ? to : to ? createPath(to) : ".",
-				...getRouterInfo(router, opts ?? {})
-			};
-		});
-		if (instrumentedNavigate) {
-			instrumentedNavigate[UninstrumentedSymbol] = navigate;
-			router.navigate = instrumentedNavigate;
-		}
-	}
-	if (aggregated.fetch.length > 0) {
-		let fetch2 = router.fetch[UninstrumentedSymbol] ?? router.fetch;
-		let instrumentedFetch = wrapImpl(aggregated.fetch, fetch2, (...args) => {
-			let [key, , href, opts] = args;
-			return {
-				href: href ?? ".",
-				fetcherKey: key,
-				...getRouterInfo(router, opts ?? {})
-			};
-		});
-		if (instrumentedFetch) {
-			instrumentedFetch[UninstrumentedSymbol] = fetch2;
-			router.fetch = instrumentedFetch;
-		}
-	}
-	return router;
-}
-function wrapImpl(impls, handler, getInfo) {
-	if (impls.length === 0) return null;
-	return async (...args) => {
-		let result = await recurseRight(impls, getInfo(...args), () => handler(...args), impls.length - 1);
-		if (result.type === "error") throw result.value;
-		return result.value;
-	};
-}
-async function recurseRight(impls, info, handler, index) {
-	let impl = impls[index];
-	let result;
-	if (!impl) try {
-		result = {
-			type: "success",
-			value: await handler()
-		};
-	} catch (e) {
-		result = {
-			type: "error",
-			value: e
-		};
-	}
-	else {
-		let handlerPromise = void 0;
-		let callHandler = async () => {
-			if (handlerPromise) console.error("You cannot call instrumented handlers more than once");
-			else handlerPromise = recurseRight(impls, info, handler, index - 1);
-			result = await handlerPromise;
-			invariant(result, "Expected a result");
-			if (result.type === "error" && result.value instanceof Error) return {
-				status: "error",
-				error: result.value
-			};
-			return {
-				status: "success",
-				error: void 0
-			};
-		};
-		try {
-			await impl(callHandler, info);
-		} catch (e) {
-			console.error("An instrumentation function threw an error:", e);
-		}
-		if (!handlerPromise) await callHandler();
-		await handlerPromise;
-	}
-	if (result) return result;
-	return {
-		type: "error",
-		value: /* @__PURE__ */ new Error("No result assigned in instrumentation chain.")
-	};
-}
-function getHandlerInfo(args) {
-	let { request, context, params, unstable_pattern } = args;
-	return {
-		request: getReadonlyRequest(request),
-		params: { ...params },
-		unstable_pattern,
-		context: getReadonlyContext(context)
-	};
-}
-function getRouterInfo(router, opts) {
-	return {
-		currentUrl: createPath(router.state.location),
-		..."formMethod" in opts ? { formMethod: opts.formMethod } : {},
-		..."formEncType" in opts ? { formEncType: opts.formEncType } : {},
-		..."formData" in opts ? { formData: opts.formData } : {},
-		..."body" in opts ? { body: opts.body } : {}
-	};
-}
-function getReadonlyRequest(request) {
-	return {
-		method: request.method,
-		url: request.url,
-		headers: { get: (...args) => request.headers.get(...args) }
-	};
-}
-function getReadonlyContext(context) {
-	if (isPlainObject(context)) {
-		let frozen = { ...context };
-		Object.freeze(frozen);
-		return frozen;
-	} else return { get: (ctx) => context.get(ctx) };
-}
-var objectProtoNames = Object.getOwnPropertyNames(Object.prototype).sort().join("\0");
-function isPlainObject(thing) {
-	if (thing === null || typeof thing !== "object") return false;
-	const proto = Object.getPrototypeOf(thing);
-	return proto === Object.prototype || proto === null || Object.getOwnPropertyNames(proto).sort().join("\0") === objectProtoNames;
-}
-var validMutationMethodsArr = [
-	"POST",
-	"PUT",
-	"PATCH",
-	"DELETE"
-];
-var validMutationMethods = new Set(validMutationMethodsArr);
-var validRequestMethodsArr = ["GET", ...validMutationMethodsArr];
-var validRequestMethods = new Set(validRequestMethodsArr);
-var redirectStatusCodes = /* @__PURE__ */ new Set([
-	301,
-	302,
-	303,
-	307,
-	308
-]);
-var redirectPreserveMethodStatusCodes = /* @__PURE__ */ new Set([307, 308]);
-var IDLE_NAVIGATION = {
-	state: "idle",
-	location: void 0,
-	formMethod: void 0,
-	formAction: void 0,
-	formEncType: void 0,
-	formData: void 0,
-	json: void 0,
-	text: void 0
-};
-var IDLE_FETCHER = {
-	state: "idle",
-	data: void 0,
-	formMethod: void 0,
-	formAction: void 0,
-	formEncType: void 0,
-	formData: void 0,
-	json: void 0,
-	text: void 0
-};
-var IDLE_BLOCKER = {
-	state: "unblocked",
-	proceed: void 0,
-	reset: void 0,
-	location: void 0
-};
-var defaultMapRouteProperties = (route) => ({ hasErrorBoundary: Boolean(route.hasErrorBoundary) });
-var TRANSITIONS_STORAGE_KEY = "remix-router-transitions";
-var ResetLoaderDataSymbol = Symbol("ResetLoaderData");
-function createRouter(init) {
-	const routerWindow = init.window ? init.window : typeof window !== "undefined" ? window : void 0;
-	const isBrowser3 = typeof routerWindow !== "undefined" && typeof routerWindow.document !== "undefined" && typeof routerWindow.document.createElement !== "undefined";
-	invariant(init.routes.length > 0, "You must provide a non-empty routes array to createRouter");
-	let hydrationRouteProperties2 = init.hydrationRouteProperties || [];
-	let _mapRouteProperties = init.mapRouteProperties || defaultMapRouteProperties;
-	let mapRouteProperties2 = _mapRouteProperties;
-	if (init.unstable_instrumentations) {
-		let instrumentations = init.unstable_instrumentations;
-		mapRouteProperties2 = (route) => {
-			return {
-				..._mapRouteProperties(route),
-				...getRouteInstrumentationUpdates(instrumentations.map((i) => i.route).filter(Boolean), route)
-			};
-		};
-	}
-	let manifest = {};
-	let dataRoutes = convertRoutesToDataRoutes(init.routes, mapRouteProperties2, void 0, manifest);
-	let inFlightDataRoutes;
-	let basename = init.basename || "/";
-	if (!basename.startsWith("/")) basename = `/${basename}`;
-	let dataStrategyImpl = init.dataStrategy || defaultDataStrategyWithMiddleware;
-	let future = { ...init.future };
-	let unlistenHistory = null;
-	let subscribers = /* @__PURE__ */ new Set();
-	let savedScrollPositions2 = null;
-	let getScrollRestorationKey2 = null;
-	let getScrollPosition = null;
-	let initialScrollRestored = init.hydrationData != null;
-	let initialMatches = matchRoutes(dataRoutes, init.history.location, basename);
-	let initialMatchesIsFOW = false;
-	let initialErrors = null;
-	let initialized;
-	let renderFallback;
-	if (initialMatches == null && !init.patchRoutesOnNavigation) {
-		let error = getInternalRouterError(404, { pathname: init.history.location.pathname });
-		let { matches, route } = getShortCircuitMatches(dataRoutes);
-		initialized = true;
-		renderFallback = !initialized;
-		initialMatches = matches;
-		initialErrors = { [route.id]: error };
-	} else {
-		if (initialMatches && !init.hydrationData) {
-			if (checkFogOfWar(initialMatches, dataRoutes, init.history.location.pathname).active) initialMatches = null;
-		}
-		if (!initialMatches) {
-			initialized = false;
-			renderFallback = !initialized;
-			initialMatches = [];
-			let fogOfWar = checkFogOfWar(null, dataRoutes, init.history.location.pathname);
-			if (fogOfWar.active && fogOfWar.matches) {
-				initialMatchesIsFOW = true;
-				initialMatches = fogOfWar.matches;
-			}
-		} else if (initialMatches.some((m) => m.route.lazy)) {
-			initialized = false;
-			renderFallback = !initialized;
-		} else if (!initialMatches.some((m) => routeHasLoaderOrMiddleware(m.route))) {
-			initialized = true;
-			renderFallback = !initialized;
-		} else {
-			let loaderData = init.hydrationData ? init.hydrationData.loaderData : null;
-			let errors = init.hydrationData ? init.hydrationData.errors : null;
-			let relevantMatches = initialMatches;
-			if (errors) {
-				let idx = initialMatches.findIndex((m) => errors[m.route.id] !== void 0);
-				relevantMatches = relevantMatches.slice(0, idx + 1);
-			}
-			renderFallback = false;
-			initialized = relevantMatches.every((m) => {
-				let status = getRouteHydrationStatus(m.route, loaderData, errors);
-				renderFallback = renderFallback || status.renderFallback;
-				return !status.shouldLoad;
-			});
-		}
-	}
-	let router;
-	let state = {
-		historyAction: init.history.action,
-		location: init.history.location,
-		matches: initialMatches,
-		initialized,
-		renderFallback,
-		navigation: IDLE_NAVIGATION,
-		restoreScrollPosition: init.hydrationData != null ? false : null,
-		preventScrollReset: false,
-		revalidation: "idle",
-		loaderData: init.hydrationData && init.hydrationData.loaderData || {},
-		actionData: init.hydrationData && init.hydrationData.actionData || null,
-		errors: init.hydrationData && init.hydrationData.errors || initialErrors,
-		fetchers: /* @__PURE__ */ new Map(),
-		blockers: /* @__PURE__ */ new Map()
-	};
-	let pendingAction = "POP";
-	let pendingPopstateNavigationDfd = null;
-	let pendingPreventScrollReset = false;
-	let pendingNavigationController;
-	let pendingViewTransitionEnabled = false;
-	let appliedViewTransitions = /* @__PURE__ */ new Map();
-	let removePageHideEventListener = null;
-	let isUninterruptedRevalidation = false;
-	let isRevalidationRequired = false;
-	let cancelledFetcherLoads = /* @__PURE__ */ new Set();
-	let fetchControllers = /* @__PURE__ */ new Map();
-	let incrementingLoadId = 0;
-	let pendingNavigationLoadId = -1;
-	let fetchReloadIds = /* @__PURE__ */ new Map();
-	let fetchRedirectIds = /* @__PURE__ */ new Set();
-	let fetchLoadMatches = /* @__PURE__ */ new Map();
-	let activeFetchers = /* @__PURE__ */ new Map();
-	let fetchersQueuedForDeletion = /* @__PURE__ */ new Set();
-	let blockerFunctions = /* @__PURE__ */ new Map();
-	let unblockBlockerHistoryUpdate = void 0;
-	let pendingRevalidationDfd = null;
-	function initialize() {
-		unlistenHistory = init.history.listen(({ action: historyAction, location, delta }) => {
-			if (unblockBlockerHistoryUpdate) {
-				unblockBlockerHistoryUpdate();
-				unblockBlockerHistoryUpdate = void 0;
-				return;
-			}
-			warning(blockerFunctions.size === 0 || delta != null, "You are trying to use a blocker on a POP navigation to a location that was not created by @remix-run/router. This will fail silently in production. This can happen if you are navigating outside the router via `window.history.pushState`/`window.location.hash` instead of using router navigation APIs.  This can also happen if you are using createHashRouter and the user manually changes the URL.");
-			let blockerKey = shouldBlockNavigation({
-				currentLocation: state.location,
-				nextLocation: location,
-				historyAction
-			});
-			if (blockerKey && delta != null) {
-				let nextHistoryUpdatePromise = new Promise((resolve) => {
-					unblockBlockerHistoryUpdate = resolve;
-				});
-				init.history.go(delta * -1);
-				updateBlocker(blockerKey, {
-					state: "blocked",
-					location,
-					proceed() {
-						updateBlocker(blockerKey, {
-							state: "proceeding",
-							proceed: void 0,
-							reset: void 0,
-							location
-						});
-						nextHistoryUpdatePromise.then(() => init.history.go(delta));
-					},
-					reset() {
-						let blockers = new Map(state.blockers);
-						blockers.set(blockerKey, IDLE_BLOCKER);
-						updateState({ blockers });
-					}
-				});
-				pendingPopstateNavigationDfd?.resolve();
-				pendingPopstateNavigationDfd = null;
-				return;
-			}
-			return startNavigation(historyAction, location);
-		});
-		if (isBrowser3) {
-			restoreAppliedTransitions(routerWindow, appliedViewTransitions);
-			let _saveAppliedTransitions = () => persistAppliedTransitions(routerWindow, appliedViewTransitions);
-			routerWindow.addEventListener("pagehide", _saveAppliedTransitions);
-			removePageHideEventListener = () => routerWindow.removeEventListener("pagehide", _saveAppliedTransitions);
-		}
-		if (!state.initialized) startNavigation("POP", state.location, { initialHydration: true });
-		return router;
-	}
-	function dispose() {
-		if (unlistenHistory) unlistenHistory();
-		if (removePageHideEventListener) removePageHideEventListener();
-		subscribers.clear();
-		pendingNavigationController && pendingNavigationController.abort();
-		state.fetchers.forEach((_, key) => deleteFetcher(key));
-		state.blockers.forEach((_, key) => deleteBlocker(key));
-	}
-	function subscribe(fn) {
-		subscribers.add(fn);
-		return () => subscribers.delete(fn);
-	}
-	function updateState(newState, opts = {}) {
-		if (newState.matches) newState.matches = newState.matches.map((m) => {
-			let route = manifest[m.route.id];
-			let matchRoute = m.route;
-			if (matchRoute.element !== route.element || matchRoute.errorElement !== route.errorElement || matchRoute.hydrateFallbackElement !== route.hydrateFallbackElement) return {
-				...m,
-				route
-			};
-			return m;
-		});
-		state = {
-			...state,
-			...newState
-		};
-		let unmountedFetchers = [];
-		let mountedFetchers = [];
-		state.fetchers.forEach((fetcher, key) => {
-			if (fetcher.state === "idle") if (fetchersQueuedForDeletion.has(key)) unmountedFetchers.push(key);
-			else mountedFetchers.push(key);
-		});
-		fetchersQueuedForDeletion.forEach((key) => {
-			if (!state.fetchers.has(key) && !fetchControllers.has(key)) unmountedFetchers.push(key);
-		});
-		[...subscribers].forEach((subscriber) => subscriber(state, {
-			deletedFetchers: unmountedFetchers,
-			newErrors: newState.errors ?? null,
-			viewTransitionOpts: opts.viewTransitionOpts,
-			flushSync: opts.flushSync === true
-		}));
-		unmountedFetchers.forEach((key) => deleteFetcher(key));
-		mountedFetchers.forEach((key) => state.fetchers.delete(key));
-	}
-	function completeNavigation(location, newState, { flushSync } = {}) {
-		let isActionReload = state.actionData != null && state.navigation.formMethod != null && isMutationMethod(state.navigation.formMethod) && state.navigation.state === "loading" && location.state?._isRedirect !== true;
-		let actionData;
-		if (newState.actionData) if (Object.keys(newState.actionData).length > 0) actionData = newState.actionData;
-		else actionData = null;
-		else if (isActionReload) actionData = state.actionData;
-		else actionData = null;
-		let loaderData = newState.loaderData ? mergeLoaderData(state.loaderData, newState.loaderData, newState.matches || [], newState.errors) : state.loaderData;
-		let blockers = state.blockers;
-		if (blockers.size > 0) {
-			blockers = new Map(blockers);
-			blockers.forEach((_, k) => blockers.set(k, IDLE_BLOCKER));
-		}
-		let restoreScrollPosition = isUninterruptedRevalidation ? false : getSavedScrollPosition(location, newState.matches || state.matches);
-		let preventScrollReset = pendingPreventScrollReset === true || state.navigation.formMethod != null && isMutationMethod(state.navigation.formMethod) && location.state?._isRedirect !== true;
-		if (inFlightDataRoutes) {
-			dataRoutes = inFlightDataRoutes;
-			inFlightDataRoutes = void 0;
-		}
-		if (isUninterruptedRevalidation) {} else if (pendingAction === "POP") {} else if (pendingAction === "PUSH") init.history.push(location, location.state);
-		else if (pendingAction === "REPLACE") init.history.replace(location, location.state);
-		let viewTransitionOpts;
-		if (pendingAction === "POP") {
-			let priorPaths = appliedViewTransitions.get(state.location.pathname);
-			if (priorPaths && priorPaths.has(location.pathname)) viewTransitionOpts = {
-				currentLocation: state.location,
-				nextLocation: location
-			};
-			else if (appliedViewTransitions.has(location.pathname)) viewTransitionOpts = {
-				currentLocation: location,
-				nextLocation: state.location
-			};
-		} else if (pendingViewTransitionEnabled) {
-			let toPaths = appliedViewTransitions.get(state.location.pathname);
-			if (toPaths) toPaths.add(location.pathname);
-			else {
-				toPaths = /* @__PURE__ */ new Set([location.pathname]);
-				appliedViewTransitions.set(state.location.pathname, toPaths);
-			}
-			viewTransitionOpts = {
-				currentLocation: state.location,
-				nextLocation: location
-			};
-		}
-		updateState({
-			...newState,
-			actionData,
-			loaderData,
-			historyAction: pendingAction,
-			location,
-			initialized: true,
-			renderFallback: false,
-			navigation: IDLE_NAVIGATION,
-			revalidation: "idle",
-			restoreScrollPosition,
-			preventScrollReset,
-			blockers
-		}, {
-			viewTransitionOpts,
-			flushSync: flushSync === true
-		});
-		pendingAction = "POP";
-		pendingPreventScrollReset = false;
-		pendingViewTransitionEnabled = false;
-		isUninterruptedRevalidation = false;
-		isRevalidationRequired = false;
-		pendingPopstateNavigationDfd?.resolve();
-		pendingPopstateNavigationDfd = null;
-		pendingRevalidationDfd?.resolve();
-		pendingRevalidationDfd = null;
-	}
-	async function navigate(to, opts) {
-		pendingPopstateNavigationDfd?.resolve();
-		pendingPopstateNavigationDfd = null;
-		if (typeof to === "number") {
-			if (!pendingPopstateNavigationDfd) pendingPopstateNavigationDfd = createDeferred();
-			let promise = pendingPopstateNavigationDfd.promise;
-			init.history.go(to);
-			return promise;
-		}
-		let { path, submission, error } = normalizeNavigateOptions(false, normalizeTo(state.location, state.matches, basename, to, opts?.fromRouteId, opts?.relative), opts);
-		let maskPath;
-		if (opts?.unstable_mask) maskPath = {
-			pathname: "",
-			search: "",
-			hash: "",
-			...typeof opts.unstable_mask === "string" ? parsePath(opts.unstable_mask) : {
-				...state.location.unstable_mask,
-				...opts.unstable_mask
-			}
-		};
-		let currentLocation = state.location;
-		let nextLocation = createLocation(currentLocation, path, opts && opts.state, void 0, maskPath);
-		nextLocation = {
-			...nextLocation,
-			...init.history.encodeLocation(nextLocation)
-		};
-		let userReplace = opts && opts.replace != null ? opts.replace : void 0;
-		let historyAction = "PUSH";
-		if (userReplace === true) historyAction = "REPLACE";
-		else if (userReplace === false) {} else if (submission != null && isMutationMethod(submission.formMethod) && submission.formAction === state.location.pathname + state.location.search) historyAction = "REPLACE";
-		let preventScrollReset = opts && "preventScrollReset" in opts ? opts.preventScrollReset === true : void 0;
-		let flushSync = (opts && opts.flushSync) === true;
-		let blockerKey = shouldBlockNavigation({
-			currentLocation,
-			nextLocation,
-			historyAction
-		});
-		if (blockerKey) {
-			updateBlocker(blockerKey, {
-				state: "blocked",
-				location: nextLocation,
-				proceed() {
-					updateBlocker(blockerKey, {
-						state: "proceeding",
-						proceed: void 0,
-						reset: void 0,
-						location: nextLocation
-					});
-					navigate(to, opts);
-				},
-				reset() {
-					let blockers = new Map(state.blockers);
-					blockers.set(blockerKey, IDLE_BLOCKER);
-					updateState({ blockers });
-				}
-			});
-			return;
-		}
-		await startNavigation(historyAction, nextLocation, {
-			submission,
-			pendingError: error,
-			preventScrollReset,
-			replace: opts && opts.replace,
-			enableViewTransition: opts && opts.viewTransition,
-			flushSync,
-			callSiteDefaultShouldRevalidate: opts && opts.unstable_defaultShouldRevalidate
-		});
-	}
-	function revalidate() {
-		if (!pendingRevalidationDfd) pendingRevalidationDfd = createDeferred();
-		interruptActiveLoads();
-		updateState({ revalidation: "loading" });
-		let promise = pendingRevalidationDfd.promise;
-		if (state.navigation.state === "submitting") return promise;
-		if (state.navigation.state === "idle") {
-			startNavigation(state.historyAction, state.location, { startUninterruptedRevalidation: true });
-			return promise;
-		}
-		startNavigation(pendingAction || state.historyAction, state.navigation.location, {
-			overrideNavigation: state.navigation,
-			enableViewTransition: pendingViewTransitionEnabled === true
-		});
-		return promise;
-	}
-	async function startNavigation(historyAction, location, opts) {
-		pendingNavigationController && pendingNavigationController.abort();
-		pendingNavigationController = null;
-		pendingAction = historyAction;
-		isUninterruptedRevalidation = (opts && opts.startUninterruptedRevalidation) === true;
-		saveScrollPosition(state.location, state.matches);
-		pendingPreventScrollReset = (opts && opts.preventScrollReset) === true;
-		pendingViewTransitionEnabled = (opts && opts.enableViewTransition) === true;
-		let routesToUse = inFlightDataRoutes || dataRoutes;
-		let loadingNavigation = opts && opts.overrideNavigation;
-		let matches = opts?.initialHydration && state.matches && state.matches.length > 0 && !initialMatchesIsFOW ? state.matches : matchRoutes(routesToUse, location, basename);
-		let flushSync = (opts && opts.flushSync) === true;
-		if (matches && state.initialized && !isRevalidationRequired && isHashChangeOnly(state.location, location) && !(opts && opts.submission && isMutationMethod(opts.submission.formMethod))) {
-			completeNavigation(location, { matches }, { flushSync });
-			return;
-		}
-		let fogOfWar = checkFogOfWar(matches, routesToUse, location.pathname);
-		if (fogOfWar.active && fogOfWar.matches) matches = fogOfWar.matches;
-		if (!matches) {
-			let { error, notFoundMatches, route } = handleNavigational404(location.pathname);
-			completeNavigation(location, {
-				matches: notFoundMatches,
-				loaderData: {},
-				errors: { [route.id]: error }
-			}, { flushSync });
-			return;
-		}
-		pendingNavigationController = new AbortController();
-		let request = createClientSideRequest(init.history, location, pendingNavigationController.signal, opts && opts.submission);
-		let scopedContext = init.getContext ? await init.getContext() : new RouterContextProvider();
-		let pendingActionResult;
-		if (opts && opts.pendingError) pendingActionResult = [findNearestBoundary(matches).route.id, {
-			type: "error",
-			error: opts.pendingError
-		}];
-		else if (opts && opts.submission && isMutationMethod(opts.submission.formMethod)) {
-			let actionResult = await handleAction(request, location, opts.submission, matches, scopedContext, fogOfWar.active, opts && opts.initialHydration === true, {
-				replace: opts.replace,
-				flushSync
-			});
-			if (actionResult.shortCircuited) return;
-			if (actionResult.pendingActionResult) {
-				let [routeId, result] = actionResult.pendingActionResult;
-				if (isErrorResult(result) && isRouteErrorResponse(result.error) && result.error.status === 404) {
-					pendingNavigationController = null;
-					completeNavigation(location, {
-						matches: actionResult.matches,
-						loaderData: {},
-						errors: { [routeId]: result.error }
-					});
-					return;
-				}
-			}
-			matches = actionResult.matches || matches;
-			pendingActionResult = actionResult.pendingActionResult;
-			loadingNavigation = getLoadingNavigation(location, opts.submission);
-			flushSync = false;
-			fogOfWar.active = false;
-			request = createClientSideRequest(init.history, request.url, request.signal);
-		}
-		let { shortCircuited, matches: updatedMatches, loaderData, errors } = await handleLoaders(request, location, matches, scopedContext, fogOfWar.active, loadingNavigation, opts && opts.submission, opts && opts.fetcherSubmission, opts && opts.replace, opts && opts.initialHydration === true, flushSync, pendingActionResult, opts && opts.callSiteDefaultShouldRevalidate);
-		if (shortCircuited) return;
-		pendingNavigationController = null;
-		completeNavigation(location, {
-			matches: updatedMatches || matches,
-			...getActionDataForCommit(pendingActionResult),
-			loaderData,
-			errors
-		});
-	}
-	async function handleAction(request, location, submission, matches, scopedContext, isFogOfWar, initialHydration, opts = {}) {
-		interruptActiveLoads();
-		updateState({ navigation: getSubmittingNavigation(location, submission) }, { flushSync: opts.flushSync === true });
-		if (isFogOfWar) {
-			let discoverResult = await discoverRoutes(matches, location.pathname, request.signal);
-			if (discoverResult.type === "aborted") return { shortCircuited: true };
-			else if (discoverResult.type === "error") {
-				if (discoverResult.partialMatches.length === 0) {
-					let { matches: matches2, route } = getShortCircuitMatches(dataRoutes);
-					return {
-						matches: matches2,
-						pendingActionResult: [route.id, {
-							type: "error",
-							error: discoverResult.error
-						}]
-					};
-				}
-				let boundaryId = findNearestBoundary(discoverResult.partialMatches).route.id;
-				return {
-					matches: discoverResult.partialMatches,
-					pendingActionResult: [boundaryId, {
-						type: "error",
-						error: discoverResult.error
-					}]
-				};
-			} else if (!discoverResult.matches) {
-				let { notFoundMatches, error, route } = handleNavigational404(location.pathname);
-				return {
-					matches: notFoundMatches,
-					pendingActionResult: [route.id, {
-						type: "error",
-						error
-					}]
-				};
-			} else matches = discoverResult.matches;
-		}
-		let result;
-		let actionMatch = getTargetMatch(matches, location);
-		if (!actionMatch.route.action && !actionMatch.route.lazy) result = {
-			type: "error",
-			error: getInternalRouterError(405, {
-				method: request.method,
-				pathname: location.pathname,
-				routeId: actionMatch.route.id
-			})
-		};
-		else {
-			let results = await callDataStrategy(request, getTargetedDataStrategyMatches(mapRouteProperties2, manifest, request, matches, actionMatch, initialHydration ? [] : hydrationRouteProperties2, scopedContext), scopedContext, null);
-			result = results[actionMatch.route.id];
-			if (!result) {
-				for (let match of matches) if (results[match.route.id]) {
-					result = results[match.route.id];
-					break;
-				}
-			}
-			if (request.signal.aborted) return { shortCircuited: true };
-		}
-		if (isRedirectResult(result)) {
-			let replace2;
-			if (opts && opts.replace != null) replace2 = opts.replace;
-			else replace2 = normalizeRedirectLocation(result.response.headers.get("Location"), new URL(request.url), basename, init.history) === state.location.pathname + state.location.search;
-			await startRedirectNavigation(request, result, true, {
-				submission,
-				replace: replace2
-			});
-			return { shortCircuited: true };
-		}
-		if (isErrorResult(result)) {
-			let boundaryMatch = findNearestBoundary(matches, actionMatch.route.id);
-			if ((opts && opts.replace) !== true) pendingAction = "PUSH";
-			return {
-				matches,
-				pendingActionResult: [
-					boundaryMatch.route.id,
-					result,
-					actionMatch.route.id
-				]
-			};
-		}
-		return {
-			matches,
-			pendingActionResult: [actionMatch.route.id, result]
-		};
-	}
-	async function handleLoaders(request, location, matches, scopedContext, isFogOfWar, overrideNavigation, submission, fetcherSubmission, replace2, initialHydration, flushSync, pendingActionResult, callSiteDefaultShouldRevalidate) {
-		let loadingNavigation = overrideNavigation || getLoadingNavigation(location, submission);
-		let activeSubmission = submission || fetcherSubmission || getSubmissionFromNavigation(loadingNavigation);
-		let shouldUpdateNavigationState = !isUninterruptedRevalidation && !initialHydration;
-		if (isFogOfWar) {
-			if (shouldUpdateNavigationState) {
-				let actionData = getUpdatedActionData(pendingActionResult);
-				updateState({
-					navigation: loadingNavigation,
-					...actionData !== void 0 ? { actionData } : {}
-				}, { flushSync });
-			}
-			let discoverResult = await discoverRoutes(matches, location.pathname, request.signal);
-			if (discoverResult.type === "aborted") return { shortCircuited: true };
-			else if (discoverResult.type === "error") {
-				if (discoverResult.partialMatches.length === 0) {
-					let { matches: matches2, route } = getShortCircuitMatches(dataRoutes);
-					return {
-						matches: matches2,
-						loaderData: {},
-						errors: { [route.id]: discoverResult.error }
-					};
-				}
-				let boundaryId = findNearestBoundary(discoverResult.partialMatches).route.id;
-				return {
-					matches: discoverResult.partialMatches,
-					loaderData: {},
-					errors: { [boundaryId]: discoverResult.error }
-				};
-			} else if (!discoverResult.matches) {
-				let { error, notFoundMatches, route } = handleNavigational404(location.pathname);
-				return {
-					matches: notFoundMatches,
-					loaderData: {},
-					errors: { [route.id]: error }
-				};
-			} else matches = discoverResult.matches;
-		}
-		let routesToUse = inFlightDataRoutes || dataRoutes;
-		let { dsMatches, revalidatingFetchers } = getMatchesToLoad(request, scopedContext, mapRouteProperties2, manifest, init.history, state, matches, activeSubmission, location, initialHydration ? [] : hydrationRouteProperties2, initialHydration === true, isRevalidationRequired, cancelledFetcherLoads, fetchersQueuedForDeletion, fetchLoadMatches, fetchRedirectIds, routesToUse, basename, init.patchRoutesOnNavigation != null, pendingActionResult, callSiteDefaultShouldRevalidate);
-		pendingNavigationLoadId = ++incrementingLoadId;
-		if (!init.dataStrategy && !dsMatches.some((m) => m.shouldLoad) && !dsMatches.some((m) => m.route.middleware && m.route.middleware.length > 0) && revalidatingFetchers.length === 0) {
-			let updatedFetchers2 = markFetchRedirectsDone();
-			completeNavigation(location, {
-				matches,
-				loaderData: {},
-				errors: pendingActionResult && isErrorResult(pendingActionResult[1]) ? { [pendingActionResult[0]]: pendingActionResult[1].error } : null,
-				...getActionDataForCommit(pendingActionResult),
-				...updatedFetchers2 ? { fetchers: new Map(state.fetchers) } : {}
-			}, { flushSync });
-			return { shortCircuited: true };
-		}
-		if (shouldUpdateNavigationState) {
-			let updates = {};
-			if (!isFogOfWar) {
-				updates.navigation = loadingNavigation;
-				let actionData = getUpdatedActionData(pendingActionResult);
-				if (actionData !== void 0) updates.actionData = actionData;
-			}
-			if (revalidatingFetchers.length > 0) updates.fetchers = getUpdatedRevalidatingFetchers(revalidatingFetchers);
-			updateState(updates, { flushSync });
-		}
-		revalidatingFetchers.forEach((rf) => {
-			abortFetcher(rf.key);
-			if (rf.controller) fetchControllers.set(rf.key, rf.controller);
-		});
-		let abortPendingFetchRevalidations = () => revalidatingFetchers.forEach((f) => abortFetcher(f.key));
-		if (pendingNavigationController) pendingNavigationController.signal.addEventListener("abort", abortPendingFetchRevalidations);
-		let { loaderResults, fetcherResults } = await callLoadersAndMaybeResolveData(dsMatches, revalidatingFetchers, request, scopedContext);
-		if (request.signal.aborted) return { shortCircuited: true };
-		if (pendingNavigationController) pendingNavigationController.signal.removeEventListener("abort", abortPendingFetchRevalidations);
-		revalidatingFetchers.forEach((rf) => fetchControllers.delete(rf.key));
-		let redirect2 = findRedirect(loaderResults);
-		if (redirect2) {
-			await startRedirectNavigation(request, redirect2.result, true, { replace: replace2 });
-			return { shortCircuited: true };
-		}
-		redirect2 = findRedirect(fetcherResults);
-		if (redirect2) {
-			fetchRedirectIds.add(redirect2.key);
-			await startRedirectNavigation(request, redirect2.result, true, { replace: replace2 });
-			return { shortCircuited: true };
-		}
-		let { loaderData, errors } = processLoaderData(state, matches, loaderResults, pendingActionResult, revalidatingFetchers, fetcherResults);
-		if (initialHydration && state.errors) errors = {
-			...state.errors,
-			...errors
-		};
-		let updatedFetchers = markFetchRedirectsDone();
-		let didAbortFetchLoads = abortStaleFetchLoads(pendingNavigationLoadId);
-		let shouldUpdateFetchers = updatedFetchers || didAbortFetchLoads || revalidatingFetchers.length > 0;
-		return {
-			matches,
-			loaderData,
-			errors,
-			...shouldUpdateFetchers ? { fetchers: new Map(state.fetchers) } : {}
-		};
-	}
-	function getUpdatedActionData(pendingActionResult) {
-		if (pendingActionResult && !isErrorResult(pendingActionResult[1])) return { [pendingActionResult[0]]: pendingActionResult[1].data };
-		else if (state.actionData) if (Object.keys(state.actionData).length === 0) return null;
-		else return state.actionData;
-	}
-	function getUpdatedRevalidatingFetchers(revalidatingFetchers) {
-		revalidatingFetchers.forEach((rf) => {
-			let fetcher = state.fetchers.get(rf.key);
-			let revalidatingFetcher = getLoadingFetcher(void 0, fetcher ? fetcher.data : void 0);
-			state.fetchers.set(rf.key, revalidatingFetcher);
-		});
-		return new Map(state.fetchers);
-	}
-	async function fetch2(key, routeId, href, opts) {
-		abortFetcher(key);
-		let flushSync = (opts && opts.flushSync) === true;
-		let routesToUse = inFlightDataRoutes || dataRoutes;
-		let normalizedPath = normalizeTo(state.location, state.matches, basename, href, routeId, opts?.relative);
-		let matches = matchRoutes(routesToUse, normalizedPath, basename);
-		let fogOfWar = checkFogOfWar(matches, routesToUse, normalizedPath);
-		if (fogOfWar.active && fogOfWar.matches) matches = fogOfWar.matches;
-		if (!matches) {
-			setFetcherError(key, routeId, getInternalRouterError(404, { pathname: normalizedPath }), { flushSync });
-			return;
-		}
-		let { path, submission, error } = normalizeNavigateOptions(true, normalizedPath, opts);
-		if (error) {
-			setFetcherError(key, routeId, error, { flushSync });
-			return;
-		}
-		let scopedContext = init.getContext ? await init.getContext() : new RouterContextProvider();
-		let preventScrollReset = (opts && opts.preventScrollReset) === true;
-		if (submission && isMutationMethod(submission.formMethod)) {
-			await handleFetcherAction(key, routeId, path, matches, scopedContext, fogOfWar.active, flushSync, preventScrollReset, submission, opts && opts.unstable_defaultShouldRevalidate);
-			return;
-		}
-		fetchLoadMatches.set(key, {
-			routeId,
-			path
-		});
-		await handleFetcherLoader(key, routeId, path, matches, scopedContext, fogOfWar.active, flushSync, preventScrollReset, submission);
-	}
-	async function handleFetcherAction(key, routeId, path, requestMatches, scopedContext, isFogOfWar, flushSync, preventScrollReset, submission, callSiteDefaultShouldRevalidate) {
-		interruptActiveLoads();
-		fetchLoadMatches.delete(key);
-		updateFetcherState(key, getSubmittingFetcher(submission, state.fetchers.get(key)), { flushSync });
-		let abortController = new AbortController();
-		let fetchRequest = createClientSideRequest(init.history, path, abortController.signal, submission);
-		if (isFogOfWar) {
-			let discoverResult = await discoverRoutes(requestMatches, new URL(fetchRequest.url).pathname, fetchRequest.signal, key);
-			if (discoverResult.type === "aborted") return;
-			else if (discoverResult.type === "error") {
-				setFetcherError(key, routeId, discoverResult.error, { flushSync });
-				return;
-			} else if (!discoverResult.matches) {
-				setFetcherError(key, routeId, getInternalRouterError(404, { pathname: path }), { flushSync });
-				return;
-			} else requestMatches = discoverResult.matches;
-		}
-		let match = getTargetMatch(requestMatches, path);
-		if (!match.route.action && !match.route.lazy) {
-			setFetcherError(key, routeId, getInternalRouterError(405, {
-				method: submission.formMethod,
-				pathname: path,
-				routeId
-			}), { flushSync });
-			return;
-		}
-		fetchControllers.set(key, abortController);
-		let originatingLoadId = incrementingLoadId;
-		let fetchMatches = getTargetedDataStrategyMatches(mapRouteProperties2, manifest, fetchRequest, requestMatches, match, hydrationRouteProperties2, scopedContext);
-		let actionResults = await callDataStrategy(fetchRequest, fetchMatches, scopedContext, key);
-		let actionResult = actionResults[match.route.id];
-		if (!actionResult) {
-			for (let match2 of fetchMatches) if (actionResults[match2.route.id]) {
-				actionResult = actionResults[match2.route.id];
-				break;
-			}
-		}
-		if (fetchRequest.signal.aborted) {
-			if (fetchControllers.get(key) === abortController) fetchControllers.delete(key);
-			return;
-		}
-		if (fetchersQueuedForDeletion.has(key)) {
-			if (isRedirectResult(actionResult) || isErrorResult(actionResult)) {
-				updateFetcherState(key, getDoneFetcher(void 0));
-				return;
-			}
-		} else {
-			if (isRedirectResult(actionResult)) {
-				fetchControllers.delete(key);
-				if (pendingNavigationLoadId > originatingLoadId) {
-					updateFetcherState(key, getDoneFetcher(void 0));
-					return;
-				} else {
-					fetchRedirectIds.add(key);
-					updateFetcherState(key, getLoadingFetcher(submission));
-					return startRedirectNavigation(fetchRequest, actionResult, false, {
-						fetcherSubmission: submission,
-						preventScrollReset
-					});
-				}
-			}
-			if (isErrorResult(actionResult)) {
-				setFetcherError(key, routeId, actionResult.error);
-				return;
-			}
-		}
-		let nextLocation = state.navigation.location || state.location;
-		let revalidationRequest = createClientSideRequest(init.history, nextLocation, abortController.signal);
-		let routesToUse = inFlightDataRoutes || dataRoutes;
-		let matches = state.navigation.state !== "idle" ? matchRoutes(routesToUse, state.navigation.location, basename) : state.matches;
-		invariant(matches, "Didn't find any matches after fetcher action");
-		let loadId = ++incrementingLoadId;
-		fetchReloadIds.set(key, loadId);
-		let loadFetcher = getLoadingFetcher(submission, actionResult.data);
-		state.fetchers.set(key, loadFetcher);
-		let { dsMatches, revalidatingFetchers } = getMatchesToLoad(revalidationRequest, scopedContext, mapRouteProperties2, manifest, init.history, state, matches, submission, nextLocation, hydrationRouteProperties2, false, isRevalidationRequired, cancelledFetcherLoads, fetchersQueuedForDeletion, fetchLoadMatches, fetchRedirectIds, routesToUse, basename, init.patchRoutesOnNavigation != null, [match.route.id, actionResult], callSiteDefaultShouldRevalidate);
-		revalidatingFetchers.filter((rf) => rf.key !== key).forEach((rf) => {
-			let staleKey = rf.key;
-			let existingFetcher2 = state.fetchers.get(staleKey);
-			let revalidatingFetcher = getLoadingFetcher(void 0, existingFetcher2 ? existingFetcher2.data : void 0);
-			state.fetchers.set(staleKey, revalidatingFetcher);
-			abortFetcher(staleKey);
-			if (rf.controller) fetchControllers.set(staleKey, rf.controller);
-		});
-		updateState({ fetchers: new Map(state.fetchers) });
-		let abortPendingFetchRevalidations = () => revalidatingFetchers.forEach((rf) => abortFetcher(rf.key));
-		abortController.signal.addEventListener("abort", abortPendingFetchRevalidations);
-		let { loaderResults, fetcherResults } = await callLoadersAndMaybeResolveData(dsMatches, revalidatingFetchers, revalidationRequest, scopedContext);
-		if (abortController.signal.aborted) return;
-		abortController.signal.removeEventListener("abort", abortPendingFetchRevalidations);
-		fetchReloadIds.delete(key);
-		fetchControllers.delete(key);
-		revalidatingFetchers.forEach((r) => fetchControllers.delete(r.key));
-		if (state.fetchers.has(key)) {
-			let doneFetcher = getDoneFetcher(actionResult.data);
-			state.fetchers.set(key, doneFetcher);
-		}
-		let redirect2 = findRedirect(loaderResults);
-		if (redirect2) return startRedirectNavigation(revalidationRequest, redirect2.result, false, { preventScrollReset });
-		redirect2 = findRedirect(fetcherResults);
-		if (redirect2) {
-			fetchRedirectIds.add(redirect2.key);
-			return startRedirectNavigation(revalidationRequest, redirect2.result, false, { preventScrollReset });
-		}
-		let { loaderData, errors } = processLoaderData(state, matches, loaderResults, void 0, revalidatingFetchers, fetcherResults);
-		abortStaleFetchLoads(loadId);
-		if (state.navigation.state === "loading" && loadId > pendingNavigationLoadId) {
-			invariant(pendingAction, "Expected pending action");
-			pendingNavigationController && pendingNavigationController.abort();
-			completeNavigation(state.navigation.location, {
-				matches,
-				loaderData,
-				errors,
-				fetchers: new Map(state.fetchers)
-			});
-		} else {
-			updateState({
-				errors,
-				loaderData: mergeLoaderData(state.loaderData, loaderData, matches, errors),
-				fetchers: new Map(state.fetchers)
-			});
-			isRevalidationRequired = false;
-		}
-	}
-	async function handleFetcherLoader(key, routeId, path, matches, scopedContext, isFogOfWar, flushSync, preventScrollReset, submission) {
-		let existingFetcher = state.fetchers.get(key);
-		updateFetcherState(key, getLoadingFetcher(submission, existingFetcher ? existingFetcher.data : void 0), { flushSync });
-		let abortController = new AbortController();
-		let fetchRequest = createClientSideRequest(init.history, path, abortController.signal);
-		if (isFogOfWar) {
-			let discoverResult = await discoverRoutes(matches, new URL(fetchRequest.url).pathname, fetchRequest.signal, key);
-			if (discoverResult.type === "aborted") return;
-			else if (discoverResult.type === "error") {
-				setFetcherError(key, routeId, discoverResult.error, { flushSync });
-				return;
-			} else if (!discoverResult.matches) {
-				setFetcherError(key, routeId, getInternalRouterError(404, { pathname: path }), { flushSync });
-				return;
-			} else matches = discoverResult.matches;
-		}
-		let match = getTargetMatch(matches, path);
-		fetchControllers.set(key, abortController);
-		let originatingLoadId = incrementingLoadId;
-		let result = (await callDataStrategy(fetchRequest, getTargetedDataStrategyMatches(mapRouteProperties2, manifest, fetchRequest, matches, match, hydrationRouteProperties2, scopedContext), scopedContext, key))[match.route.id];
-		if (fetchControllers.get(key) === abortController) fetchControllers.delete(key);
-		if (fetchRequest.signal.aborted) return;
-		if (fetchersQueuedForDeletion.has(key)) {
-			updateFetcherState(key, getDoneFetcher(void 0));
-			return;
-		}
-		if (isRedirectResult(result)) if (pendingNavigationLoadId > originatingLoadId) {
-			updateFetcherState(key, getDoneFetcher(void 0));
-			return;
-		} else {
-			fetchRedirectIds.add(key);
-			await startRedirectNavigation(fetchRequest, result, false, { preventScrollReset });
-			return;
-		}
-		if (isErrorResult(result)) {
-			setFetcherError(key, routeId, result.error);
-			return;
-		}
-		updateFetcherState(key, getDoneFetcher(result.data));
-	}
-	async function startRedirectNavigation(request, redirect2, isNavigation, { submission, fetcherSubmission, preventScrollReset, replace: replace2 } = {}) {
-		if (!isNavigation) {
-			pendingPopstateNavigationDfd?.resolve();
-			pendingPopstateNavigationDfd = null;
-		}
-		if (redirect2.response.headers.has("X-Remix-Revalidate")) isRevalidationRequired = true;
-		let location = redirect2.response.headers.get("Location");
-		invariant(location, "Expected a Location header on the redirect Response");
-		location = normalizeRedirectLocation(location, new URL(request.url), basename, init.history);
-		let redirectLocation = createLocation(state.location, location, { _isRedirect: true });
-		if (isBrowser3) {
-			let isDocumentReload = false;
-			if (redirect2.response.headers.has("X-Remix-Reload-Document")) isDocumentReload = true;
-			else if (isAbsoluteUrl(location)) {
-				const url = createBrowserURLImpl(location, true);
-				isDocumentReload = url.origin !== routerWindow.location.origin || stripBasename(url.pathname, basename) == null;
-			}
-			if (isDocumentReload) {
-				if (replace2) routerWindow.location.replace(location);
-				else routerWindow.location.assign(location);
-				return;
-			}
-		}
-		pendingNavigationController = null;
-		let redirectNavigationType = replace2 === true || redirect2.response.headers.has("X-Remix-Replace") ? "REPLACE" : "PUSH";
-		let { formMethod, formAction, formEncType } = state.navigation;
-		if (!submission && !fetcherSubmission && formMethod && formAction && formEncType) submission = getSubmissionFromNavigation(state.navigation);
-		let activeSubmission = submission || fetcherSubmission;
-		if (redirectPreserveMethodStatusCodes.has(redirect2.response.status) && activeSubmission && isMutationMethod(activeSubmission.formMethod)) await startNavigation(redirectNavigationType, redirectLocation, {
-			submission: {
-				...activeSubmission,
-				formAction: location
-			},
-			preventScrollReset: preventScrollReset || pendingPreventScrollReset,
-			enableViewTransition: isNavigation ? pendingViewTransitionEnabled : void 0
-		});
-		else await startNavigation(redirectNavigationType, redirectLocation, {
-			overrideNavigation: getLoadingNavigation(redirectLocation, submission),
-			fetcherSubmission,
-			preventScrollReset: preventScrollReset || pendingPreventScrollReset,
-			enableViewTransition: isNavigation ? pendingViewTransitionEnabled : void 0
-		});
-	}
-	async function callDataStrategy(request, matches, scopedContext, fetcherKey) {
-		let results;
-		let dataResults = {};
-		try {
-			results = await callDataStrategyImpl(dataStrategyImpl, request, matches, fetcherKey, scopedContext, false);
-		} catch (e) {
-			matches.filter((m) => m.shouldLoad).forEach((m) => {
-				dataResults[m.route.id] = {
-					type: "error",
-					error: e
-				};
-			});
-			return dataResults;
-		}
-		if (request.signal.aborted) return dataResults;
-		if (!isMutationMethod(request.method)) for (let match of matches) {
-			if (results[match.route.id]?.type === "error") break;
-			if (!results.hasOwnProperty(match.route.id) && !state.loaderData.hasOwnProperty(match.route.id) && (!state.errors || !state.errors.hasOwnProperty(match.route.id)) && match.shouldCallHandler()) results[match.route.id] = {
-				type: "error",
-				result: /* @__PURE__ */ new Error(`No result returned from dataStrategy for route ${match.route.id}`)
-			};
-		}
-		for (let [routeId, result] of Object.entries(results)) if (isRedirectDataStrategyResult(result)) {
-			let response = result.result;
-			dataResults[routeId] = {
-				type: "redirect",
-				response: normalizeRelativeRoutingRedirectResponse(response, request, routeId, matches, basename)
-			};
-		} else dataResults[routeId] = await convertDataStrategyResultToDataResult(result);
-		return dataResults;
-	}
-	async function callLoadersAndMaybeResolveData(matches, fetchersToLoad, request, scopedContext) {
-		let loaderResultsPromise = callDataStrategy(request, matches, scopedContext, null);
-		let fetcherResultsPromise = Promise.all(fetchersToLoad.map(async (f) => {
-			if (f.matches && f.match && f.request && f.controller) {
-				let result = (await callDataStrategy(f.request, f.matches, scopedContext, f.key))[f.match.route.id];
-				return { [f.key]: result };
-			} else return Promise.resolve({ [f.key]: {
-				type: "error",
-				error: getInternalRouterError(404, { pathname: f.path })
-			} });
-		}));
-		return {
-			loaderResults: await loaderResultsPromise,
-			fetcherResults: (await fetcherResultsPromise).reduce((acc, r) => Object.assign(acc, r), {})
-		};
-	}
-	function interruptActiveLoads() {
-		isRevalidationRequired = true;
-		fetchLoadMatches.forEach((_, key) => {
-			if (fetchControllers.has(key)) cancelledFetcherLoads.add(key);
-			abortFetcher(key);
-		});
-	}
-	function updateFetcherState(key, fetcher, opts = {}) {
-		state.fetchers.set(key, fetcher);
-		updateState({ fetchers: new Map(state.fetchers) }, { flushSync: (opts && opts.flushSync) === true });
-	}
-	function setFetcherError(key, routeId, error, opts = {}) {
-		let boundaryMatch = findNearestBoundary(state.matches, routeId);
-		deleteFetcher(key);
-		updateState({
-			errors: { [boundaryMatch.route.id]: error },
-			fetchers: new Map(state.fetchers)
-		}, { flushSync: (opts && opts.flushSync) === true });
-	}
-	function getFetcher(key) {
-		activeFetchers.set(key, (activeFetchers.get(key) || 0) + 1);
-		if (fetchersQueuedForDeletion.has(key)) fetchersQueuedForDeletion.delete(key);
-		return state.fetchers.get(key) || IDLE_FETCHER;
-	}
-	function resetFetcher(key, opts) {
-		abortFetcher(key, opts?.reason);
-		updateFetcherState(key, getDoneFetcher(null));
-	}
-	function deleteFetcher(key) {
-		let fetcher = state.fetchers.get(key);
-		if (fetchControllers.has(key) && !(fetcher && fetcher.state === "loading" && fetchReloadIds.has(key))) abortFetcher(key);
-		fetchLoadMatches.delete(key);
-		fetchReloadIds.delete(key);
-		fetchRedirectIds.delete(key);
-		fetchersQueuedForDeletion.delete(key);
-		cancelledFetcherLoads.delete(key);
-		state.fetchers.delete(key);
-	}
-	function queueFetcherForDeletion(key) {
-		let count = (activeFetchers.get(key) || 0) - 1;
-		if (count <= 0) {
-			activeFetchers.delete(key);
-			fetchersQueuedForDeletion.add(key);
-		} else activeFetchers.set(key, count);
-		updateState({ fetchers: new Map(state.fetchers) });
-	}
-	function abortFetcher(key, reason) {
-		let controller = fetchControllers.get(key);
-		if (controller) {
-			controller.abort(reason);
-			fetchControllers.delete(key);
-		}
-	}
-	function markFetchersDone(keys) {
-		for (let key of keys) {
-			let doneFetcher = getDoneFetcher(getFetcher(key).data);
-			state.fetchers.set(key, doneFetcher);
-		}
-	}
-	function markFetchRedirectsDone() {
-		let doneKeys = [];
-		let updatedFetchers = false;
-		for (let key of fetchRedirectIds) {
-			let fetcher = state.fetchers.get(key);
-			invariant(fetcher, `Expected fetcher: ${key}`);
-			if (fetcher.state === "loading") {
-				fetchRedirectIds.delete(key);
-				doneKeys.push(key);
-				updatedFetchers = true;
-			}
-		}
-		markFetchersDone(doneKeys);
-		return updatedFetchers;
-	}
-	function abortStaleFetchLoads(landedId) {
-		let yeetedKeys = [];
-		for (let [key, id] of fetchReloadIds) if (id < landedId) {
-			let fetcher = state.fetchers.get(key);
-			invariant(fetcher, `Expected fetcher: ${key}`);
-			if (fetcher.state === "loading") {
-				abortFetcher(key);
-				fetchReloadIds.delete(key);
-				yeetedKeys.push(key);
-			}
-		}
-		markFetchersDone(yeetedKeys);
-		return yeetedKeys.length > 0;
-	}
-	function getBlocker(key, fn) {
-		let blocker = state.blockers.get(key) || IDLE_BLOCKER;
-		if (blockerFunctions.get(key) !== fn) blockerFunctions.set(key, fn);
-		return blocker;
-	}
-	function deleteBlocker(key) {
-		state.blockers.delete(key);
-		blockerFunctions.delete(key);
-	}
-	function updateBlocker(key, newBlocker) {
-		let blocker = state.blockers.get(key) || IDLE_BLOCKER;
-		invariant(blocker.state === "unblocked" && newBlocker.state === "blocked" || blocker.state === "blocked" && newBlocker.state === "blocked" || blocker.state === "blocked" && newBlocker.state === "proceeding" || blocker.state === "blocked" && newBlocker.state === "unblocked" || blocker.state === "proceeding" && newBlocker.state === "unblocked", `Invalid blocker state transition: ${blocker.state} -> ${newBlocker.state}`);
-		let blockers = new Map(state.blockers);
-		blockers.set(key, newBlocker);
-		updateState({ blockers });
-	}
-	function shouldBlockNavigation({ currentLocation, nextLocation, historyAction }) {
-		if (blockerFunctions.size === 0) return;
-		if (blockerFunctions.size > 1) warning(false, "A router only supports one blocker at a time");
-		let entries = Array.from(blockerFunctions.entries());
-		let [blockerKey, blockerFunction] = entries[entries.length - 1];
-		let blocker = state.blockers.get(blockerKey);
-		if (blocker && blocker.state === "proceeding") return;
-		if (blockerFunction({
-			currentLocation,
-			nextLocation,
-			historyAction
-		})) return blockerKey;
-	}
-	function handleNavigational404(pathname) {
-		let error = getInternalRouterError(404, { pathname });
-		let { matches, route } = getShortCircuitMatches(inFlightDataRoutes || dataRoutes);
-		return {
-			notFoundMatches: matches,
-			route,
-			error
-		};
-	}
-	function enableScrollRestoration(positions, getPosition, getKey) {
-		savedScrollPositions2 = positions;
-		getScrollPosition = getPosition;
-		getScrollRestorationKey2 = getKey || null;
-		if (!initialScrollRestored && state.navigation === IDLE_NAVIGATION) {
-			initialScrollRestored = true;
-			let y = getSavedScrollPosition(state.location, state.matches);
-			if (y != null) updateState({ restoreScrollPosition: y });
-		}
-		return () => {
-			savedScrollPositions2 = null;
-			getScrollPosition = null;
-			getScrollRestorationKey2 = null;
-		};
-	}
-	function getScrollKey(location, matches) {
-		if (getScrollRestorationKey2) return getScrollRestorationKey2(location, matches.map((m) => convertRouteMatchToUiMatch(m, state.loaderData))) || location.key;
-		return location.key;
-	}
-	function saveScrollPosition(location, matches) {
-		if (savedScrollPositions2 && getScrollPosition) {
-			let key = getScrollKey(location, matches);
-			savedScrollPositions2[key] = getScrollPosition();
-		}
-	}
-	function getSavedScrollPosition(location, matches) {
-		if (savedScrollPositions2) {
-			let key = getScrollKey(location, matches);
-			let y = savedScrollPositions2[key];
-			if (typeof y === "number") return y;
-		}
-		return null;
-	}
-	function checkFogOfWar(matches, routesToUse, pathname) {
-		if (init.patchRoutesOnNavigation) {
-			if (!matches) return {
-				active: true,
-				matches: matchRoutesImpl(routesToUse, pathname, basename, true) || []
-			};
-			else if (Object.keys(matches[0].params).length > 0) return {
-				active: true,
-				matches: matchRoutesImpl(routesToUse, pathname, basename, true)
-			};
-		}
-		return {
-			active: false,
-			matches: null
-		};
-	}
-	async function discoverRoutes(matches, pathname, signal, fetcherKey) {
-		if (!init.patchRoutesOnNavigation) return {
-			type: "success",
-			matches
-		};
-		let partialMatches = matches;
-		while (true) {
-			let isNonHMR = inFlightDataRoutes == null;
-			let routesToUse = inFlightDataRoutes || dataRoutes;
-			let localManifest = manifest;
-			try {
-				await init.patchRoutesOnNavigation({
-					signal,
-					path: pathname,
-					matches: partialMatches,
-					fetcherKey,
-					patch: (routeId, children) => {
-						if (signal.aborted) return;
-						patchRoutesImpl(routeId, children, routesToUse, localManifest, mapRouteProperties2, false);
-					}
-				});
-			} catch (e) {
-				return {
-					type: "error",
-					error: e,
-					partialMatches
-				};
-			} finally {
-				if (isNonHMR && !signal.aborted) dataRoutes = [...dataRoutes];
-			}
-			if (signal.aborted) return { type: "aborted" };
-			let newMatches = matchRoutes(routesToUse, pathname, basename);
-			let newPartialMatches = null;
-			if (newMatches) if (Object.keys(newMatches[0].params).length === 0) return {
-				type: "success",
-				matches: newMatches
-			};
-			else {
-				newPartialMatches = matchRoutesImpl(routesToUse, pathname, basename, true);
-				if (!(newPartialMatches && partialMatches.length < newPartialMatches.length && compareMatches(partialMatches, newPartialMatches.slice(0, partialMatches.length)))) return {
-					type: "success",
-					matches: newMatches
-				};
-			}
-			if (!newPartialMatches) newPartialMatches = matchRoutesImpl(routesToUse, pathname, basename, true);
-			if (!newPartialMatches || compareMatches(partialMatches, newPartialMatches)) return {
-				type: "success",
-				matches: null
-			};
-			partialMatches = newPartialMatches;
-		}
-	}
-	function compareMatches(a, b) {
-		return a.length === b.length && a.every((m, i) => m.route.id === b[i].route.id);
-	}
-	function _internalSetRoutes(newRoutes) {
-		manifest = {};
-		inFlightDataRoutes = convertRoutesToDataRoutes(newRoutes, mapRouteProperties2, void 0, manifest);
-	}
-	function patchRoutes(routeId, children, unstable_allowElementMutations = false) {
-		let isNonHMR = inFlightDataRoutes == null;
-		patchRoutesImpl(routeId, children, inFlightDataRoutes || dataRoutes, manifest, mapRouteProperties2, unstable_allowElementMutations);
-		if (isNonHMR) {
-			dataRoutes = [...dataRoutes];
-			updateState({});
-		}
-	}
-	router = {
-		get basename() {
-			return basename;
-		},
-		get future() {
-			return future;
-		},
-		get state() {
-			return state;
-		},
-		get routes() {
-			return dataRoutes;
-		},
-		get window() {
-			return routerWindow;
-		},
-		initialize,
-		subscribe,
-		enableScrollRestoration,
-		navigate,
-		fetch: fetch2,
-		revalidate,
-		createHref: (to) => init.history.createHref(to),
-		encodeLocation: (to) => init.history.encodeLocation(to),
-		getFetcher,
-		resetFetcher,
-		deleteFetcher: queueFetcherForDeletion,
-		dispose,
-		getBlocker,
-		deleteBlocker,
-		patchRoutes,
-		_internalFetchControllers: fetchControllers,
-		_internalSetRoutes,
-		_internalSetStateDoNotUseOrYouWillBreakYourApp(newState) {
-			updateState(newState);
-		}
-	};
-	if (init.unstable_instrumentations) router = instrumentClientSideRouter(router, init.unstable_instrumentations.map((i) => i.router).filter(Boolean));
-	return router;
-}
-function isSubmissionNavigation(opts) {
-	return opts != null && ("formData" in opts && opts.formData != null || "body" in opts && opts.body !== void 0);
-}
-function normalizeTo(location, matches, basename, to, fromRouteId, relative) {
-	let contextualMatches;
-	let activeRouteMatch;
-	if (fromRouteId) {
-		contextualMatches = [];
-		for (let match of matches) {
-			contextualMatches.push(match);
-			if (match.route.id === fromRouteId) {
-				activeRouteMatch = match;
-				break;
-			}
-		}
-	} else {
-		contextualMatches = matches;
-		activeRouteMatch = matches[matches.length - 1];
-	}
-	let path = resolveTo(to ? to : ".", getResolveToMatches(contextualMatches), stripBasename(location.pathname, basename) || location.pathname, relative === "path");
-	if (to == null) {
-		path.search = location.search;
-		path.hash = location.hash;
-	}
-	if ((to == null || to === "" || to === ".") && activeRouteMatch) {
-		let nakedIndex = hasNakedIndexQuery(path.search);
-		if (activeRouteMatch.route.index && !nakedIndex) path.search = path.search ? path.search.replace(/^\?/, "?index&") : "?index";
-		else if (!activeRouteMatch.route.index && nakedIndex) {
-			let params = new URLSearchParams(path.search);
-			let indexValues = params.getAll("index");
-			params.delete("index");
-			indexValues.filter((v) => v).forEach((v) => params.append("index", v));
-			let qs = params.toString();
-			path.search = qs ? `?${qs}` : "";
-		}
-	}
-	if (basename !== "/") path.pathname = prependBasename({
-		basename,
-		pathname: path.pathname
-	});
-	return createPath(path);
-}
-function normalizeNavigateOptions(isFetcher, path, opts) {
-	if (!opts || !isSubmissionNavigation(opts)) return { path };
-	if (opts.formMethod && !isValidMethod(opts.formMethod)) return {
-		path,
-		error: getInternalRouterError(405, { method: opts.formMethod })
-	};
-	let getInvalidBodyError = () => ({
-		path,
-		error: getInternalRouterError(400, { type: "invalid-body" })
-	});
-	let formMethod = (opts.formMethod || "get").toUpperCase();
-	let formAction = stripHashFromPath(path);
-	if (opts.body !== void 0) {
-		if (opts.formEncType === "text/plain") {
-			if (!isMutationMethod(formMethod)) return getInvalidBodyError();
-			let text = typeof opts.body === "string" ? opts.body : opts.body instanceof FormData || opts.body instanceof URLSearchParams ? Array.from(opts.body.entries()).reduce((acc, [name, value]) => `${acc}${name}=${value}
-`, "") : String(opts.body);
-			return {
-				path,
-				submission: {
-					formMethod,
-					formAction,
-					formEncType: opts.formEncType,
-					formData: void 0,
-					json: void 0,
-					text
-				}
-			};
-		} else if (opts.formEncType === "application/json") {
-			if (!isMutationMethod(formMethod)) return getInvalidBodyError();
-			try {
-				let json = typeof opts.body === "string" ? JSON.parse(opts.body) : opts.body;
-				return {
-					path,
-					submission: {
-						formMethod,
-						formAction,
-						formEncType: opts.formEncType,
-						formData: void 0,
-						json,
-						text: void 0
-					}
-				};
-			} catch (e) {
-				return getInvalidBodyError();
-			}
-		}
-	}
-	invariant(typeof FormData === "function", "FormData is not available in this environment");
-	let searchParams;
-	let formData;
-	if (opts.formData) {
-		searchParams = convertFormDataToSearchParams(opts.formData);
-		formData = opts.formData;
-	} else if (opts.body instanceof FormData) {
-		searchParams = convertFormDataToSearchParams(opts.body);
-		formData = opts.body;
-	} else if (opts.body instanceof URLSearchParams) {
-		searchParams = opts.body;
-		formData = convertSearchParamsToFormData(searchParams);
-	} else if (opts.body == null) {
-		searchParams = new URLSearchParams();
-		formData = new FormData();
-	} else try {
-		searchParams = new URLSearchParams(opts.body);
-		formData = convertSearchParamsToFormData(searchParams);
-	} catch (e) {
-		return getInvalidBodyError();
-	}
-	let submission = {
-		formMethod,
-		formAction,
-		formEncType: opts && opts.formEncType || "application/x-www-form-urlencoded",
-		formData,
-		json: void 0,
-		text: void 0
-	};
-	if (isMutationMethod(submission.formMethod)) return {
-		path,
-		submission
-	};
-	let parsedPath = parsePath(path);
-	if (isFetcher && parsedPath.search && hasNakedIndexQuery(parsedPath.search)) searchParams.append("index", "");
-	parsedPath.search = `?${searchParams}`;
-	return {
-		path: createPath(parsedPath),
-		submission
-	};
-}
-function getMatchesToLoad(request, scopedContext, mapRouteProperties2, manifest, history, state, matches, submission, location, lazyRoutePropertiesToSkip, initialHydration, isRevalidationRequired, cancelledFetcherLoads, fetchersQueuedForDeletion, fetchLoadMatches, fetchRedirectIds, routesToUse, basename, hasPatchRoutesOnNavigation, pendingActionResult, callSiteDefaultShouldRevalidate) {
-	let actionResult = pendingActionResult ? isErrorResult(pendingActionResult[1]) ? pendingActionResult[1].error : pendingActionResult[1].data : void 0;
-	let currentUrl = history.createURL(state.location);
-	let nextUrl = history.createURL(location);
-	let maxIdx;
-	if (initialHydration && state.errors) {
-		let boundaryId = Object.keys(state.errors)[0];
-		maxIdx = matches.findIndex((m) => m.route.id === boundaryId);
-	} else if (pendingActionResult && isErrorResult(pendingActionResult[1])) {
-		let boundaryId = pendingActionResult[0];
-		maxIdx = matches.findIndex((m) => m.route.id === boundaryId) - 1;
-	}
-	let actionStatus = pendingActionResult ? pendingActionResult[1].statusCode : void 0;
-	let shouldSkipRevalidation = actionStatus && actionStatus >= 400;
-	let baseShouldRevalidateArgs = {
-		currentUrl,
-		currentParams: state.matches[0]?.params || {},
-		nextUrl,
-		nextParams: matches[0].params,
-		...submission,
-		actionResult,
-		actionStatus
-	};
-	let pattern = getRoutePattern(matches);
-	let dsMatches = matches.map((match, index) => {
-		let { route } = match;
-		let forceShouldLoad = null;
-		if (maxIdx != null && index > maxIdx) forceShouldLoad = false;
-		else if (route.lazy) forceShouldLoad = true;
-		else if (!routeHasLoaderOrMiddleware(route)) forceShouldLoad = false;
-		else if (initialHydration) {
-			let { shouldLoad: shouldLoad2 } = getRouteHydrationStatus(route, state.loaderData, state.errors);
-			forceShouldLoad = shouldLoad2;
-		} else if (isNewLoader(state.loaderData, state.matches[index], match)) forceShouldLoad = true;
-		if (forceShouldLoad !== null) return getDataStrategyMatch(mapRouteProperties2, manifest, request, pattern, match, lazyRoutePropertiesToSkip, scopedContext, forceShouldLoad);
-		let defaultShouldRevalidate = false;
-		if (typeof callSiteDefaultShouldRevalidate === "boolean") defaultShouldRevalidate = callSiteDefaultShouldRevalidate;
-		else if (shouldSkipRevalidation) defaultShouldRevalidate = false;
-		else if (isRevalidationRequired) defaultShouldRevalidate = true;
-		else if (currentUrl.pathname + currentUrl.search === nextUrl.pathname + nextUrl.search) defaultShouldRevalidate = true;
-		else if (currentUrl.search !== nextUrl.search) defaultShouldRevalidate = true;
-		else if (isNewRouteInstance(state.matches[index], match)) defaultShouldRevalidate = true;
-		let shouldRevalidateArgs = {
-			...baseShouldRevalidateArgs,
-			defaultShouldRevalidate
-		};
-		return getDataStrategyMatch(mapRouteProperties2, manifest, request, pattern, match, lazyRoutePropertiesToSkip, scopedContext, shouldRevalidateLoader(match, shouldRevalidateArgs), shouldRevalidateArgs, callSiteDefaultShouldRevalidate);
-	});
-	let revalidatingFetchers = [];
-	fetchLoadMatches.forEach((f, key) => {
-		if (initialHydration || !matches.some((m) => m.route.id === f.routeId) || fetchersQueuedForDeletion.has(key)) return;
-		let fetcher = state.fetchers.get(key);
-		let isMidInitialLoad = fetcher && fetcher.state !== "idle" && fetcher.data === void 0;
-		let fetcherMatches = matchRoutes(routesToUse, f.path, basename);
-		if (!fetcherMatches) {
-			if (hasPatchRoutesOnNavigation && isMidInitialLoad) return;
-			revalidatingFetchers.push({
-				key,
-				routeId: f.routeId,
-				path: f.path,
-				matches: null,
-				match: null,
-				request: null,
-				controller: null
-			});
-			return;
-		}
-		if (fetchRedirectIds.has(key)) return;
-		let fetcherMatch = getTargetMatch(fetcherMatches, f.path);
-		let fetchController = new AbortController();
-		let fetchRequest = createClientSideRequest(history, f.path, fetchController.signal);
-		let fetcherDsMatches = null;
-		if (cancelledFetcherLoads.has(key)) {
-			cancelledFetcherLoads.delete(key);
-			fetcherDsMatches = getTargetedDataStrategyMatches(mapRouteProperties2, manifest, fetchRequest, fetcherMatches, fetcherMatch, lazyRoutePropertiesToSkip, scopedContext);
-		} else if (isMidInitialLoad) {
-			if (isRevalidationRequired) fetcherDsMatches = getTargetedDataStrategyMatches(mapRouteProperties2, manifest, fetchRequest, fetcherMatches, fetcherMatch, lazyRoutePropertiesToSkip, scopedContext);
-		} else {
-			let defaultShouldRevalidate;
-			if (typeof callSiteDefaultShouldRevalidate === "boolean") defaultShouldRevalidate = callSiteDefaultShouldRevalidate;
-			else if (shouldSkipRevalidation) defaultShouldRevalidate = false;
-			else defaultShouldRevalidate = isRevalidationRequired;
-			let shouldRevalidateArgs = {
-				...baseShouldRevalidateArgs,
-				defaultShouldRevalidate
-			};
-			if (shouldRevalidateLoader(fetcherMatch, shouldRevalidateArgs)) fetcherDsMatches = getTargetedDataStrategyMatches(mapRouteProperties2, manifest, fetchRequest, fetcherMatches, fetcherMatch, lazyRoutePropertiesToSkip, scopedContext, shouldRevalidateArgs);
-		}
-		if (fetcherDsMatches) revalidatingFetchers.push({
-			key,
-			routeId: f.routeId,
-			path: f.path,
-			matches: fetcherDsMatches,
-			match: fetcherMatch,
-			request: fetchRequest,
-			controller: fetchController
-		});
-	});
-	return {
-		dsMatches,
-		revalidatingFetchers
-	};
-}
-function routeHasLoaderOrMiddleware(route) {
-	return route.loader != null || route.middleware != null && route.middleware.length > 0;
-}
-function getRouteHydrationStatus(route, loaderData, errors) {
-	if (route.lazy) return {
-		shouldLoad: true,
-		renderFallback: true
-	};
-	if (!routeHasLoaderOrMiddleware(route)) return {
-		shouldLoad: false,
-		renderFallback: false
-	};
-	let hasData = loaderData != null && route.id in loaderData;
-	let hasError = errors != null && errors[route.id] !== void 0;
-	if (!hasData && hasError) return {
-		shouldLoad: false,
-		renderFallback: false
-	};
-	if (typeof route.loader === "function" && route.loader.hydrate === true) return {
-		shouldLoad: true,
-		renderFallback: !hasData
-	};
-	let shouldLoad = !hasData && !hasError;
-	return {
-		shouldLoad,
-		renderFallback: shouldLoad
-	};
-}
-function isNewLoader(currentLoaderData, currentMatch, match) {
-	let isNew = !currentMatch || match.route.id !== currentMatch.route.id;
-	let isMissingData = !currentLoaderData.hasOwnProperty(match.route.id);
-	return isNew || isMissingData;
-}
-function isNewRouteInstance(currentMatch, match) {
-	let currentPath = currentMatch.route.path;
-	return currentMatch.pathname !== match.pathname || currentPath != null && currentPath.endsWith("*") && currentMatch.params["*"] !== match.params["*"];
-}
-function shouldRevalidateLoader(loaderMatch, arg) {
-	if (loaderMatch.route.shouldRevalidate) {
-		let routeChoice = loaderMatch.route.shouldRevalidate(arg);
-		if (typeof routeChoice === "boolean") return routeChoice;
-	}
-	return arg.defaultShouldRevalidate;
-}
-function patchRoutesImpl(routeId, children, routesToUse, manifest, mapRouteProperties2, allowElementMutations) {
-	let childrenToPatch;
-	if (routeId) {
-		let route = manifest[routeId];
-		invariant(route, `No route found to patch children into: routeId = ${routeId}`);
-		if (!route.children) route.children = [];
-		childrenToPatch = route.children;
-	} else childrenToPatch = routesToUse;
-	let uniqueChildren = [];
-	let existingChildren = [];
-	children.forEach((newRoute) => {
-		let existingRoute = childrenToPatch.find((existingRoute2) => isSameRoute(newRoute, existingRoute2));
-		if (existingRoute) existingChildren.push({
-			existingRoute,
-			newRoute
-		});
-		else uniqueChildren.push(newRoute);
-	});
-	if (uniqueChildren.length > 0) {
-		let newRoutes = convertRoutesToDataRoutes(uniqueChildren, mapRouteProperties2, [
-			routeId || "_",
-			"patch",
-			String(childrenToPatch?.length || "0")
-		], manifest);
-		childrenToPatch.push(...newRoutes);
-	}
-	if (allowElementMutations && existingChildren.length > 0) for (let i = 0; i < existingChildren.length; i++) {
-		let { existingRoute, newRoute } = existingChildren[i];
-		let existingRouteTyped = existingRoute;
-		let [newRouteTyped] = convertRoutesToDataRoutes([newRoute], mapRouteProperties2, [], {}, true);
-		Object.assign(existingRouteTyped, {
-			element: newRouteTyped.element ? newRouteTyped.element : existingRouteTyped.element,
-			errorElement: newRouteTyped.errorElement ? newRouteTyped.errorElement : existingRouteTyped.errorElement,
-			hydrateFallbackElement: newRouteTyped.hydrateFallbackElement ? newRouteTyped.hydrateFallbackElement : existingRouteTyped.hydrateFallbackElement
-		});
-	}
-}
-function isSameRoute(newRoute, existingRoute) {
-	if ("id" in newRoute && "id" in existingRoute && newRoute.id === existingRoute.id) return true;
-	if (!(newRoute.index === existingRoute.index && newRoute.path === existingRoute.path && newRoute.caseSensitive === existingRoute.caseSensitive)) return false;
-	if ((!newRoute.children || newRoute.children.length === 0) && (!existingRoute.children || existingRoute.children.length === 0)) return true;
-	return newRoute.children?.every((aChild, i) => existingRoute.children?.some((bChild) => isSameRoute(aChild, bChild))) ?? false;
-}
-var lazyRoutePropertyCache = /* @__PURE__ */ new WeakMap();
-var loadLazyRouteProperty = ({ key, route, manifest, mapRouteProperties: mapRouteProperties2 }) => {
-	let routeToUpdate = manifest[route.id];
-	invariant(routeToUpdate, "No route found in manifest");
-	if (!routeToUpdate.lazy || typeof routeToUpdate.lazy !== "object") return;
-	let lazyFn = routeToUpdate.lazy[key];
-	if (!lazyFn) return;
-	let cache = lazyRoutePropertyCache.get(routeToUpdate);
-	if (!cache) {
-		cache = {};
-		lazyRoutePropertyCache.set(routeToUpdate, cache);
-	}
-	let cachedPromise = cache[key];
-	if (cachedPromise) return cachedPromise;
-	let propertyPromise = (async () => {
-		let isUnsupported = isUnsupportedLazyRouteObjectKey(key);
-		let isStaticallyDefined = routeToUpdate[key] !== void 0 && key !== "hasErrorBoundary";
-		if (isUnsupported) {
-			warning(!isUnsupported, "Route property " + key + " is not a supported lazy route property. This property will be ignored.");
-			cache[key] = Promise.resolve();
-		} else if (isStaticallyDefined) warning(false, `Route "${routeToUpdate.id}" has a static property "${key}" defined. The lazy property will be ignored.`);
-		else {
-			let value = await lazyFn();
-			if (value != null) {
-				Object.assign(routeToUpdate, { [key]: value });
-				Object.assign(routeToUpdate, mapRouteProperties2(routeToUpdate));
-			}
-		}
-		if (typeof routeToUpdate.lazy === "object") {
-			routeToUpdate.lazy[key] = void 0;
-			if (Object.values(routeToUpdate.lazy).every((value) => value === void 0)) routeToUpdate.lazy = void 0;
-		}
-	})();
-	cache[key] = propertyPromise;
-	return propertyPromise;
-};
-var lazyRouteFunctionCache = /* @__PURE__ */ new WeakMap();
-function loadLazyRoute(route, type, manifest, mapRouteProperties2, lazyRoutePropertiesToSkip) {
-	let routeToUpdate = manifest[route.id];
-	invariant(routeToUpdate, "No route found in manifest");
-	if (!route.lazy) return {
-		lazyRoutePromise: void 0,
-		lazyHandlerPromise: void 0
-	};
-	if (typeof route.lazy === "function") {
-		let cachedPromise = lazyRouteFunctionCache.get(routeToUpdate);
-		if (cachedPromise) return {
-			lazyRoutePromise: cachedPromise,
-			lazyHandlerPromise: cachedPromise
-		};
-		let lazyRoutePromise2 = (async () => {
-			invariant(typeof route.lazy === "function", "No lazy route function found");
-			let lazyRoute = await route.lazy();
-			let routeUpdates = {};
-			for (let lazyRouteProperty in lazyRoute) {
-				let lazyValue = lazyRoute[lazyRouteProperty];
-				if (lazyValue === void 0) continue;
-				let isUnsupported = isUnsupportedLazyRouteFunctionKey(lazyRouteProperty);
-				let isStaticallyDefined = routeToUpdate[lazyRouteProperty] !== void 0 && lazyRouteProperty !== "hasErrorBoundary";
-				if (isUnsupported) warning(!isUnsupported, "Route property " + lazyRouteProperty + " is not a supported property to be returned from a lazy route function. This property will be ignored.");
-				else if (isStaticallyDefined) warning(!isStaticallyDefined, `Route "${routeToUpdate.id}" has a static property "${lazyRouteProperty}" defined but its lazy function is also returning a value for this property. The lazy route property "${lazyRouteProperty}" will be ignored.`);
-				else routeUpdates[lazyRouteProperty] = lazyValue;
-			}
-			Object.assign(routeToUpdate, routeUpdates);
-			Object.assign(routeToUpdate, {
-				...mapRouteProperties2(routeToUpdate),
-				lazy: void 0
-			});
-		})();
-		lazyRouteFunctionCache.set(routeToUpdate, lazyRoutePromise2);
-		lazyRoutePromise2.catch(() => {});
-		return {
-			lazyRoutePromise: lazyRoutePromise2,
-			lazyHandlerPromise: lazyRoutePromise2
-		};
-	}
-	let lazyKeys = Object.keys(route.lazy);
-	let lazyPropertyPromises = [];
-	let lazyHandlerPromise = void 0;
-	for (let key of lazyKeys) {
-		if (lazyRoutePropertiesToSkip && lazyRoutePropertiesToSkip.includes(key)) continue;
-		let promise = loadLazyRouteProperty({
-			key,
-			route,
-			manifest,
-			mapRouteProperties: mapRouteProperties2
-		});
-		if (promise) {
-			lazyPropertyPromises.push(promise);
-			if (key === type) lazyHandlerPromise = promise;
-		}
-	}
-	let lazyRoutePromise = lazyPropertyPromises.length > 0 ? Promise.all(lazyPropertyPromises).then(() => {}) : void 0;
-	lazyRoutePromise?.catch(() => {});
-	lazyHandlerPromise?.catch(() => {});
-	return {
-		lazyRoutePromise,
-		lazyHandlerPromise
-	};
-}
-async function defaultDataStrategy(args) {
-	let matchesToLoad = args.matches.filter((m) => m.shouldLoad);
-	let keyedResults = {};
-	(await Promise.all(matchesToLoad.map((m) => m.resolve()))).forEach((result, i) => {
-		keyedResults[matchesToLoad[i].route.id] = result;
-	});
-	return keyedResults;
-}
-async function defaultDataStrategyWithMiddleware(args) {
-	if (!args.matches.some((m) => m.route.middleware)) return defaultDataStrategy(args);
-	return runClientMiddlewarePipeline(args, () => defaultDataStrategy(args));
-}
-function runClientMiddlewarePipeline(args, handler) {
-	return runMiddlewarePipeline(args, handler, (r) => {
-		if (isRedirectResponse(r)) throw r;
-		return r;
-	}, isDataStrategyResults, errorHandler);
-	function errorHandler(error, routeId, nextResult) {
-		if (nextResult) return Promise.resolve(Object.assign(nextResult.value, { [routeId]: {
-			type: "error",
-			result: error
-		} }));
-		else {
-			let { matches } = args;
-			let boundaryRouteId = findNearestBoundary(matches, matches[Math.min(Math.max(matches.findIndex((m) => m.route.id === routeId), 0), Math.max(matches.findIndex((m) => m.shouldCallHandler()), 0))].route.id).route.id;
-			return Promise.resolve({ [boundaryRouteId]: {
-				type: "error",
-				result: error
-			} });
-		}
-	}
-}
-async function runMiddlewarePipeline(args, handler, processResult, isResult, errorHandler) {
-	let { matches, request, params, context, unstable_pattern } = args;
-	let tuples = matches.flatMap((m) => m.route.middleware ? m.route.middleware.map((fn) => [m.route.id, fn]) : []);
-	return await callRouteMiddleware({
-		request,
-		params,
-		context,
-		unstable_pattern
-	}, tuples, handler, processResult, isResult, errorHandler);
-}
-async function callRouteMiddleware(args, middlewares, handler, processResult, isResult, errorHandler, idx = 0) {
-	let { request } = args;
-	if (request.signal.aborted) throw request.signal.reason ?? /* @__PURE__ */ new Error(`Request aborted: ${request.method} ${request.url}`);
-	let tuple = middlewares[idx];
-	if (!tuple) return await handler();
-	let [routeId, middleware] = tuple;
-	let nextResult;
-	let next = async () => {
-		if (nextResult) throw new Error("You may only call `next()` once per middleware");
-		try {
-			nextResult = { value: await callRouteMiddleware(args, middlewares, handler, processResult, isResult, errorHandler, idx + 1) };
-			return nextResult.value;
-		} catch (error) {
-			nextResult = { value: await errorHandler(error, routeId, nextResult) };
-			return nextResult.value;
-		}
-	};
-	try {
-		let value = await middleware(args, next);
-		let result = value != null ? processResult(value) : void 0;
-		if (isResult(result)) return result;
-		else if (nextResult) return result ?? nextResult.value;
-		else {
-			nextResult = { value: await next() };
-			return nextResult.value;
-		}
-	} catch (error) {
-		return await errorHandler(error, routeId, nextResult);
-	}
-}
-function getDataStrategyMatchLazyPromises(mapRouteProperties2, manifest, request, match, lazyRoutePropertiesToSkip) {
-	let lazyMiddlewarePromise = loadLazyRouteProperty({
-		key: "middleware",
-		route: match.route,
-		manifest,
-		mapRouteProperties: mapRouteProperties2
-	});
-	let lazyRoutePromises = loadLazyRoute(match.route, isMutationMethod(request.method) ? "action" : "loader", manifest, mapRouteProperties2, lazyRoutePropertiesToSkip);
-	return {
-		middleware: lazyMiddlewarePromise,
-		route: lazyRoutePromises.lazyRoutePromise,
-		handler: lazyRoutePromises.lazyHandlerPromise
-	};
-}
-function getDataStrategyMatch(mapRouteProperties2, manifest, request, unstable_pattern, match, lazyRoutePropertiesToSkip, scopedContext, shouldLoad, shouldRevalidateArgs = null, callSiteDefaultShouldRevalidate) {
-	let isUsingNewApi = false;
-	let _lazyPromises = getDataStrategyMatchLazyPromises(mapRouteProperties2, manifest, request, match, lazyRoutePropertiesToSkip);
-	return {
-		...match,
-		_lazyPromises,
-		shouldLoad,
-		shouldRevalidateArgs,
-		shouldCallHandler(defaultShouldRevalidate) {
-			isUsingNewApi = true;
-			if (!shouldRevalidateArgs) return shouldLoad;
-			if (typeof callSiteDefaultShouldRevalidate === "boolean") return shouldRevalidateLoader(match, {
-				...shouldRevalidateArgs,
-				defaultShouldRevalidate: callSiteDefaultShouldRevalidate
-			});
-			if (typeof defaultShouldRevalidate === "boolean") return shouldRevalidateLoader(match, {
-				...shouldRevalidateArgs,
-				defaultShouldRevalidate
-			});
-			return shouldRevalidateLoader(match, shouldRevalidateArgs);
-		},
-		resolve(handlerOverride) {
-			let { lazy, loader, middleware } = match.route;
-			let callHandler = isUsingNewApi || shouldLoad || handlerOverride && !isMutationMethod(request.method) && (lazy || loader);
-			let isMiddlewareOnlyRoute = middleware && middleware.length > 0 && !loader && !lazy;
-			if (callHandler && (isMutationMethod(request.method) || !isMiddlewareOnlyRoute)) return callLoaderOrAction({
-				request,
-				unstable_pattern,
-				match,
-				lazyHandlerPromise: _lazyPromises?.handler,
-				lazyRoutePromise: _lazyPromises?.route,
-				handlerOverride,
-				scopedContext
-			});
-			return Promise.resolve({
-				type: "data",
-				result: void 0
-			});
-		}
-	};
-}
-function getTargetedDataStrategyMatches(mapRouteProperties2, manifest, request, matches, targetMatch, lazyRoutePropertiesToSkip, scopedContext, shouldRevalidateArgs = null) {
-	return matches.map((match) => {
-		if (match.route.id !== targetMatch.route.id) return {
-			...match,
-			shouldLoad: false,
-			shouldRevalidateArgs,
-			shouldCallHandler: () => false,
-			_lazyPromises: getDataStrategyMatchLazyPromises(mapRouteProperties2, manifest, request, match, lazyRoutePropertiesToSkip),
-			resolve: () => Promise.resolve({
-				type: "data",
-				result: void 0
-			})
-		};
-		return getDataStrategyMatch(mapRouteProperties2, manifest, request, getRoutePattern(matches), match, lazyRoutePropertiesToSkip, scopedContext, true, shouldRevalidateArgs);
-	});
-}
-async function callDataStrategyImpl(dataStrategyImpl, request, matches, fetcherKey, scopedContext, isStaticHandler) {
-	if (matches.some((m) => m._lazyPromises?.middleware)) await Promise.all(matches.map((m) => m._lazyPromises?.middleware));
-	let dataStrategyArgs = {
-		request,
-		unstable_pattern: getRoutePattern(matches),
-		params: matches[0].params,
-		context: scopedContext,
-		matches
-	};
-	let runClientMiddleware = isStaticHandler ? () => {
-		throw new Error("You cannot call `runClientMiddleware()` from a static handler `dataStrategy`. Middleware is run outside of `dataStrategy` during SSR in order to bubble up the Response.  You can enable middleware via the `respond` API in `query`/`queryRoute`");
-	} : (cb) => {
-		let typedDataStrategyArgs = dataStrategyArgs;
-		return runClientMiddlewarePipeline(typedDataStrategyArgs, () => {
-			return cb({
-				...typedDataStrategyArgs,
-				fetcherKey,
-				runClientMiddleware: () => {
-					throw new Error("Cannot call `runClientMiddleware()` from within an `runClientMiddleware` handler");
-				}
-			});
-		});
-	};
-	let results = await dataStrategyImpl({
-		...dataStrategyArgs,
-		fetcherKey,
-		runClientMiddleware
-	});
-	try {
-		await Promise.all(matches.flatMap((m) => [m._lazyPromises?.handler, m._lazyPromises?.route]));
-	} catch (e) {}
-	return results;
-}
-async function callLoaderOrAction({ request, unstable_pattern, match, lazyHandlerPromise, lazyRoutePromise, handlerOverride, scopedContext }) {
-	let result;
-	let onReject;
-	let isAction = isMutationMethod(request.method);
-	let type = isAction ? "action" : "loader";
-	let runHandler = (handler) => {
-		let reject;
-		let abortPromise = new Promise((_, r) => reject = r);
-		onReject = () => reject();
-		request.signal.addEventListener("abort", onReject);
-		let actualHandler = (ctx) => {
-			if (typeof handler !== "function") return Promise.reject(/* @__PURE__ */ new Error(`You cannot call the handler for a route which defines a boolean "${type}" [routeId: ${match.route.id}]`));
-			return handler({
-				request,
-				unstable_pattern,
-				params: match.params,
-				context: scopedContext
-			}, ...ctx !== void 0 ? [ctx] : []);
-		};
-		let handlerPromise = (async () => {
-			try {
-				return {
-					type: "data",
-					result: await (handlerOverride ? handlerOverride((ctx) => actualHandler(ctx)) : actualHandler())
-				};
-			} catch (e) {
-				return {
-					type: "error",
-					result: e
-				};
-			}
-		})();
-		return Promise.race([handlerPromise, abortPromise]);
-	};
-	try {
-		let handler = isAction ? match.route.action : match.route.loader;
-		if (lazyHandlerPromise || lazyRoutePromise) if (handler) {
-			let handlerError;
-			let [value] = await Promise.all([
-				runHandler(handler).catch((e) => {
-					handlerError = e;
-				}),
-				lazyHandlerPromise,
-				lazyRoutePromise
-			]);
-			if (handlerError !== void 0) throw handlerError;
-			result = value;
-		} else {
-			await lazyHandlerPromise;
-			let handler2 = isAction ? match.route.action : match.route.loader;
-			if (handler2) [result] = await Promise.all([runHandler(handler2), lazyRoutePromise]);
-			else if (type === "action") {
-				let url = new URL(request.url);
-				let pathname = url.pathname + url.search;
-				throw getInternalRouterError(405, {
-					method: request.method,
-					pathname,
-					routeId: match.route.id
-				});
-			} else return {
-				type: "data",
-				result: void 0
-			};
-		}
-		else if (!handler) {
-			let url = new URL(request.url);
-			throw getInternalRouterError(404, { pathname: url.pathname + url.search });
-		} else result = await runHandler(handler);
-	} catch (e) {
-		return {
-			type: "error",
-			result: e
-		};
-	} finally {
-		if (onReject) request.signal.removeEventListener("abort", onReject);
-	}
-	return result;
-}
-async function parseResponseBody(response) {
-	let contentType = response.headers.get("Content-Type");
-	if (contentType && /\bapplication\/json\b/.test(contentType)) return response.body == null ? null : response.json();
-	return response.text();
-}
-async function convertDataStrategyResultToDataResult(dataStrategyResult) {
-	let { result, type } = dataStrategyResult;
-	if (isResponse(result)) {
-		let data2;
-		try {
-			data2 = await parseResponseBody(result);
-		} catch (e) {
-			return {
-				type: "error",
-				error: e
-			};
-		}
-		if (type === "error") return {
-			type: "error",
-			error: new ErrorResponseImpl(result.status, result.statusText, data2),
-			statusCode: result.status,
-			headers: result.headers
-		};
-		return {
-			type: "data",
-			data: data2,
-			statusCode: result.status,
-			headers: result.headers
-		};
-	}
-	if (type === "error") {
-		if (isDataWithResponseInit(result)) {
-			if (result.data instanceof Error) return {
-				type: "error",
-				error: result.data,
-				statusCode: result.init?.status,
-				headers: result.init?.headers ? new Headers(result.init.headers) : void 0
-			};
-			return {
-				type: "error",
-				error: dataWithResponseInitToErrorResponse(result),
-				statusCode: isRouteErrorResponse(result) ? result.status : void 0,
-				headers: result.init?.headers ? new Headers(result.init.headers) : void 0
-			};
-		}
-		return {
-			type: "error",
-			error: result,
-			statusCode: isRouteErrorResponse(result) ? result.status : void 0
-		};
-	}
-	if (isDataWithResponseInit(result)) return {
-		type: "data",
-		data: result.data,
-		statusCode: result.init?.status,
-		headers: result.init?.headers ? new Headers(result.init.headers) : void 0
-	};
-	return {
-		type: "data",
-		data: result
-	};
-}
-function normalizeRelativeRoutingRedirectResponse(response, request, routeId, matches, basename) {
-	let location = response.headers.get("Location");
-	invariant(location, "Redirects returned/thrown from loaders/actions must have a Location header");
-	if (!isAbsoluteUrl(location)) {
-		let trimmedMatches = matches.slice(0, matches.findIndex((m) => m.route.id === routeId) + 1);
-		location = normalizeTo(new URL(request.url), trimmedMatches, basename, location);
-		response.headers.set("Location", location);
-	}
-	return response;
-}
-function normalizeRedirectLocation(location, currentUrl, basename, historyInstance) {
-	let invalidProtocols = [
-		"about:",
-		"blob:",
-		"chrome:",
-		"chrome-untrusted:",
-		"content:",
-		"data:",
-		"devtools:",
-		"file:",
-		"filesystem:",
-		"javascript:"
-	];
-	if (isAbsoluteUrl(location)) {
-		let normalizedLocation = location;
-		let url = normalizedLocation.startsWith("//") ? new URL(currentUrl.protocol + normalizedLocation) : new URL(normalizedLocation);
-		if (invalidProtocols.includes(url.protocol)) throw new Error("Invalid redirect location");
-		let isSameBasename = stripBasename(url.pathname, basename) != null;
-		if (url.origin === currentUrl.origin && isSameBasename) return url.pathname + url.search + url.hash;
-	}
-	try {
-		let url = historyInstance.createURL(location);
-		if (invalidProtocols.includes(url.protocol)) throw new Error("Invalid redirect location");
-	} catch (e) {}
-	return location;
-}
-function createClientSideRequest(history, location, signal, submission) {
-	let url = history.createURL(stripHashFromPath(location)).toString();
-	let init = { signal };
-	if (submission && isMutationMethod(submission.formMethod)) {
-		let { formMethod, formEncType } = submission;
-		init.method = formMethod.toUpperCase();
-		if (formEncType === "application/json") {
-			init.headers = new Headers({ "Content-Type": formEncType });
-			init.body = JSON.stringify(submission.json);
-		} else if (formEncType === "text/plain") init.body = submission.text;
-		else if (formEncType === "application/x-www-form-urlencoded" && submission.formData) init.body = convertFormDataToSearchParams(submission.formData);
-		else init.body = submission.formData;
-	}
-	return new Request(url, init);
-}
-function convertFormDataToSearchParams(formData) {
-	let searchParams = new URLSearchParams();
-	for (let [key, value] of formData.entries()) searchParams.append(key, typeof value === "string" ? value : value.name);
-	return searchParams;
-}
-function convertSearchParamsToFormData(searchParams) {
-	let formData = new FormData();
-	for (let [key, value] of searchParams.entries()) formData.append(key, value);
-	return formData;
-}
-function processRouteLoaderData(matches, results, pendingActionResult, isStaticHandler = false, skipLoaderErrorBubbling = false) {
-	let loaderData = {};
-	let errors = null;
-	let statusCode;
-	let foundError = false;
-	let loaderHeaders = {};
-	let pendingError = pendingActionResult && isErrorResult(pendingActionResult[1]) ? pendingActionResult[1].error : void 0;
-	matches.forEach((match) => {
-		if (!(match.route.id in results)) return;
-		let id = match.route.id;
-		let result = results[id];
-		invariant(!isRedirectResult(result), "Cannot handle redirect results in processLoaderData");
-		if (isErrorResult(result)) {
-			let error = result.error;
-			if (pendingError !== void 0) {
-				error = pendingError;
-				pendingError = void 0;
-			}
-			errors = errors || {};
-			if (skipLoaderErrorBubbling) errors[id] = error;
-			else {
-				let boundaryMatch = findNearestBoundary(matches, id);
-				if (errors[boundaryMatch.route.id] == null) errors[boundaryMatch.route.id] = error;
-			}
-			if (!isStaticHandler) loaderData[id] = ResetLoaderDataSymbol;
-			if (!foundError) {
-				foundError = true;
-				statusCode = isRouteErrorResponse(result.error) ? result.error.status : 500;
-			}
-			if (result.headers) loaderHeaders[id] = result.headers;
-		} else {
-			loaderData[id] = result.data;
-			if (result.statusCode && result.statusCode !== 200 && !foundError) statusCode = result.statusCode;
-			if (result.headers) loaderHeaders[id] = result.headers;
-		}
-	});
-	if (pendingError !== void 0 && pendingActionResult) {
-		errors = { [pendingActionResult[0]]: pendingError };
-		if (pendingActionResult[2]) loaderData[pendingActionResult[2]] = void 0;
-	}
-	return {
-		loaderData,
-		errors,
-		statusCode: statusCode || 200,
-		loaderHeaders
-	};
-}
-function processLoaderData(state, matches, results, pendingActionResult, revalidatingFetchers, fetcherResults) {
-	let { loaderData, errors } = processRouteLoaderData(matches, results, pendingActionResult);
-	revalidatingFetchers.filter((f) => !f.matches || f.matches.some((m) => m.shouldLoad)).forEach((rf) => {
-		let { key, match, controller } = rf;
-		if (controller && controller.signal.aborted) return;
-		let result = fetcherResults[key];
-		invariant(result, "Did not find corresponding fetcher result");
-		if (isErrorResult(result)) {
-			let boundaryMatch = findNearestBoundary(state.matches, match?.route.id);
-			if (!(errors && errors[boundaryMatch.route.id])) errors = {
-				...errors,
-				[boundaryMatch.route.id]: result.error
-			};
-			state.fetchers.delete(key);
-		} else if (isRedirectResult(result)) invariant(false, "Unhandled fetcher revalidation redirect");
-		else {
-			let doneFetcher = getDoneFetcher(result.data);
-			state.fetchers.set(key, doneFetcher);
-		}
-	});
-	return {
-		loaderData,
-		errors
-	};
-}
-function mergeLoaderData(loaderData, newLoaderData, matches, errors) {
-	let mergedLoaderData = Object.entries(newLoaderData).filter(([, v]) => v !== ResetLoaderDataSymbol).reduce((merged, [k, v]) => {
-		merged[k] = v;
-		return merged;
-	}, {});
-	for (let match of matches) {
-		let id = match.route.id;
-		if (!newLoaderData.hasOwnProperty(id) && loaderData.hasOwnProperty(id) && match.route.loader) mergedLoaderData[id] = loaderData[id];
-		if (errors && errors.hasOwnProperty(id)) break;
-	}
-	return mergedLoaderData;
-}
-function getActionDataForCommit(pendingActionResult) {
-	if (!pendingActionResult) return {};
-	return isErrorResult(pendingActionResult[1]) ? { actionData: {} } : { actionData: { [pendingActionResult[0]]: pendingActionResult[1].data } };
-}
-function findNearestBoundary(matches, routeId) {
-	return (routeId ? matches.slice(0, matches.findIndex((m) => m.route.id === routeId) + 1) : [...matches]).reverse().find((m) => m.route.hasErrorBoundary === true) || matches[0];
-}
-function getShortCircuitMatches(routes) {
-	let route = routes.length === 1 ? routes[0] : routes.find((r) => r.index || !r.path || r.path === "/") || { id: `__shim-error-route__` };
-	return {
-		matches: [{
-			params: {},
-			pathname: "",
-			pathnameBase: "",
-			route
-		}],
-		route
-	};
-}
-function getInternalRouterError(status, { pathname, routeId, method, type, message } = {}) {
-	let statusText = "Unknown Server Error";
-	let errorMessage = "Unknown @remix-run/router error";
-	if (status === 400) {
-		statusText = "Bad Request";
-		if (method && pathname && routeId) errorMessage = `You made a ${method} request to "${pathname}" but did not provide a \`loader\` for route "${routeId}", so there is no way to handle the request.`;
-		else if (type === "invalid-body") errorMessage = "Unable to encode submission body";
-	} else if (status === 403) {
-		statusText = "Forbidden";
-		errorMessage = `Route "${routeId}" does not match URL "${pathname}"`;
-	} else if (status === 404) {
-		statusText = "Not Found";
-		errorMessage = `No route matches URL "${pathname}"`;
-	} else if (status === 405) {
-		statusText = "Method Not Allowed";
-		if (method && pathname && routeId) errorMessage = `You made a ${method.toUpperCase()} request to "${pathname}" but did not provide an \`action\` for route "${routeId}", so there is no way to handle the request.`;
-		else if (method) errorMessage = `Invalid request method "${method.toUpperCase()}"`;
-	}
-	return new ErrorResponseImpl(status || 500, statusText, new Error(errorMessage), true);
-}
-function findRedirect(results) {
-	let entries = Object.entries(results);
-	for (let i = entries.length - 1; i >= 0; i--) {
-		let [key, result] = entries[i];
-		if (isRedirectResult(result)) return {
-			key,
-			result
-		};
-	}
-}
-function stripHashFromPath(path) {
-	return createPath({
-		...typeof path === "string" ? parsePath(path) : path,
-		hash: ""
-	});
-}
-function isHashChangeOnly(a, b) {
-	if (a.pathname !== b.pathname || a.search !== b.search) return false;
-	if (a.hash === "") return b.hash !== "";
-	else if (a.hash === b.hash) return true;
-	else if (b.hash !== "") return true;
-	return false;
-}
-function dataWithResponseInitToErrorResponse(data2) {
-	return new ErrorResponseImpl(data2.init?.status ?? 500, data2.init?.statusText ?? "Internal Server Error", data2.data);
-}
-function isDataStrategyResults(result) {
-	return result != null && typeof result === "object" && Object.entries(result).every(([key, value]) => typeof key === "string" && isDataStrategyResult(value));
-}
-function isDataStrategyResult(result) {
-	return result != null && typeof result === "object" && "type" in result && "result" in result && (result.type === "data" || result.type === "error");
-}
-function isRedirectDataStrategyResult(result) {
-	return isResponse(result.result) && redirectStatusCodes.has(result.result.status);
-}
-function isErrorResult(result) {
-	return result.type === "error";
-}
-function isRedirectResult(result) {
-	return (result && result.type) === "redirect";
-}
-function isDataWithResponseInit(value) {
-	return typeof value === "object" && value != null && "type" in value && "data" in value && "init" in value && value.type === "DataWithResponseInit";
-}
-function isResponse(value) {
-	return value != null && typeof value.status === "number" && typeof value.statusText === "string" && typeof value.headers === "object" && typeof value.body !== "undefined";
-}
-function isRedirectStatusCode(statusCode) {
-	return redirectStatusCodes.has(statusCode);
-}
-function isRedirectResponse(result) {
-	return isResponse(result) && isRedirectStatusCode(result.status) && result.headers.has("Location");
-}
-function isValidMethod(method) {
-	return validRequestMethods.has(method.toUpperCase());
-}
-function isMutationMethod(method) {
-	return validMutationMethods.has(method.toUpperCase());
-}
-function hasNakedIndexQuery(search) {
-	return new URLSearchParams(search).getAll("index").some((v) => v === "");
-}
-function getTargetMatch(matches, location) {
-	let search = typeof location === "string" ? parsePath(location).search : location.search;
-	if (matches[matches.length - 1].route.index && hasNakedIndexQuery(search || "")) return matches[matches.length - 1];
-	let pathMatches = getPathContributingMatches(matches);
-	return pathMatches[pathMatches.length - 1];
-}
-function getSubmissionFromNavigation(navigation) {
-	let { formMethod, formAction, formEncType, text, formData, json } = navigation;
-	if (!formMethod || !formAction || !formEncType) return;
-	if (text != null) return {
-		formMethod,
-		formAction,
-		formEncType,
-		formData: void 0,
-		json: void 0,
-		text
-	};
-	else if (formData != null) return {
-		formMethod,
-		formAction,
-		formEncType,
-		formData,
-		json: void 0,
-		text: void 0
-	};
-	else if (json !== void 0) return {
-		formMethod,
-		formAction,
-		formEncType,
-		formData: void 0,
-		json,
-		text: void 0
-	};
-}
-function getLoadingNavigation(location, submission) {
-	if (submission) return {
-		state: "loading",
-		location,
-		formMethod: submission.formMethod,
-		formAction: submission.formAction,
-		formEncType: submission.formEncType,
-		formData: submission.formData,
-		json: submission.json,
-		text: submission.text
-	};
-	else return {
-		state: "loading",
-		location,
-		formMethod: void 0,
-		formAction: void 0,
-		formEncType: void 0,
-		formData: void 0,
-		json: void 0,
-		text: void 0
-	};
-}
-function getSubmittingNavigation(location, submission) {
-	return {
-		state: "submitting",
-		location,
-		formMethod: submission.formMethod,
-		formAction: submission.formAction,
-		formEncType: submission.formEncType,
-		formData: submission.formData,
-		json: submission.json,
-		text: submission.text
-	};
-}
-function getLoadingFetcher(submission, data2) {
-	if (submission) return {
-		state: "loading",
-		formMethod: submission.formMethod,
-		formAction: submission.formAction,
-		formEncType: submission.formEncType,
-		formData: submission.formData,
-		json: submission.json,
-		text: submission.text,
-		data: data2
-	};
-	else return {
-		state: "loading",
-		formMethod: void 0,
-		formAction: void 0,
-		formEncType: void 0,
-		formData: void 0,
-		json: void 0,
-		text: void 0,
-		data: data2
-	};
-}
-function getSubmittingFetcher(submission, existingFetcher) {
-	return {
-		state: "submitting",
-		formMethod: submission.formMethod,
-		formAction: submission.formAction,
-		formEncType: submission.formEncType,
-		formData: submission.formData,
-		json: submission.json,
-		text: submission.text,
-		data: existingFetcher ? existingFetcher.data : void 0
-	};
-}
-function getDoneFetcher(data2) {
-	return {
-		state: "idle",
-		formMethod: void 0,
-		formAction: void 0,
-		formEncType: void 0,
-		formData: void 0,
-		json: void 0,
-		text: void 0,
-		data: data2
-	};
-}
-function restoreAppliedTransitions(_window, transitions) {
-	try {
-		let sessionPositions = _window.sessionStorage.getItem(TRANSITIONS_STORAGE_KEY);
-		if (sessionPositions) {
-			let json = JSON.parse(sessionPositions);
-			for (let [k, v] of Object.entries(json || {})) if (v && Array.isArray(v)) transitions.set(k, new Set(v || []));
-		}
-	} catch (e) {}
-}
-function persistAppliedTransitions(_window, transitions) {
-	if (transitions.size > 0) {
-		let json = {};
-		for (let [k, v] of transitions) json[k] = [...v];
-		try {
-			_window.sessionStorage.setItem(TRANSITIONS_STORAGE_KEY, JSON.stringify(json));
-		} catch (error) {
-			warning(false, `Failed to save applied view transitions in sessionStorage (${error}).`);
-		}
-	}
-}
-function createDeferred() {
-	let resolve;
-	let reject;
-	let promise = new Promise((res, rej) => {
-		resolve = async (val) => {
-			res(val);
-			try {
-				await promise;
-			} catch (e) {}
-		};
-		reject = async (error) => {
-			rej(error);
-			try {
-				await promise;
-			} catch (e) {}
-		};
-	});
-	return {
-		promise,
-		resolve,
-		reject
-	};
-}
+Object.getOwnPropertyNames(Object.prototype).sort().join("\0");
 var DataRouterContext = import_react.createContext(null);
 DataRouterContext.displayName = "DataRouter";
 var DataRouterStateContext = import_react.createContext(null);
 DataRouterStateContext.displayName = "DataRouterState";
 var RSCRouterContext = import_react.createContext(false);
-function useIsRSCRouterContext() {
-	return import_react.useContext(RSCRouterContext);
-}
 var ViewTransitionContext = import_react.createContext({ isTransitioning: false });
 ViewTransitionContext.displayName = "ViewTransition";
 var FetchersContext = import_react.createContext(/* @__PURE__ */ new Map());
@@ -18680,7 +15986,7 @@ function useLocation() {
 	return import_react.useContext(LocationContext).location;
 }
 var navigateEffectWarning = `You should call navigate() in a React.useEffect(), not when your component is first rendered.`;
-function useIsomorphicLayoutEffect$1(cb) {
+function useIsomorphicLayoutEffect(cb) {
 	if (!import_react.useContext(NavigationContext).static) import_react.useLayoutEffect(cb);
 }
 function useNavigate() {
@@ -18695,7 +16001,7 @@ function useNavigateUnstable() {
 	let { pathname: locationPathname } = useLocation();
 	let routePathnamesJson = JSON.stringify(getResolveToMatches(matches));
 	let activeRef = import_react.useRef(false);
-	useIsomorphicLayoutEffect$1(() => {
+	useIsomorphicLayoutEffect(() => {
 		activeRef.current = true;
 	});
 	return import_react.useCallback((to, options = {}) => {
@@ -18736,6 +16042,9 @@ function useResolvedPath(to, { relative } = {}) {
 		locationPathname,
 		relative
 	]);
+}
+function useRoutes(routes, locationArg) {
+	return useRoutesImpl(routes, locationArg);
 }
 function useRoutesImpl(routes, locationArg, dataRouterOpts) {
 	invariant(useInRouterContext(), `useRoutes() may be used only in the context of a <Router> component.`);
@@ -19017,7 +16326,7 @@ function useNavigateStable() {
 	let { router } = useDataRouterContext("useNavigate");
 	let id = useCurrentRouteId("useNavigate");
 	let activeRef = import_react.useRef(false);
-	useIsomorphicLayoutEffect$1(() => {
+	useIsomorphicLayoutEffect(() => {
 		activeRef.current = true;
 	});
 	return import_react.useCallback(async (to, options = {}) => {
@@ -19037,253 +16346,8 @@ function warningOnce(key, cond, message) {
 		warning(false, message);
 	}
 }
-var alreadyWarned2 = {};
-function warnOnce(condition, message) {
-	if (!condition && !alreadyWarned2[message]) {
-		alreadyWarned2[message] = true;
-		console.warn(message);
-	}
-}
-var useOptimisticImpl = import_react.useOptimistic;
-var stableUseOptimisticSetter = () => void 0;
-function useOptimisticSafe(val) {
-	if (useOptimisticImpl) return useOptimisticImpl(val);
-	else return [val, stableUseOptimisticSetter];
-}
-function mapRouteProperties(route) {
-	let updates = { hasErrorBoundary: route.hasErrorBoundary || route.ErrorBoundary != null || route.errorElement != null };
-	if (route.Component) {
-		if (route.element) warning(false, "You should not include both `Component` and `element` on your route - `Component` will be used.");
-		Object.assign(updates, {
-			element: import_react.createElement(route.Component),
-			Component: void 0
-		});
-	}
-	if (route.HydrateFallback) {
-		if (route.hydrateFallbackElement) warning(false, "You should not include both `HydrateFallback` and `hydrateFallbackElement` on your route - `HydrateFallback` will be used.");
-		Object.assign(updates, {
-			hydrateFallbackElement: import_react.createElement(route.HydrateFallback),
-			HydrateFallback: void 0
-		});
-	}
-	if (route.ErrorBoundary) {
-		if (route.errorElement) warning(false, "You should not include both `ErrorBoundary` and `errorElement` on your route - `ErrorBoundary` will be used.");
-		Object.assign(updates, {
-			errorElement: import_react.createElement(route.ErrorBoundary),
-			ErrorBoundary: void 0
-		});
-	}
-	return updates;
-}
-var hydrationRouteProperties = ["HydrateFallback", "hydrateFallbackElement"];
-var Deferred = class {
-	constructor() {
-		this.status = "pending";
-		this.promise = new Promise((resolve, reject) => {
-			this.resolve = (value) => {
-				if (this.status === "pending") {
-					this.status = "resolved";
-					resolve(value);
-				}
-			};
-			this.reject = (reason) => {
-				if (this.status === "pending") {
-					this.status = "rejected";
-					reject(reason);
-				}
-			};
-		});
-	}
-};
-function RouterProvider({ router, flushSync: reactDomFlushSyncImpl, onError, unstable_useTransitions }) {
-	unstable_useTransitions = useIsRSCRouterContext() || unstable_useTransitions;
-	let [_state, setStateImpl] = import_react.useState(router.state);
-	let [state, setOptimisticState] = useOptimisticSafe(_state);
-	let [pendingState, setPendingState] = import_react.useState();
-	let [vtContext, setVtContext] = import_react.useState({ isTransitioning: false });
-	let [renderDfd, setRenderDfd] = import_react.useState();
-	let [transition, setTransition] = import_react.useState();
-	let [interruption, setInterruption] = import_react.useState();
-	let fetcherData = import_react.useRef(/* @__PURE__ */ new Map());
-	let setState = import_react.useCallback((newState, { deletedFetchers, newErrors, flushSync, viewTransitionOpts }) => {
-		if (newErrors && onError) Object.values(newErrors).forEach((error) => onError(error, {
-			location: newState.location,
-			params: newState.matches[0]?.params ?? {},
-			unstable_pattern: getRoutePattern(newState.matches)
-		}));
-		newState.fetchers.forEach((fetcher, key) => {
-			if (fetcher.data !== void 0) fetcherData.current.set(key, fetcher.data);
-		});
-		deletedFetchers.forEach((key) => fetcherData.current.delete(key));
-		warnOnce(flushSync === false || reactDomFlushSyncImpl != null, "You provided the `flushSync` option to a router update, but you are not using the `<RouterProvider>` from `react-router/dom` so `ReactDOM.flushSync()` is unavailable.  Please update your app to `import { RouterProvider } from \"react-router/dom\"` and ensure you have `react-dom` installed as a dependency to use the `flushSync` option.");
-		let isViewTransitionAvailable = router.window != null && router.window.document != null && typeof router.window.document.startViewTransition === "function";
-		warnOnce(viewTransitionOpts == null || isViewTransitionAvailable, "You provided the `viewTransition` option to a router update, but you do not appear to be running in a DOM environment as `window.startViewTransition` is not available.");
-		if (!viewTransitionOpts || !isViewTransitionAvailable) {
-			if (reactDomFlushSyncImpl && flushSync) reactDomFlushSyncImpl(() => setStateImpl(newState));
-			else if (unstable_useTransitions === false) setStateImpl(newState);
-			else import_react.startTransition(() => {
-				if (unstable_useTransitions === true) setOptimisticState((s) => getOptimisticRouterState(s, newState));
-				setStateImpl(newState);
-			});
-			return;
-		}
-		if (reactDomFlushSyncImpl && flushSync) {
-			reactDomFlushSyncImpl(() => {
-				if (transition) {
-					renderDfd?.resolve();
-					transition.skipTransition();
-				}
-				setVtContext({
-					isTransitioning: true,
-					flushSync: true,
-					currentLocation: viewTransitionOpts.currentLocation,
-					nextLocation: viewTransitionOpts.nextLocation
-				});
-			});
-			let t = router.window.document.startViewTransition(() => {
-				reactDomFlushSyncImpl(() => setStateImpl(newState));
-			});
-			t.finished.finally(() => {
-				reactDomFlushSyncImpl(() => {
-					setRenderDfd(void 0);
-					setTransition(void 0);
-					setPendingState(void 0);
-					setVtContext({ isTransitioning: false });
-				});
-			});
-			reactDomFlushSyncImpl(() => setTransition(t));
-			return;
-		}
-		if (transition) {
-			renderDfd?.resolve();
-			transition.skipTransition();
-			setInterruption({
-				state: newState,
-				currentLocation: viewTransitionOpts.currentLocation,
-				nextLocation: viewTransitionOpts.nextLocation
-			});
-		} else {
-			setPendingState(newState);
-			setVtContext({
-				isTransitioning: true,
-				flushSync: false,
-				currentLocation: viewTransitionOpts.currentLocation,
-				nextLocation: viewTransitionOpts.nextLocation
-			});
-		}
-	}, [
-		router.window,
-		reactDomFlushSyncImpl,
-		transition,
-		renderDfd,
-		unstable_useTransitions,
-		setOptimisticState,
-		onError
-	]);
-	import_react.useLayoutEffect(() => router.subscribe(setState), [router, setState]);
-	import_react.useEffect(() => {
-		if (vtContext.isTransitioning && !vtContext.flushSync) setRenderDfd(new Deferred());
-	}, [vtContext]);
-	import_react.useEffect(() => {
-		if (renderDfd && pendingState && router.window) {
-			let newState = pendingState;
-			let renderPromise = renderDfd.promise;
-			let transition2 = router.window.document.startViewTransition(async () => {
-				if (unstable_useTransitions === false) setStateImpl(newState);
-				else import_react.startTransition(() => {
-					if (unstable_useTransitions === true) setOptimisticState((s) => getOptimisticRouterState(s, newState));
-					setStateImpl(newState);
-				});
-				await renderPromise;
-			});
-			transition2.finished.finally(() => {
-				setRenderDfd(void 0);
-				setTransition(void 0);
-				setPendingState(void 0);
-				setVtContext({ isTransitioning: false });
-			});
-			setTransition(transition2);
-		}
-	}, [
-		pendingState,
-		renderDfd,
-		router.window,
-		unstable_useTransitions,
-		setOptimisticState
-	]);
-	import_react.useEffect(() => {
-		if (renderDfd && pendingState && state.location.key === pendingState.location.key) renderDfd.resolve();
-	}, [
-		renderDfd,
-		transition,
-		state.location,
-		pendingState
-	]);
-	import_react.useEffect(() => {
-		if (!vtContext.isTransitioning && interruption) {
-			setPendingState(interruption.state);
-			setVtContext({
-				isTransitioning: true,
-				flushSync: false,
-				currentLocation: interruption.currentLocation,
-				nextLocation: interruption.nextLocation
-			});
-			setInterruption(void 0);
-		}
-	}, [vtContext.isTransitioning, interruption]);
-	let navigator = import_react.useMemo(() => {
-		return {
-			createHref: router.createHref,
-			encodeLocation: router.encodeLocation,
-			go: (n) => router.navigate(n),
-			push: (to, state2, opts) => router.navigate(to, {
-				state: state2,
-				preventScrollReset: opts?.preventScrollReset
-			}),
-			replace: (to, state2, opts) => router.navigate(to, {
-				replace: true,
-				state: state2,
-				preventScrollReset: opts?.preventScrollReset
-			})
-		};
-	}, [router]);
-	let basename = router.basename || "/";
-	let dataRouterContext = import_react.useMemo(() => ({
-		router,
-		navigator,
-		static: false,
-		basename,
-		onError
-	}), [
-		router,
-		navigator,
-		basename,
-		onError
-	]);
-	return /* @__PURE__ */ import_react.createElement(import_react.Fragment, null, /* @__PURE__ */ import_react.createElement(DataRouterContext.Provider, { value: dataRouterContext }, /* @__PURE__ */ import_react.createElement(DataRouterStateContext.Provider, { value: state }, /* @__PURE__ */ import_react.createElement(FetchersContext.Provider, { value: fetcherData.current }, /* @__PURE__ */ import_react.createElement(ViewTransitionContext.Provider, { value: vtContext }, /* @__PURE__ */ import_react.createElement(Router, {
-		basename,
-		location: state.location,
-		navigationType: state.historyAction,
-		navigator,
-		unstable_useTransitions
-	}, /* @__PURE__ */ import_react.createElement(MemoizedDataRoutes, {
-		routes: router.routes,
-		future: router.future,
-		state,
-		isStatic: false,
-		onError
-	})))))), null);
-}
-function getOptimisticRouterState(currentState, newState) {
-	return {
-		...currentState,
-		navigation: newState.navigation.state !== "idle" ? newState.navigation : currentState.navigation,
-		revalidation: newState.revalidation !== "idle" ? newState.revalidation : currentState.revalidation,
-		actionData: newState.navigation.state !== "submitting" ? newState.actionData : currentState.actionData,
-		fetchers: newState.fetchers
-	};
-}
-var MemoizedDataRoutes = import_react.memo(DataRoutes);
+import_react.useOptimistic;
+import_react.memo(DataRoutes);
 function DataRoutes({ routes, future, state, isStatic, onError }) {
 	return useRoutesImpl(routes, void 0, {
 		state,
@@ -19294,6 +16358,9 @@ function DataRoutes({ routes, future, state, isStatic, onError }) {
 }
 function Outlet(props) {
 	return useOutlet(props.context);
+}
+function Route(props) {
+	invariant(false, `A <Route> is only ever to be used as the child of <Routes> element, never rendered directly. Please wrap your <Route> in a <Routes>.`);
 }
 function Router({ basename: basenameProp = "/", children = null, location: locationProp, navigationType = "POP", navigator, static: staticProp = false, unstable_useTransitions }) {
 	invariant(!useInRouterContext(), `You cannot render a <Router> inside another <Router>. You should never have more than one in your app.`);
@@ -19342,6 +16409,44 @@ function Router({ basename: basenameProp = "/", children = null, location: locat
 		children,
 		value: locationContext
 	}));
+}
+function Routes({ children, location }) {
+	return useRoutes(createRoutesFromChildren(children), location);
+}
+function createRoutesFromChildren(children, parentPath = []) {
+	let routes = [];
+	import_react.Children.forEach(children, (element, index) => {
+		if (!import_react.isValidElement(element)) return;
+		let treePath = [...parentPath, index];
+		if (element.type === import_react.Fragment) {
+			routes.push.apply(routes, createRoutesFromChildren(element.props.children, treePath));
+			return;
+		}
+		invariant(element.type === Route, `[${typeof element.type === "string" ? element.type : element.type.name}] is not a <Route> component. All component children of <Routes> must be a <Route> or <React.Fragment>`);
+		invariant(!element.props.index || !element.props.children, "An index route cannot have child routes.");
+		let route = {
+			id: element.props.id || treePath.join("-"),
+			caseSensitive: element.props.caseSensitive,
+			element: element.props.element,
+			Component: element.props.Component,
+			index: element.props.index,
+			path: element.props.path,
+			middleware: element.props.middleware,
+			loader: element.props.loader,
+			action: element.props.action,
+			hydrateFallbackElement: element.props.hydrateFallbackElement,
+			HydrateFallback: element.props.HydrateFallback,
+			errorElement: element.props.errorElement,
+			ErrorBoundary: element.props.ErrorBoundary,
+			hasErrorBoundary: element.props.hasErrorBoundary === true || element.props.ErrorBoundary != null || element.props.errorElement != null,
+			shouldRevalidate: element.props.shouldRevalidate,
+			handle: element.props.handle,
+			lazy: element.props.lazy
+		};
+		if (element.props.children) route.children = createRoutesFromChildren(element.props.children, treePath);
+		routes.push(route);
+	});
+	return routes;
 }
 var defaultMethod = "get";
 var defaultEncType = "application/x-www-form-urlencoded";
@@ -19755,51 +16860,30 @@ var isBrowser2 = typeof window !== "undefined" && typeof window.document !== "un
 try {
 	if (isBrowser2) window.__reactRouterVersion = "7.13.1";
 } catch (e) {}
-function createBrowserRouter(routes, opts) {
-	return createRouter({
-		basename: opts?.basename,
-		getContext: opts?.getContext,
-		future: opts?.future,
-		history: createBrowserHistory({ window: opts?.window }),
-		hydrationData: opts?.hydrationData || parseHydrationData(),
-		routes,
-		mapRouteProperties,
-		hydrationRouteProperties,
-		dataStrategy: opts?.dataStrategy,
-		patchRoutesOnNavigation: opts?.patchRoutesOnNavigation,
-		window: opts?.window,
-		unstable_instrumentations: opts?.unstable_instrumentations
-	}).initialize();
-}
-function parseHydrationData() {
-	let state = window?.__staticRouterHydrationData;
-	if (state && state.errors) state = {
-		...state,
-		errors: deserializeErrors(state.errors)
-	};
-	return state;
-}
-function deserializeErrors(errors) {
-	if (!errors) return null;
-	let entries = Object.entries(errors);
-	let serialized = {};
-	for (let [key, val] of entries) if (val && val.__type === "RouteErrorResponse") serialized[key] = new ErrorResponseImpl(val.status, val.statusText, val.data, val.internal === true);
-	else if (val && val.__type === "Error") {
-		if (val.__subType) {
-			let ErrorConstructor = window[val.__subType];
-			if (typeof ErrorConstructor === "function") try {
-				let error = new ErrorConstructor(val.message);
-				error.stack = "";
-				serialized[key] = error;
-			} catch (e) {}
-		}
-		if (serialized[key] == null) {
-			let error = new Error(val.message);
-			error.stack = "";
-			serialized[key] = error;
-		}
-	} else serialized[key] = val;
-	return serialized;
+function BrowserRouter({ basename, children, unstable_useTransitions, window: window2 }) {
+	let historyRef = import_react.useRef();
+	if (historyRef.current == null) historyRef.current = createBrowserHistory({
+		window: window2,
+		v5Compat: true
+	});
+	let history = historyRef.current;
+	let [state, setStateImpl] = import_react.useState({
+		action: history.action,
+		location: history.location
+	});
+	let setState = import_react.useCallback((newState) => {
+		if (unstable_useTransitions === false) setStateImpl(newState);
+		else import_react.startTransition(() => setStateImpl(newState));
+	}, [unstable_useTransitions]);
+	import_react.useLayoutEffect(() => history.listen(setState), [history, setState]);
+	return /* @__PURE__ */ import_react.createElement(Router, {
+		basename,
+		children,
+		location: state.location,
+		navigationType: state.action,
+		navigator: history,
+		unstable_useTransitions
+	});
 }
 function HistoryRouter({ basename, children, history, unstable_useTransitions }) {
 	let [state, setStateImpl] = import_react.useState({
@@ -20195,28 +17279,1549 @@ function useViewTransitionState(to, { relative } = {}) {
 	return matchPath(path.pathname, nextPath) != null || matchPath(path.pathname, currentPath) != null;
 }
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-router@7.13.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/react-router/dist/development/dom-export.mjs
-/**
-* react-router v7.13.1
-*
-* Copyright (c) Remix Software Inc.
-*
-* This source code is licensed under the MIT license found in the
-* LICENSE.md file in the root directory of this source tree.
-*
-* @license MIT
-*/
-var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
-function RouterProvider2(props) {
-	return /* @__PURE__ */ import_react.createElement(RouterProvider, {
-		flushSync: import_react_dom.flushSync,
-		...props
+//#region src/hooks/use-toast.ts
+var import_client = require_client();
+var TOAST_LIMIT = 1;
+var TOAST_REMOVE_DELAY = 1e6;
+var count = 0;
+function genId() {
+	count = (count + 1) % Number.MAX_SAFE_INTEGER;
+	return count.toString();
+}
+var toastTimeouts = /* @__PURE__ */ new Map();
+var addToRemoveQueue = (toastId) => {
+	if (toastTimeouts.has(toastId)) return;
+	const timeout = setTimeout(() => {
+		toastTimeouts.delete(toastId);
+		dispatch({
+			type: "REMOVE_TOAST",
+			toastId
+		});
+	}, TOAST_REMOVE_DELAY);
+	toastTimeouts.set(toastId, timeout);
+};
+var reducer = (state, action) => {
+	switch (action.type) {
+		case "ADD_TOAST": return {
+			...state,
+			toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT)
+		};
+		case "UPDATE_TOAST": return {
+			...state,
+			toasts: state.toasts.map((t) => t.id === action.toast.id ? {
+				...t,
+				...action.toast
+			} : t)
+		};
+		case "DISMISS_TOAST": {
+			const { toastId } = action;
+			if (toastId) addToRemoveQueue(toastId);
+			else state.toasts.forEach((toast) => {
+				addToRemoveQueue(toast.id);
+			});
+			return {
+				...state,
+				toasts: state.toasts.map((t) => t.id === toastId || toastId === void 0 ? {
+					...t,
+					open: false
+				} : t)
+			};
+		}
+		case "REMOVE_TOAST":
+			if (action.toastId === void 0) return {
+				...state,
+				toasts: []
+			};
+			return {
+				...state,
+				toasts: state.toasts.filter((t) => t.id !== action.toastId)
+			};
+	}
+};
+var listeners = [];
+var memoryState = { toasts: [] };
+function dispatch(action) {
+	memoryState = reducer(memoryState, action);
+	listeners.forEach((listener) => {
+		listener(memoryState);
 	});
 }
-createContext();
+function toast({ ...props }) {
+	const id = genId();
+	const update = (props) => dispatch({
+		type: "UPDATE_TOAST",
+		toast: {
+			...props,
+			id
+		}
+	});
+	const dismiss = () => dispatch({
+		type: "DISMISS_TOAST",
+		toastId: id
+	});
+	dispatch({
+		type: "ADD_TOAST",
+		toast: {
+			...props,
+			id,
+			open: true,
+			onOpenChange: (open) => {
+				if (!open) dismiss();
+			}
+		}
+	});
+	return {
+		id,
+		dismiss,
+		update
+	};
+}
+function useToast() {
+	const [state, setState] = import_react.useState(memoryState);
+	import_react.useEffect(() => {
+		listeners.push(setState);
+		return () => {
+			const index = listeners.indexOf(setState);
+			if (index > -1) listeners.splice(index, 1);
+		};
+	}, [state]);
+	return {
+		...state,
+		toast,
+		dismiss: (toastId) => dispatch({
+			type: "DISMISS_TOAST",
+			toastId
+		})
+	};
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+primitive@1.1.3/node_modules/@radix-ui/primitive/dist/index.mjs
+var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
+typeof window !== "undefined" && window.document && window.document.createElement;
+function composeEventHandlers(originalEventHandler, ourEventHandler, { checkForDefaultPrevented = true } = {}) {
+	return function handleEvent(event) {
+		originalEventHandler?.(event);
+		if (checkForDefaultPrevented === false || !event.defaultPrevented) return ourEventHandler?.(event);
+	};
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-compose-refs@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-compose-refs/dist/index.mjs
+function setRef(ref, value) {
+	if (typeof ref === "function") return ref(value);
+	else if (ref !== null && ref !== void 0) ref.current = value;
+}
+function composeRefs(...refs) {
+	return (node) => {
+		let hasCleanup = false;
+		const cleanups = refs.map((ref) => {
+			const cleanup = setRef(ref, node);
+			if (!hasCleanup && typeof cleanup == "function") hasCleanup = true;
+			return cleanup;
+		});
+		if (hasCleanup) return () => {
+			for (let i = 0; i < cleanups.length; i++) {
+				const cleanup = cleanups[i];
+				if (typeof cleanup == "function") cleanup();
+				else setRef(refs[i], null);
+			}
+		};
+	};
+}
+function useComposedRefs(...refs) {
+	return import_react.useCallback(composeRefs(...refs), refs);
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react@19.2.4/node_modules/react/cjs/react-jsx-runtime.development.js
+/**
+* @license React
+* react-jsx-runtime.development.js
+*
+* Copyright (c) Meta Platforms, Inc. and affiliates.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
+var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
+	(function() {
+		function getComponentNameFromType(type) {
+			if (null == type) return null;
+			if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+			if ("string" === typeof type) return type;
+			switch (type) {
+				case REACT_FRAGMENT_TYPE: return "Fragment";
+				case REACT_PROFILER_TYPE: return "Profiler";
+				case REACT_STRICT_MODE_TYPE: return "StrictMode";
+				case REACT_SUSPENSE_TYPE: return "Suspense";
+				case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
+				case REACT_ACTIVITY_TYPE: return "Activity";
+			}
+			if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
+				case REACT_PORTAL_TYPE: return "Portal";
+				case REACT_CONTEXT_TYPE: return type.displayName || "Context";
+				case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
+				case REACT_FORWARD_REF_TYPE:
+					var innerType = type.render;
+					type = type.displayName;
+					type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
+					return type;
+				case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
+				case REACT_LAZY_TYPE:
+					innerType = type._payload;
+					type = type._init;
+					try {
+						return getComponentNameFromType(type(innerType));
+					} catch (x) {}
+			}
+			return null;
+		}
+		function testStringCoercion(value) {
+			return "" + value;
+		}
+		function checkKeyStringCoercion(value) {
+			try {
+				testStringCoercion(value);
+				var JSCompiler_inline_result = !1;
+			} catch (e) {
+				JSCompiler_inline_result = !0;
+			}
+			if (JSCompiler_inline_result) {
+				JSCompiler_inline_result = console;
+				var JSCompiler_temp_const = JSCompiler_inline_result.error;
+				var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+				JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
+				return testStringCoercion(value);
+			}
+		}
+		function getTaskName(type) {
+			if (type === REACT_FRAGMENT_TYPE) return "<>";
+			if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
+			try {
+				var name = getComponentNameFromType(type);
+				return name ? "<" + name + ">" : "<...>";
+			} catch (x) {
+				return "<...>";
+			}
+		}
+		function getOwner() {
+			var dispatcher = ReactSharedInternals.A;
+			return null === dispatcher ? null : dispatcher.getOwner();
+		}
+		function UnknownOwner() {
+			return Error("react-stack-top-frame");
+		}
+		function hasValidKey(config) {
+			if (hasOwnProperty.call(config, "key")) {
+				var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+				if (getter && getter.isReactWarning) return !1;
+			}
+			return void 0 !== config.key;
+		}
+		function defineKeyPropWarningGetter(props, displayName) {
+			function warnAboutAccessingKey() {
+				specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
+			}
+			warnAboutAccessingKey.isReactWarning = !0;
+			Object.defineProperty(props, "key", {
+				get: warnAboutAccessingKey,
+				configurable: !0
+			});
+		}
+		function elementRefGetterWithDeprecationWarning() {
+			var componentName = getComponentNameFromType(this.type);
+			didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
+			componentName = this.props.ref;
+			return void 0 !== componentName ? componentName : null;
+		}
+		function ReactElement(type, key, props, owner, debugStack, debugTask) {
+			var refProp = props.ref;
+			type = {
+				$$typeof: REACT_ELEMENT_TYPE,
+				type,
+				key,
+				props,
+				_owner: owner
+			};
+			null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
+				enumerable: !1,
+				get: elementRefGetterWithDeprecationWarning
+			}) : Object.defineProperty(type, "ref", {
+				enumerable: !1,
+				value: null
+			});
+			type._store = {};
+			Object.defineProperty(type._store, "validated", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: 0
+			});
+			Object.defineProperty(type, "_debugInfo", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: null
+			});
+			Object.defineProperty(type, "_debugStack", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: debugStack
+			});
+			Object.defineProperty(type, "_debugTask", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: debugTask
+			});
+			Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+			return type;
+		}
+		function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
+			var children = config.children;
+			if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
+				for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
+				Object.freeze && Object.freeze(children);
+			} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
+			else validateChildKeys(children);
+			if (hasOwnProperty.call(config, "key")) {
+				children = getComponentNameFromType(type);
+				var keys = Object.keys(config).filter(function(k) {
+					return "key" !== k;
+				});
+				isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
+				didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
+			}
+			children = null;
+			void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
+			hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
+			if ("key" in config) {
+				maybeKey = {};
+				for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
+			} else maybeKey = config;
+			children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
+			return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
+		}
+		function validateChildKeys(node) {
+			isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
+		}
+		function isValidElement(object) {
+			return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+		}
+		var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+			return null;
+		};
+		React = { react_stack_bottom_frame: function(callStackForError) {
+			return callStackForError();
+		} };
+		var specialPropKeyWarningShown;
+		var didWarnAboutElementRef = {};
+		var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
+		var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
+		var didWarnAboutKeySpread = {};
+		exports.Fragment = REACT_FRAGMENT_TYPE;
+		exports.jsx = function(type, config, maybeKey) {
+			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+			return jsxDEVImpl(type, config, maybeKey, !1, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+		};
+		exports.jsxs = function(type, config, maybeKey) {
+			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+			return jsxDEVImpl(type, config, maybeKey, !0, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+		};
+	})();
+}));
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-context@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-context/dist/index.mjs
+var import_jsx_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
+	module.exports = require_react_jsx_runtime_development();
+})))();
+function createContextScope(scopeName, createContextScopeDeps = []) {
+	let defaultContexts = [];
+	function createContext3(rootComponentName, defaultContext) {
+		const BaseContext = import_react.createContext(defaultContext);
+		const index = defaultContexts.length;
+		defaultContexts = [...defaultContexts, defaultContext];
+		const Provider = (props) => {
+			const { scope, children, ...context } = props;
+			const Context = scope?.[scopeName]?.[index] || BaseContext;
+			const value = import_react.useMemo(() => context, Object.values(context));
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
+				value,
+				children
+			});
+		};
+		Provider.displayName = rootComponentName + "Provider";
+		function useContext2(consumerName, scope) {
+			const Context = scope?.[scopeName]?.[index] || BaseContext;
+			const context = import_react.useContext(Context);
+			if (context) return context;
+			if (defaultContext !== void 0) return defaultContext;
+			throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
+		}
+		return [Provider, useContext2];
+	}
+	const createScope = () => {
+		const scopeContexts = defaultContexts.map((defaultContext) => {
+			return import_react.createContext(defaultContext);
+		});
+		return function useScope(scope) {
+			const contexts = scope?.[scopeName] || scopeContexts;
+			return import_react.useMemo(() => ({ [`__scope${scopeName}`]: {
+				...scope,
+				[scopeName]: contexts
+			} }), [scope, contexts]);
+		};
+	};
+	createScope.scopeName = scopeName;
+	return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
+}
+function composeContextScopes(...scopes) {
+	const baseScope = scopes[0];
+	if (scopes.length === 1) return baseScope;
+	const createScope = () => {
+		const scopeHooks = scopes.map((createScope2) => ({
+			useScope: createScope2(),
+			scopeName: createScope2.scopeName
+		}));
+		return function useComposedScopes(overrideScopes) {
+			const nextScopes = scopeHooks.reduce((nextScopes2, { useScope, scopeName }) => {
+				const currentScope = useScope(overrideScopes)[`__scope${scopeName}`];
+				return {
+					...nextScopes2,
+					...currentScope
+				};
+			}, {});
+			return import_react.useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
+		};
+	};
+	createScope.scopeName = baseScope.scopeName;
+	return createScope;
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-slot@1.2.3_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-slot/dist/index.mjs
+/* @__NO_SIDE_EFFECTS__ */
+function createSlot$1(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone$1(ownerName);
+	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		const childrenArray = import_react.Children.toArray(children);
+		const slottable = childrenArray.find(isSlottable$1);
+		if (slottable) {
+			const newElement = slottable.props.children;
+			const newChildren = childrenArray.map((child) => {
+				if (child === slottable) {
+					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
+					return import_react.isValidElement(newElement) ? newElement.props.children : null;
+				} else return child;
+			});
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+				...slotProps,
+				ref: forwardedRef,
+				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
+			});
+		}
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+			...slotProps,
+			ref: forwardedRef,
+			children
+		});
+	});
+	Slot2.displayName = `${ownerName}.Slot`;
+	return Slot2;
+}
+/* @__NO_SIDE_EFFECTS__ */
+function createSlotClone$1(ownerName) {
+	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		if (import_react.isValidElement(children)) {
+			const childrenRef = getElementRef$2(children);
+			const props2 = mergeProps$1(slotProps, children.props);
+			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+			return import_react.cloneElement(children, props2);
+		}
+		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
+	});
+	SlotClone.displayName = `${ownerName}.SlotClone`;
+	return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER$1 = Symbol("radix.slottable");
+function isSlottable$1(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$1;
+}
+function mergeProps$1(slotProps, childProps) {
+	const overrideProps = { ...childProps };
+	for (const propName in childProps) {
+		const slotPropValue = slotProps[propName];
+		const childPropValue = childProps[propName];
+		if (/^on[A-Z]/.test(propName)) {
+			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
+				const result = childPropValue(...args);
+				slotPropValue(...args);
+				return result;
+			};
+			else if (slotPropValue) overrideProps[propName] = slotPropValue;
+		} else if (propName === "style") overrideProps[propName] = {
+			...slotPropValue,
+			...childPropValue
+		};
+		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
+	}
+	return {
+		...slotProps,
+		...overrideProps
+	};
+}
+function getElementRef$2(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-collection@1.1.7_@types+react-dom@19.2.3_@types+react@19.2.14__@types+r_161926fa2509d0b7370b60b8bb4eb8b0/node_modules/@radix-ui/react-collection/dist/index.mjs
+function createCollection(name) {
+	const PROVIDER_NAME = name + "CollectionProvider";
+	const [createCollectionContext, createCollectionScope] = createContextScope(PROVIDER_NAME);
+	const [CollectionProviderImpl, useCollectionContext] = createCollectionContext(PROVIDER_NAME, {
+		collectionRef: { current: null },
+		itemMap: /* @__PURE__ */ new Map()
+	});
+	const CollectionProvider = (props) => {
+		const { scope, children } = props;
+		const ref = import_react.useRef(null);
+		const itemMap = import_react.useRef(/* @__PURE__ */ new Map()).current;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionProviderImpl, {
+			scope,
+			itemMap,
+			collectionRef: ref,
+			children
+		});
+	};
+	CollectionProvider.displayName = PROVIDER_NAME;
+	const COLLECTION_SLOT_NAME = name + "CollectionSlot";
+	const CollectionSlotImpl = /* @__PURE__ */ createSlot$1(COLLECTION_SLOT_NAME);
+	const CollectionSlot = import_react.forwardRef((props, forwardedRef) => {
+		const { scope, children } = props;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionSlotImpl, {
+			ref: useComposedRefs(forwardedRef, useCollectionContext(COLLECTION_SLOT_NAME, scope).collectionRef),
+			children
+		});
+	});
+	CollectionSlot.displayName = COLLECTION_SLOT_NAME;
+	const ITEM_SLOT_NAME = name + "CollectionItemSlot";
+	const ITEM_DATA_ATTR = "data-radix-collection-item";
+	const CollectionItemSlotImpl = /* @__PURE__ */ createSlot$1(ITEM_SLOT_NAME);
+	const CollectionItemSlot = import_react.forwardRef((props, forwardedRef) => {
+		const { scope, children, ...itemData } = props;
+		const ref = import_react.useRef(null);
+		const composedRefs = useComposedRefs(forwardedRef, ref);
+		const context = useCollectionContext(ITEM_SLOT_NAME, scope);
+		import_react.useEffect(() => {
+			context.itemMap.set(ref, {
+				ref,
+				...itemData
+			});
+			return () => void context.itemMap.delete(ref);
+		});
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionItemSlotImpl, {
+			[ITEM_DATA_ATTR]: "",
+			ref: composedRefs,
+			children
+		});
+	});
+	CollectionItemSlot.displayName = ITEM_SLOT_NAME;
+	function useCollection(scope) {
+		const context = useCollectionContext(name + "CollectionConsumer", scope);
+		return import_react.useCallback(() => {
+			const collectionNode = context.collectionRef.current;
+			if (!collectionNode) return [];
+			const orderedNodes = Array.from(collectionNode.querySelectorAll(`[${ITEM_DATA_ATTR}]`));
+			return Array.from(context.itemMap.values()).sort((a, b) => orderedNodes.indexOf(a.ref.current) - orderedNodes.indexOf(b.ref.current));
+		}, [context.collectionRef, context.itemMap]);
+	}
+	return [
+		{
+			Provider: CollectionProvider,
+			Slot: CollectionSlot,
+			ItemSlot: CollectionItemSlot
+		},
+		useCollection,
+		createCollectionScope
+	];
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-primitive@2.1.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_1181ea5061ec9212248424669240e4ec/node_modules/@radix-ui/react-primitive/dist/index.mjs
+var Primitive = [
+	"a",
+	"button",
+	"div",
+	"form",
+	"h2",
+	"h3",
+	"img",
+	"input",
+	"label",
+	"li",
+	"nav",
+	"ol",
+	"p",
+	"select",
+	"span",
+	"svg",
+	"ul"
+].reduce((primitive, node) => {
+	const Slot = /* @__PURE__ */ createSlot$1(`Primitive.${node}`);
+	const Node = import_react.forwardRef((props, forwardedRef) => {
+		const { asChild, ...primitiveProps } = props;
+		const Comp = asChild ? Slot : node;
+		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
+			...primitiveProps,
+			ref: forwardedRef
+		});
+	});
+	Node.displayName = `Primitive.${node}`;
+	return {
+		...primitive,
+		[node]: Node
+	};
+}, {});
+function dispatchDiscreteCustomEvent(target, event) {
+	if (target) import_react_dom.flushSync(() => target.dispatchEvent(event));
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-callback-ref@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs
+function useCallbackRef(callback) {
+	const callbackRef = import_react.useRef(callback);
+	import_react.useEffect(() => {
+		callbackRef.current = callback;
+	});
+	return import_react.useMemo(() => (...args) => callbackRef.current?.(...args), []);
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-escape-keydown@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
+function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis?.document) {
+	const onEscapeKeyDown = useCallbackRef(onEscapeKeyDownProp);
+	import_react.useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === "Escape") onEscapeKeyDown(event);
+		};
+		ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [onEscapeKeyDown, ownerDocument]);
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-dismissable-layer@1.1.11_@types+react-dom@19.2.3_@types+react@19.2.14___3d3960154a4c07d09bb90cb341135fc5/node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs
+var DISMISSABLE_LAYER_NAME = "DismissableLayer";
+var CONTEXT_UPDATE = "dismissableLayer.update";
+var POINTER_DOWN_OUTSIDE = "dismissableLayer.pointerDownOutside";
+var FOCUS_OUTSIDE = "dismissableLayer.focusOutside";
+var originalBodyPointerEvents;
+var DismissableLayerContext = import_react.createContext({
+	layers: /* @__PURE__ */ new Set(),
+	layersWithOutsidePointerEventsDisabled: /* @__PURE__ */ new Set(),
+	branches: /* @__PURE__ */ new Set()
+});
+var DismissableLayer = import_react.forwardRef((props, forwardedRef) => {
+	const { disableOutsidePointerEvents = false, onEscapeKeyDown, onPointerDownOutside, onFocusOutside, onInteractOutside, onDismiss, ...layerProps } = props;
+	const context = import_react.useContext(DismissableLayerContext);
+	const [node, setNode] = import_react.useState(null);
+	const ownerDocument = node?.ownerDocument ?? globalThis?.document;
+	const [, force] = import_react.useState({});
+	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
+	const layers = Array.from(context.layers);
+	const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1);
+	const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled);
+	const index = node ? layers.indexOf(node) : -1;
+	const isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0;
+	const isPointerEventsEnabled = index >= highestLayerWithOutsidePointerEventsDisabledIndex;
+	const pointerDownOutside = usePointerDownOutside((event) => {
+		const target = event.target;
+		const isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
+		if (!isPointerEventsEnabled || isPointerDownOnBranch) return;
+		onPointerDownOutside?.(event);
+		onInteractOutside?.(event);
+		if (!event.defaultPrevented) onDismiss?.();
+	}, ownerDocument);
+	const focusOutside = useFocusOutside((event) => {
+		const target = event.target;
+		if ([...context.branches].some((branch) => branch.contains(target))) return;
+		onFocusOutside?.(event);
+		onInteractOutside?.(event);
+		if (!event.defaultPrevented) onDismiss?.();
+	}, ownerDocument);
+	useEscapeKeydown((event) => {
+		if (!(index === context.layers.size - 1)) return;
+		onEscapeKeyDown?.(event);
+		if (!event.defaultPrevented && onDismiss) {
+			event.preventDefault();
+			onDismiss();
+		}
+	}, ownerDocument);
+	import_react.useEffect(() => {
+		if (!node) return;
+		if (disableOutsidePointerEvents) {
+			if (context.layersWithOutsidePointerEventsDisabled.size === 0) {
+				originalBodyPointerEvents = ownerDocument.body.style.pointerEvents;
+				ownerDocument.body.style.pointerEvents = "none";
+			}
+			context.layersWithOutsidePointerEventsDisabled.add(node);
+		}
+		context.layers.add(node);
+		dispatchUpdate();
+		return () => {
+			if (disableOutsidePointerEvents && context.layersWithOutsidePointerEventsDisabled.size === 1) ownerDocument.body.style.pointerEvents = originalBodyPointerEvents;
+		};
+	}, [
+		node,
+		ownerDocument,
+		disableOutsidePointerEvents,
+		context
+	]);
+	import_react.useEffect(() => {
+		return () => {
+			if (!node) return;
+			context.layers.delete(node);
+			context.layersWithOutsidePointerEventsDisabled.delete(node);
+			dispatchUpdate();
+		};
+	}, [node, context]);
+	import_react.useEffect(() => {
+		const handleUpdate = () => force({});
+		document.addEventListener(CONTEXT_UPDATE, handleUpdate);
+		return () => document.removeEventListener(CONTEXT_UPDATE, handleUpdate);
+	}, []);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...layerProps,
+		ref: composedRefs,
+		style: {
+			pointerEvents: isBodyPointerEventsDisabled ? isPointerEventsEnabled ? "auto" : "none" : void 0,
+			...props.style
+		},
+		onFocusCapture: composeEventHandlers(props.onFocusCapture, focusOutside.onFocusCapture),
+		onBlurCapture: composeEventHandlers(props.onBlurCapture, focusOutside.onBlurCapture),
+		onPointerDownCapture: composeEventHandlers(props.onPointerDownCapture, pointerDownOutside.onPointerDownCapture)
+	});
+});
+DismissableLayer.displayName = DISMISSABLE_LAYER_NAME;
+var BRANCH_NAME = "DismissableLayerBranch";
+var DismissableLayerBranch = import_react.forwardRef((props, forwardedRef) => {
+	const context = import_react.useContext(DismissableLayerContext);
+	const ref = import_react.useRef(null);
+	const composedRefs = useComposedRefs(forwardedRef, ref);
+	import_react.useEffect(() => {
+		const node = ref.current;
+		if (node) {
+			context.branches.add(node);
+			return () => {
+				context.branches.delete(node);
+			};
+		}
+	}, [context.branches]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...props,
+		ref: composedRefs
+	});
+});
+DismissableLayerBranch.displayName = BRANCH_NAME;
+function usePointerDownOutside(onPointerDownOutside, ownerDocument = globalThis?.document) {
+	const handlePointerDownOutside = useCallbackRef(onPointerDownOutside);
+	const isPointerInsideReactTreeRef = import_react.useRef(false);
+	const handleClickRef = import_react.useRef(() => {});
+	import_react.useEffect(() => {
+		const handlePointerDown = (event) => {
+			if (event.target && !isPointerInsideReactTreeRef.current) {
+				let handleAndDispatchPointerDownOutsideEvent2 = function() {
+					handleAndDispatchCustomEvent$1(POINTER_DOWN_OUTSIDE, handlePointerDownOutside, eventDetail, { discrete: true });
+				};
+				const eventDetail = { originalEvent: event };
+				if (event.pointerType === "touch") {
+					ownerDocument.removeEventListener("click", handleClickRef.current);
+					handleClickRef.current = handleAndDispatchPointerDownOutsideEvent2;
+					ownerDocument.addEventListener("click", handleClickRef.current, { once: true });
+				} else handleAndDispatchPointerDownOutsideEvent2();
+			} else ownerDocument.removeEventListener("click", handleClickRef.current);
+			isPointerInsideReactTreeRef.current = false;
+		};
+		const timerId = window.setTimeout(() => {
+			ownerDocument.addEventListener("pointerdown", handlePointerDown);
+		}, 0);
+		return () => {
+			window.clearTimeout(timerId);
+			ownerDocument.removeEventListener("pointerdown", handlePointerDown);
+			ownerDocument.removeEventListener("click", handleClickRef.current);
+		};
+	}, [ownerDocument, handlePointerDownOutside]);
+	return { onPointerDownCapture: () => isPointerInsideReactTreeRef.current = true };
+}
+function useFocusOutside(onFocusOutside, ownerDocument = globalThis?.document) {
+	const handleFocusOutside = useCallbackRef(onFocusOutside);
+	const isFocusInsideReactTreeRef = import_react.useRef(false);
+	import_react.useEffect(() => {
+		const handleFocus = (event) => {
+			if (event.target && !isFocusInsideReactTreeRef.current) handleAndDispatchCustomEvent$1(FOCUS_OUTSIDE, handleFocusOutside, { originalEvent: event }, { discrete: false });
+		};
+		ownerDocument.addEventListener("focusin", handleFocus);
+		return () => ownerDocument.removeEventListener("focusin", handleFocus);
+	}, [ownerDocument, handleFocusOutside]);
+	return {
+		onFocusCapture: () => isFocusInsideReactTreeRef.current = true,
+		onBlurCapture: () => isFocusInsideReactTreeRef.current = false
+	};
+}
+function dispatchUpdate() {
+	const event = new CustomEvent(CONTEXT_UPDATE);
+	document.dispatchEvent(event);
+}
+function handleAndDispatchCustomEvent$1(name, handler, detail, { discrete }) {
+	const target = detail.originalEvent.target;
+	const event = new CustomEvent(name, {
+		bubbles: false,
+		cancelable: true,
+		detail
+	});
+	if (handler) target.addEventListener(name, handler, { once: true });
+	if (discrete) dispatchDiscreteCustomEvent(target, event);
+	else target.dispatchEvent(event);
+}
+var Root = DismissableLayer;
+var Branch = DismissableLayerBranch;
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-layout-effect@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
+var useLayoutEffect2 = globalThis?.document ? import_react.useLayoutEffect : () => {};
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-portal@1.1.9_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_7668895bec2444446faa4e0f4eb5244b/node_modules/@radix-ui/react-portal/dist/index.mjs
+var PORTAL_NAME = "Portal";
+var Portal = import_react.forwardRef((props, forwardedRef) => {
+	const { container: containerProp, ...portalProps } = props;
+	const [mounted, setMounted] = import_react.useState(false);
+	useLayoutEffect2(() => setMounted(true), []);
+	const container = containerProp || mounted && globalThis?.document?.body;
+	return container ? import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...portalProps,
+		ref: forwardedRef
+	}), container) : null;
+});
+Portal.displayName = PORTAL_NAME;
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-presence@1.1.5_@types+react-dom@19.2.3_@types+react@19.2.14__@types+rea_c01c26c80b5ab5e3ecefbda6eca51ad1/node_modules/@radix-ui/react-presence/dist/index.mjs
+function useStateMachine(initialState, machine) {
+	return import_react.useReducer((state, event) => {
+		return machine[state][event] ?? state;
+	}, initialState);
+}
+var Presence = (props) => {
+	const { present, children } = props;
+	const presence = usePresence(present);
+	const child = typeof children === "function" ? children({ present: presence.isPresent }) : import_react.Children.only(children);
+	const ref = useComposedRefs(presence.ref, getElementRef$1(child));
+	return typeof children === "function" || presence.isPresent ? import_react.cloneElement(child, { ref }) : null;
+};
+Presence.displayName = "Presence";
+function usePresence(present) {
+	const [node, setNode] = import_react.useState();
+	const stylesRef = import_react.useRef(null);
+	const prevPresentRef = import_react.useRef(present);
+	const prevAnimationNameRef = import_react.useRef("none");
+	const [state, send] = useStateMachine(present ? "mounted" : "unmounted", {
+		mounted: {
+			UNMOUNT: "unmounted",
+			ANIMATION_OUT: "unmountSuspended"
+		},
+		unmountSuspended: {
+			MOUNT: "mounted",
+			ANIMATION_END: "unmounted"
+		},
+		unmounted: { MOUNT: "mounted" }
+	});
+	import_react.useEffect(() => {
+		const currentAnimationName = getAnimationName(stylesRef.current);
+		prevAnimationNameRef.current = state === "mounted" ? currentAnimationName : "none";
+	}, [state]);
+	useLayoutEffect2(() => {
+		const styles = stylesRef.current;
+		const wasPresent = prevPresentRef.current;
+		if (wasPresent !== present) {
+			const prevAnimationName = prevAnimationNameRef.current;
+			const currentAnimationName = getAnimationName(styles);
+			if (present) send("MOUNT");
+			else if (currentAnimationName === "none" || styles?.display === "none") send("UNMOUNT");
+			else if (wasPresent && prevAnimationName !== currentAnimationName) send("ANIMATION_OUT");
+			else send("UNMOUNT");
+			prevPresentRef.current = present;
+		}
+	}, [present, send]);
+	useLayoutEffect2(() => {
+		if (node) {
+			let timeoutId;
+			const ownerWindow = node.ownerDocument.defaultView ?? window;
+			const handleAnimationEnd = (event) => {
+				const isCurrentAnimation = getAnimationName(stylesRef.current).includes(CSS.escape(event.animationName));
+				if (event.target === node && isCurrentAnimation) {
+					send("ANIMATION_END");
+					if (!prevPresentRef.current) {
+						const currentFillMode = node.style.animationFillMode;
+						node.style.animationFillMode = "forwards";
+						timeoutId = ownerWindow.setTimeout(() => {
+							if (node.style.animationFillMode === "forwards") node.style.animationFillMode = currentFillMode;
+						});
+					}
+				}
+			};
+			const handleAnimationStart = (event) => {
+				if (event.target === node) prevAnimationNameRef.current = getAnimationName(stylesRef.current);
+			};
+			node.addEventListener("animationstart", handleAnimationStart);
+			node.addEventListener("animationcancel", handleAnimationEnd);
+			node.addEventListener("animationend", handleAnimationEnd);
+			return () => {
+				ownerWindow.clearTimeout(timeoutId);
+				node.removeEventListener("animationstart", handleAnimationStart);
+				node.removeEventListener("animationcancel", handleAnimationEnd);
+				node.removeEventListener("animationend", handleAnimationEnd);
+			};
+		} else send("ANIMATION_END");
+	}, [node, send]);
+	return {
+		isPresent: ["mounted", "unmountSuspended"].includes(state),
+		ref: import_react.useCallback((node2) => {
+			stylesRef.current = node2 ? getComputedStyle(node2) : null;
+			setNode(node2);
+		}, [])
+	};
+}
+function getAnimationName(styles) {
+	return styles?.animationName || "none";
+}
+function getElementRef$1(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-controllable-state@1.2.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs
+var useInsertionEffect = import_react[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
+function useControllableState({ prop, defaultProp, onChange = () => {}, caller }) {
+	const [uncontrolledProp, setUncontrolledProp, onChangeRef] = useUncontrolledState({
+		defaultProp,
+		onChange
+	});
+	const isControlled = prop !== void 0;
+	const value = isControlled ? prop : uncontrolledProp;
+	{
+		const isControlledRef = import_react.useRef(prop !== void 0);
+		import_react.useEffect(() => {
+			const wasControlled = isControlledRef.current;
+			if (wasControlled !== isControlled) {
+				const from = wasControlled ? "controlled" : "uncontrolled";
+				const to = isControlled ? "controlled" : "uncontrolled";
+				console.warn(`${caller} is changing from ${from} to ${to}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`);
+			}
+			isControlledRef.current = isControlled;
+		}, [isControlled, caller]);
+	}
+	return [value, import_react.useCallback((nextValue) => {
+		if (isControlled) {
+			const value2 = isFunction(nextValue) ? nextValue(prop) : nextValue;
+			if (value2 !== prop) onChangeRef.current?.(value2);
+		} else setUncontrolledProp(nextValue);
+	}, [
+		isControlled,
+		prop,
+		setUncontrolledProp,
+		onChangeRef
+	])];
+}
+function useUncontrolledState({ defaultProp, onChange }) {
+	const [value, setValue] = import_react.useState(defaultProp);
+	const prevValueRef = import_react.useRef(value);
+	const onChangeRef = import_react.useRef(onChange);
+	useInsertionEffect(() => {
+		onChangeRef.current = onChange;
+	}, [onChange]);
+	import_react.useEffect(() => {
+		if (prevValueRef.current !== value) {
+			onChangeRef.current?.(value);
+			prevValueRef.current = value;
+		}
+	}, [value, prevValueRef]);
+	return [
+		value,
+		setValue,
+		onChangeRef
+	];
+}
+function isFunction(value) {
+	return typeof value === "function";
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-visually-hidden@1.2.3_@types+react-dom@19.2.3_@types+react@19.2.14__@ty_fa89646d7248b32d1762bf88948f6339/node_modules/@radix-ui/react-visually-hidden/dist/index.mjs
+var VISUALLY_HIDDEN_STYLES = Object.freeze({
+	position: "absolute",
+	border: 0,
+	width: 1,
+	height: 1,
+	padding: 0,
+	margin: -1,
+	overflow: "hidden",
+	clip: "rect(0, 0, 0, 0)",
+	whiteSpace: "nowrap",
+	wordWrap: "normal"
+});
+var NAME = "VisuallyHidden";
+var VisuallyHidden = import_react.forwardRef((props, forwardedRef) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.span, {
+		...props,
+		ref: forwardedRef,
+		style: {
+			...VISUALLY_HIDDEN_STYLES,
+			...props.style
+		}
+	});
+});
+VisuallyHidden.displayName = NAME;
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-toast@1.2.15_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_4581e89c6ba13e4159ce65546c8b2a16/node_modules/@radix-ui/react-toast/dist/index.mjs
+var PROVIDER_NAME = "ToastProvider";
+var [Collection, useCollection, createCollectionScope] = createCollection("Toast");
+var [createToastContext, createToastScope] = createContextScope("Toast", [createCollectionScope]);
+var [ToastProviderProvider, useToastProviderContext] = createToastContext(PROVIDER_NAME);
+var ToastProvider$1 = (props) => {
+	const { __scopeToast, label = "Notification", duration = 5e3, swipeDirection = "right", swipeThreshold = 50, children } = props;
+	const [viewport, setViewport] = import_react.useState(null);
+	const [toastCount, setToastCount] = import_react.useState(0);
+	const isFocusedToastEscapeKeyDownRef = import_react.useRef(false);
+	const isClosePausedRef = import_react.useRef(false);
+	if (!label.trim()) console.error(`Invalid prop \`label\` supplied to \`${PROVIDER_NAME}\`. Expected non-empty \`string\`.`);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.Provider, {
+		scope: __scopeToast,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastProviderProvider, {
+			scope: __scopeToast,
+			label,
+			duration,
+			swipeDirection,
+			swipeThreshold,
+			toastCount,
+			viewport,
+			onViewportChange: setViewport,
+			onToastAdd: import_react.useCallback(() => setToastCount((prevCount) => prevCount + 1), []),
+			onToastRemove: import_react.useCallback(() => setToastCount((prevCount) => prevCount - 1), []),
+			isFocusedToastEscapeKeyDownRef,
+			isClosePausedRef,
+			children
+		})
+	});
+};
+ToastProvider$1.displayName = PROVIDER_NAME;
+var VIEWPORT_NAME = "ToastViewport";
+var VIEWPORT_DEFAULT_HOTKEY = ["F8"];
+var VIEWPORT_PAUSE = "toast.viewportPause";
+var VIEWPORT_RESUME = "toast.viewportResume";
+var ToastViewport$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, hotkey = VIEWPORT_DEFAULT_HOTKEY, label = "Notifications ({hotkey})", ...viewportProps } = props;
+	const context = useToastProviderContext(VIEWPORT_NAME, __scopeToast);
+	const getItems = useCollection(__scopeToast);
+	const wrapperRef = import_react.useRef(null);
+	const headFocusProxyRef = import_react.useRef(null);
+	const tailFocusProxyRef = import_react.useRef(null);
+	const ref = import_react.useRef(null);
+	const composedRefs = useComposedRefs(forwardedRef, ref, context.onViewportChange);
+	const hotkeyLabel = hotkey.join("+").replace(/Key/g, "").replace(/Digit/g, "");
+	const hasToasts = context.toastCount > 0;
+	import_react.useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (hotkey.length !== 0 && hotkey.every((key) => event[key] || event.code === key)) ref.current?.focus();
+		};
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [hotkey]);
+	import_react.useEffect(() => {
+		const wrapper = wrapperRef.current;
+		const viewport = ref.current;
+		if (hasToasts && wrapper && viewport) {
+			const handlePause = () => {
+				if (!context.isClosePausedRef.current) {
+					const pauseEvent = new CustomEvent(VIEWPORT_PAUSE);
+					viewport.dispatchEvent(pauseEvent);
+					context.isClosePausedRef.current = true;
+				}
+			};
+			const handleResume = () => {
+				if (context.isClosePausedRef.current) {
+					const resumeEvent = new CustomEvent(VIEWPORT_RESUME);
+					viewport.dispatchEvent(resumeEvent);
+					context.isClosePausedRef.current = false;
+				}
+			};
+			const handleFocusOutResume = (event) => {
+				if (!wrapper.contains(event.relatedTarget)) handleResume();
+			};
+			const handlePointerLeaveResume = () => {
+				if (!wrapper.contains(document.activeElement)) handleResume();
+			};
+			wrapper.addEventListener("focusin", handlePause);
+			wrapper.addEventListener("focusout", handleFocusOutResume);
+			wrapper.addEventListener("pointermove", handlePause);
+			wrapper.addEventListener("pointerleave", handlePointerLeaveResume);
+			window.addEventListener("blur", handlePause);
+			window.addEventListener("focus", handleResume);
+			return () => {
+				wrapper.removeEventListener("focusin", handlePause);
+				wrapper.removeEventListener("focusout", handleFocusOutResume);
+				wrapper.removeEventListener("pointermove", handlePause);
+				wrapper.removeEventListener("pointerleave", handlePointerLeaveResume);
+				window.removeEventListener("blur", handlePause);
+				window.removeEventListener("focus", handleResume);
+			};
+		}
+	}, [hasToasts, context.isClosePausedRef]);
+	const getSortedTabbableCandidates = import_react.useCallback(({ tabbingDirection }) => {
+		const tabbableCandidates = getItems().map((toastItem) => {
+			const toastNode = toastItem.ref.current;
+			const toastTabbableCandidates = [toastNode, ...getTabbableCandidates(toastNode)];
+			return tabbingDirection === "forwards" ? toastTabbableCandidates : toastTabbableCandidates.reverse();
+		});
+		return (tabbingDirection === "forwards" ? tabbableCandidates.reverse() : tabbableCandidates).flat();
+	}, [getItems]);
+	import_react.useEffect(() => {
+		const viewport = ref.current;
+		if (viewport) {
+			const handleKeyDown = (event) => {
+				const isMetaKey = event.altKey || event.ctrlKey || event.metaKey;
+				if (event.key === "Tab" && !isMetaKey) {
+					const focusedElement = document.activeElement;
+					const isTabbingBackwards = event.shiftKey;
+					if (event.target === viewport && isTabbingBackwards) {
+						headFocusProxyRef.current?.focus();
+						return;
+					}
+					const sortedCandidates = getSortedTabbableCandidates({ tabbingDirection: isTabbingBackwards ? "backwards" : "forwards" });
+					const index = sortedCandidates.findIndex((candidate) => candidate === focusedElement);
+					if (focusFirst(sortedCandidates.slice(index + 1))) event.preventDefault();
+					else isTabbingBackwards ? headFocusProxyRef.current?.focus() : tailFocusProxyRef.current?.focus();
+				}
+			};
+			viewport.addEventListener("keydown", handleKeyDown);
+			return () => viewport.removeEventListener("keydown", handleKeyDown);
+		}
+	}, [getItems, getSortedTabbableCandidates]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Branch, {
+		ref: wrapperRef,
+		role: "region",
+		"aria-label": label.replace("{hotkey}", hotkeyLabel),
+		tabIndex: -1,
+		style: { pointerEvents: hasToasts ? void 0 : "none" },
+		children: [
+			hasToasts && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusProxy, {
+				ref: headFocusProxyRef,
+				onFocusFromOutsideViewport: () => {
+					focusFirst(getSortedTabbableCandidates({ tabbingDirection: "forwards" }));
+				}
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.Slot, {
+				scope: __scopeToast,
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.ol, {
+					tabIndex: -1,
+					...viewportProps,
+					ref: composedRefs
+				})
+			}),
+			hasToasts && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusProxy, {
+				ref: tailFocusProxyRef,
+				onFocusFromOutsideViewport: () => {
+					focusFirst(getSortedTabbableCandidates({ tabbingDirection: "backwards" }));
+				}
+			})
+		]
+	});
+});
+ToastViewport$1.displayName = VIEWPORT_NAME;
+var FOCUS_PROXY_NAME = "ToastFocusProxy";
+var FocusProxy = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, onFocusFromOutsideViewport, ...proxyProps } = props;
+	const context = useToastProviderContext(FOCUS_PROXY_NAME, __scopeToast);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHidden, {
+		tabIndex: 0,
+		...proxyProps,
+		ref: forwardedRef,
+		style: { position: "fixed" },
+		onFocus: (event) => {
+			const prevFocusedElement = event.relatedTarget;
+			if (!context.viewport?.contains(prevFocusedElement)) onFocusFromOutsideViewport();
+		}
+	});
+});
+FocusProxy.displayName = FOCUS_PROXY_NAME;
+var TOAST_NAME = "Toast";
+var TOAST_SWIPE_START = "toast.swipeStart";
+var TOAST_SWIPE_MOVE = "toast.swipeMove";
+var TOAST_SWIPE_CANCEL = "toast.swipeCancel";
+var TOAST_SWIPE_END = "toast.swipeEnd";
+var Toast$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { forceMount, open: openProp, defaultOpen, onOpenChange, ...toastProps } = props;
+	const [open, setOpen] = useControllableState({
+		prop: openProp,
+		defaultProp: defaultOpen ?? true,
+		onChange: onOpenChange,
+		caller: TOAST_NAME
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
+		present: forceMount || open,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastImpl, {
+			open,
+			...toastProps,
+			ref: forwardedRef,
+			onClose: () => setOpen(false),
+			onPause: useCallbackRef(props.onPause),
+			onResume: useCallbackRef(props.onResume),
+			onSwipeStart: composeEventHandlers(props.onSwipeStart, (event) => {
+				event.currentTarget.setAttribute("data-swipe", "start");
+			}),
+			onSwipeMove: composeEventHandlers(props.onSwipeMove, (event) => {
+				const { x, y } = event.detail.delta;
+				event.currentTarget.setAttribute("data-swipe", "move");
+				event.currentTarget.style.setProperty("--radix-toast-swipe-move-x", `${x}px`);
+				event.currentTarget.style.setProperty("--radix-toast-swipe-move-y", `${y}px`);
+			}),
+			onSwipeCancel: composeEventHandlers(props.onSwipeCancel, (event) => {
+				event.currentTarget.setAttribute("data-swipe", "cancel");
+				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-x");
+				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-y");
+				event.currentTarget.style.removeProperty("--radix-toast-swipe-end-x");
+				event.currentTarget.style.removeProperty("--radix-toast-swipe-end-y");
+			}),
+			onSwipeEnd: composeEventHandlers(props.onSwipeEnd, (event) => {
+				const { x, y } = event.detail.delta;
+				event.currentTarget.setAttribute("data-swipe", "end");
+				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-x");
+				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-y");
+				event.currentTarget.style.setProperty("--radix-toast-swipe-end-x", `${x}px`);
+				event.currentTarget.style.setProperty("--radix-toast-swipe-end-y", `${y}px`);
+				setOpen(false);
+			})
+		})
+	});
+});
+Toast$1.displayName = TOAST_NAME;
+var [ToastInteractiveProvider, useToastInteractiveContext] = createToastContext(TOAST_NAME, { onClose() {} });
+var ToastImpl = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, type = "foreground", duration: durationProp, open, onClose, onEscapeKeyDown, onPause, onResume, onSwipeStart, onSwipeMove, onSwipeCancel, onSwipeEnd, ...toastProps } = props;
+	const context = useToastProviderContext(TOAST_NAME, __scopeToast);
+	const [node, setNode] = import_react.useState(null);
+	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
+	const pointerStartRef = import_react.useRef(null);
+	const swipeDeltaRef = import_react.useRef(null);
+	const duration = durationProp || context.duration;
+	const closeTimerStartTimeRef = import_react.useRef(0);
+	const closeTimerRemainingTimeRef = import_react.useRef(duration);
+	const closeTimerRef = import_react.useRef(0);
+	const { onToastAdd, onToastRemove } = context;
+	const handleClose = useCallbackRef(() => {
+		if (node?.contains(document.activeElement)) context.viewport?.focus();
+		onClose();
+	});
+	const startTimer = import_react.useCallback((duration2) => {
+		if (!duration2 || duration2 === Infinity) return;
+		window.clearTimeout(closeTimerRef.current);
+		closeTimerStartTimeRef.current = (/* @__PURE__ */ new Date()).getTime();
+		closeTimerRef.current = window.setTimeout(handleClose, duration2);
+	}, [handleClose]);
+	import_react.useEffect(() => {
+		const viewport = context.viewport;
+		if (viewport) {
+			const handleResume = () => {
+				startTimer(closeTimerRemainingTimeRef.current);
+				onResume?.();
+			};
+			const handlePause = () => {
+				const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - closeTimerStartTimeRef.current;
+				closeTimerRemainingTimeRef.current = closeTimerRemainingTimeRef.current - elapsedTime;
+				window.clearTimeout(closeTimerRef.current);
+				onPause?.();
+			};
+			viewport.addEventListener(VIEWPORT_PAUSE, handlePause);
+			viewport.addEventListener(VIEWPORT_RESUME, handleResume);
+			return () => {
+				viewport.removeEventListener(VIEWPORT_PAUSE, handlePause);
+				viewport.removeEventListener(VIEWPORT_RESUME, handleResume);
+			};
+		}
+	}, [
+		context.viewport,
+		duration,
+		onPause,
+		onResume,
+		startTimer
+	]);
+	import_react.useEffect(() => {
+		if (open && !context.isClosePausedRef.current) startTimer(duration);
+	}, [
+		open,
+		duration,
+		context.isClosePausedRef,
+		startTimer
+	]);
+	import_react.useEffect(() => {
+		onToastAdd();
+		return () => onToastRemove();
+	}, [onToastAdd, onToastRemove]);
+	const announceTextContent = import_react.useMemo(() => {
+		return node ? getAnnounceTextContent(node) : null;
+	}, [node]);
+	if (!context.viewport) return null;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [announceTextContent && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounce, {
+		__scopeToast,
+		role: "status",
+		"aria-live": type === "foreground" ? "assertive" : "polite",
+		children: announceTextContent
+	}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastInteractiveProvider, {
+		scope: __scopeToast,
+		onClose: handleClose,
+		children: import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.ItemSlot, {
+			scope: __scopeToast,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
+				asChild: true,
+				onEscapeKeyDown: composeEventHandlers(onEscapeKeyDown, () => {
+					if (!context.isFocusedToastEscapeKeyDownRef.current) handleClose();
+					context.isFocusedToastEscapeKeyDownRef.current = false;
+				}),
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.li, {
+					tabIndex: 0,
+					"data-state": open ? "open" : "closed",
+					"data-swipe-direction": context.swipeDirection,
+					...toastProps,
+					ref: composedRefs,
+					style: {
+						userSelect: "none",
+						touchAction: "none",
+						...props.style
+					},
+					onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
+						if (event.key !== "Escape") return;
+						onEscapeKeyDown?.(event.nativeEvent);
+						if (!event.nativeEvent.defaultPrevented) {
+							context.isFocusedToastEscapeKeyDownRef.current = true;
+							handleClose();
+						}
+					}),
+					onPointerDown: composeEventHandlers(props.onPointerDown, (event) => {
+						if (event.button !== 0) return;
+						pointerStartRef.current = {
+							x: event.clientX,
+							y: event.clientY
+						};
+					}),
+					onPointerMove: composeEventHandlers(props.onPointerMove, (event) => {
+						if (!pointerStartRef.current) return;
+						const x = event.clientX - pointerStartRef.current.x;
+						const y = event.clientY - pointerStartRef.current.y;
+						const hasSwipeMoveStarted = Boolean(swipeDeltaRef.current);
+						const isHorizontalSwipe = ["left", "right"].includes(context.swipeDirection);
+						const clamp = ["left", "up"].includes(context.swipeDirection) ? Math.min : Math.max;
+						const clampedX = isHorizontalSwipe ? clamp(0, x) : 0;
+						const clampedY = !isHorizontalSwipe ? clamp(0, y) : 0;
+						const moveStartBuffer = event.pointerType === "touch" ? 10 : 2;
+						const delta = {
+							x: clampedX,
+							y: clampedY
+						};
+						const eventDetail = {
+							originalEvent: event,
+							delta
+						};
+						if (hasSwipeMoveStarted) {
+							swipeDeltaRef.current = delta;
+							handleAndDispatchCustomEvent(TOAST_SWIPE_MOVE, onSwipeMove, eventDetail, { discrete: false });
+						} else if (isDeltaInDirection(delta, context.swipeDirection, moveStartBuffer)) {
+							swipeDeltaRef.current = delta;
+							handleAndDispatchCustomEvent(TOAST_SWIPE_START, onSwipeStart, eventDetail, { discrete: false });
+							event.target.setPointerCapture(event.pointerId);
+						} else if (Math.abs(x) > moveStartBuffer || Math.abs(y) > moveStartBuffer) pointerStartRef.current = null;
+					}),
+					onPointerUp: composeEventHandlers(props.onPointerUp, (event) => {
+						const delta = swipeDeltaRef.current;
+						const target = event.target;
+						if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId);
+						swipeDeltaRef.current = null;
+						pointerStartRef.current = null;
+						if (delta) {
+							const toast = event.currentTarget;
+							const eventDetail = {
+								originalEvent: event,
+								delta
+							};
+							if (isDeltaInDirection(delta, context.swipeDirection, context.swipeThreshold)) handleAndDispatchCustomEvent(TOAST_SWIPE_END, onSwipeEnd, eventDetail, { discrete: true });
+							else handleAndDispatchCustomEvent(TOAST_SWIPE_CANCEL, onSwipeCancel, eventDetail, { discrete: true });
+							toast.addEventListener("click", (event2) => event2.preventDefault(), { once: true });
+						}
+					})
+				})
+			})
+		}), context.viewport)
+	})] });
+});
+var ToastAnnounce = (props) => {
+	const { __scopeToast, children, ...announceProps } = props;
+	const context = useToastProviderContext(TOAST_NAME, __scopeToast);
+	const [renderAnnounceText, setRenderAnnounceText] = import_react.useState(false);
+	const [isAnnounced, setIsAnnounced] = import_react.useState(false);
+	useNextFrame(() => setRenderAnnounceText(true));
+	import_react.useEffect(() => {
+		const timer = window.setTimeout(() => setIsAnnounced(true), 1e3);
+		return () => window.clearTimeout(timer);
+	}, []);
+	return isAnnounced ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal, {
+		asChild: true,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHidden, {
+			...announceProps,
+			children: renderAnnounceText && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+				context.label,
+				" ",
+				children
+			] })
+		})
+	});
+};
+var TITLE_NAME = "ToastTitle";
+var ToastTitle$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, ...titleProps } = props;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...titleProps,
+		ref: forwardedRef
+	});
+});
+ToastTitle$1.displayName = TITLE_NAME;
+var DESCRIPTION_NAME = "ToastDescription";
+var ToastDescription$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, ...descriptionProps } = props;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...descriptionProps,
+		ref: forwardedRef
+	});
+});
+ToastDescription$1.displayName = DESCRIPTION_NAME;
+var ACTION_NAME = "ToastAction";
+var ToastAction$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { altText, ...actionProps } = props;
+	if (!altText.trim()) {
+		console.error(`Invalid prop \`altText\` supplied to \`${ACTION_NAME}\`. Expected non-empty \`string\`.`);
+		return null;
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounceExclude, {
+		altText,
+		asChild: true,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastClose$1, {
+			...actionProps,
+			ref: forwardedRef
+		})
+	});
+});
+ToastAction$1.displayName = ACTION_NAME;
+var CLOSE_NAME = "ToastClose";
+var ToastClose$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, ...closeProps } = props;
+	const interactiveContext = useToastInteractiveContext(CLOSE_NAME, __scopeToast);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounceExclude, {
+		asChild: true,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
+			type: "button",
+			...closeProps,
+			ref: forwardedRef,
+			onClick: composeEventHandlers(props.onClick, interactiveContext.onClose)
+		})
+	});
+});
+ToastClose$1.displayName = CLOSE_NAME;
+var ToastAnnounceExclude = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeToast, altText, ...announceExcludeProps } = props;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		"data-radix-toast-announce-exclude": "",
+		"data-radix-toast-announce-alt": altText || void 0,
+		...announceExcludeProps,
+		ref: forwardedRef
+	});
+});
+function getAnnounceTextContent(container) {
+	const textContent = [];
+	Array.from(container.childNodes).forEach((node) => {
+		if (node.nodeType === node.TEXT_NODE && node.textContent) textContent.push(node.textContent);
+		if (isHTMLElement(node)) {
+			const isHidden = node.ariaHidden || node.hidden || node.style.display === "none";
+			const isExcluded = node.dataset.radixToastAnnounceExclude === "";
+			if (!isHidden) if (isExcluded) {
+				const altText = node.dataset.radixToastAnnounceAlt;
+				if (altText) textContent.push(altText);
+			} else textContent.push(...getAnnounceTextContent(node));
+		}
+	});
+	return textContent;
+}
+function handleAndDispatchCustomEvent(name, handler, detail, { discrete }) {
+	const currentTarget = detail.originalEvent.currentTarget;
+	const event = new CustomEvent(name, {
+		bubbles: true,
+		cancelable: true,
+		detail
+	});
+	if (handler) currentTarget.addEventListener(name, handler, { once: true });
+	if (discrete) dispatchDiscreteCustomEvent(currentTarget, event);
+	else currentTarget.dispatchEvent(event);
+}
+var isDeltaInDirection = (delta, direction, threshold = 0) => {
+	const deltaX = Math.abs(delta.x);
+	const deltaY = Math.abs(delta.y);
+	const isDeltaX = deltaX > deltaY;
+	if (direction === "left" || direction === "right") return isDeltaX && deltaX > threshold;
+	else return !isDeltaX && deltaY > threshold;
+};
+function useNextFrame(callback = () => {}) {
+	const fn = useCallbackRef(callback);
+	useLayoutEffect2(() => {
+		let raf1 = 0;
+		let raf2 = 0;
+		raf1 = window.requestAnimationFrame(() => raf2 = window.requestAnimationFrame(fn));
+		return () => {
+			window.cancelAnimationFrame(raf1);
+			window.cancelAnimationFrame(raf2);
+		};
+	}, [fn]);
+}
+function isHTMLElement(node) {
+	return node.nodeType === node.ELEMENT_NODE;
+}
+function getTabbableCandidates(container) {
+	const nodes = [];
+	const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, { acceptNode: (node) => {
+		const isHiddenInput = node.tagName === "INPUT" && node.type === "hidden";
+		if (node.disabled || node.hidden || isHiddenInput) return NodeFilter.FILTER_SKIP;
+		return node.tabIndex >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+	} });
+	while (walker.nextNode()) nodes.push(walker.currentNode);
+	return nodes;
+}
+function focusFirst(candidates) {
+	const previouslyFocusedElement = document.activeElement;
+	return candidates.some((candidate) => {
+		if (candidate === previouslyFocusedElement) return true;
+		candidate.focus();
+		return document.activeElement !== previouslyFocusedElement;
+	});
+}
+var Provider = ToastProvider$1;
+var Viewport = ToastViewport$1;
+var Root2 = Toast$1;
+var Title = ToastTitle$1;
+var Description = ToastDescription$1;
+var Action = ToastAction$1;
+var Close = ToastClose$1;
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs
-var import_client = require_client();
 function r(e) {
 	var t, f, n = "";
 	if ("string" == typeof e || "number" == typeof e) n += e;
@@ -20230,6 +18835,270 @@ function clsx() {
 	for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
 	return n;
 }
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority/dist/index.mjs
+/**
+* Copyright 2022 Joe Bell. All rights reserved.
+*
+* This file is licensed to you under the Apache License, Version 2.0
+* (the "License"); you may not use this file except in compliance with the
+* License. You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*/ var falsyToString = (value) => typeof value === "boolean" ? `${value}` : value === 0 ? "0" : value;
+var cx = clsx;
+var cva = (base, config) => (props) => {
+	var _config_compoundVariants;
+	if ((config === null || config === void 0 ? void 0 : config.variants) == null) return cx(base, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
+	const { variants, defaultVariants } = config;
+	const getVariantClassNames = Object.keys(variants).map((variant) => {
+		const variantProp = props === null || props === void 0 ? void 0 : props[variant];
+		const defaultVariantProp = defaultVariants === null || defaultVariants === void 0 ? void 0 : defaultVariants[variant];
+		if (variantProp === null) return null;
+		const variantKey = falsyToString(variantProp) || falsyToString(defaultVariantProp);
+		return variants[variant][variantKey];
+	});
+	const propsWithoutUndefined = props && Object.entries(props).reduce((acc, param) => {
+		let [key, value] = param;
+		if (value === void 0) return acc;
+		acc[key] = value;
+		return acc;
+	}, {});
+	return cx(base, getVariantClassNames, config === null || config === void 0 ? void 0 : (_config_compoundVariants = config.compoundVariants) === null || _config_compoundVariants === void 0 ? void 0 : _config_compoundVariants.reduce((acc, param) => {
+		let { class: cvClass, className: cvClassName, ...compoundVariantOptions } = param;
+		return Object.entries(compoundVariantOptions).every((param) => {
+			let [key, value] = param;
+			return Array.isArray(value) ? value.includes({
+				...defaultVariants,
+				...propsWithoutUndefined
+			}[key]) : {
+				...defaultVariants,
+				...propsWithoutUndefined
+			}[key] === value;
+		}) ? [
+			...acc,
+			cvClass,
+			cvClassName
+		] : acc;
+	}, []), props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
+};
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var mergeClasses = (...classes) => classes.filter((className, index, array) => {
+	return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
+}).join(" ").trim();
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var toCamelCase = (string) => string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase());
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var toPascalCase = (string) => {
+	const camelCase = toCamelCase(string);
+	return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+};
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/defaultAttributes.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var defaultAttributes = {
+	xmlns: "http://www.w3.org/2000/svg",
+	width: 24,
+	height: 24,
+	viewBox: "0 0 24 24",
+	fill: "none",
+	stroke: "currentColor",
+	strokeWidth: 2,
+	strokeLinecap: "round",
+	strokeLinejoin: "round"
+};
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var hasA11yProp = (props) => {
+	for (const prop in props) if (prop.startsWith("aria-") || prop === "role" || prop === "title") return true;
+	return false;
+};
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/Icon.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var Icon = (0, import_react.forwardRef)(({ color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, iconNode, ...rest }, ref) => (0, import_react.createElement)("svg", {
+	ref,
+	...defaultAttributes,
+	width: size,
+	height: size,
+	stroke: color,
+	strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+	className: mergeClasses("lucide", className),
+	...!children && !hasA11yProp(rest) && { "aria-hidden": "true" },
+	...rest
+}, [...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)), ...Array.isArray(children) ? children : [children]]));
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/createLucideIcon.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var createLucideIcon = (iconName, iconNode) => {
+	const Component = (0, import_react.forwardRef)(({ className, ...props }, ref) => (0, import_react.createElement)(Icon, {
+		ref,
+		iconNode,
+		className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className),
+		...props
+	}));
+	Component.displayName = toPascalCase(iconName);
+	return Component;
+};
+var Activity = createLucideIcon("activity", [["path", {
+	d: "M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2",
+	key: "169zse"
+}]]);
+var ArrowLeft = createLucideIcon("arrow-left", [["path", {
+	d: "m12 19-7-7 7-7",
+	key: "1l729n"
+}], ["path", {
+	d: "M19 12H5",
+	key: "x3x0zl"
+}]]);
+var ArrowRight = createLucideIcon("arrow-right", [["path", {
+	d: "M5 12h14",
+	key: "1ays0h"
+}], ["path", {
+	d: "m12 5 7 7-7 7",
+	key: "xquz4c"
+}]]);
+var BookOpen = createLucideIcon("book-open", [["path", {
+	d: "M12 7v14",
+	key: "1akyts"
+}], ["path", {
+	d: "M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
+	key: "ruj8y"
+}]]);
+var ChevronRight = createLucideIcon("chevron-right", [["path", {
+	d: "m9 18 6-6-6-6",
+	key: "mthhwq"
+}]]);
+var Clock = createLucideIcon("clock", [["circle", {
+	cx: "12",
+	cy: "12",
+	r: "10",
+	key: "1mglay"
+}], ["path", {
+	d: "M12 6v6l4 2",
+	key: "mmk7yg"
+}]]);
+var ShieldAlert = createLucideIcon("shield-alert", [
+	["path", {
+		d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+		key: "oel41y"
+	}],
+	["path", {
+		d: "M12 8v4",
+		key: "1got3b"
+	}],
+	["path", {
+		d: "M12 16h.01",
+		key: "1drbdi"
+	}]
+]);
+var Stethoscope = createLucideIcon("stethoscope", [
+	["path", {
+		d: "M11 2v2",
+		key: "1539x4"
+	}],
+	["path", {
+		d: "M5 2v2",
+		key: "1yf1q8"
+	}],
+	["path", {
+		d: "M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1",
+		key: "rb5t3r"
+	}],
+	["path", {
+		d: "M8 15a6 6 0 0 0 12 0v-3",
+		key: "x18d4x"
+	}],
+	["circle", {
+		cx: "20",
+		cy: "10",
+		r: "2",
+		key: "ts1r5v"
+	}]
+]);
+var Tag = createLucideIcon("tag", [["path", {
+	d: "M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z",
+	key: "vktsd0"
+}], ["circle", {
+	cx: "7.5",
+	cy: "7.5",
+	r: ".5",
+	fill: "currentColor",
+	key: "kqv944"
+}]]);
+var User = createLucideIcon("user", [["path", {
+	d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",
+	key: "975kel"
+}], ["circle", {
+	cx: "12",
+	cy: "7",
+	r: "4",
+	key: "17ys0d"
+}]]);
+var X = createLucideIcon("x", [["path", {
+	d: "M18 6 6 18",
+	key: "1bl5f8"
+}], ["path", {
+	d: "m6 6 12 12",
+	key: "d8bk6v"
+}]]);
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/tailwind-merge@2.6.1/node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
@@ -21652,2691 +20521,448 @@ function cn(...inputs) {
 	return twMerge(clsx(inputs));
 }
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var mergeClasses = (...classes) => classes.filter((className, index, array) => {
-	return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
-}).join(" ").trim();
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var toCamelCase = (string) => string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase());
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var toPascalCase = (string) => {
-	const camelCase = toCamelCase(string);
-	return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/defaultAttributes.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var defaultAttributes = {
-	xmlns: "http://www.w3.org/2000/svg",
-	width: 24,
-	height: 24,
-	viewBox: "0 0 24 24",
-	fill: "none",
-	stroke: "currentColor",
-	strokeWidth: 2,
-	strokeLinecap: "round",
-	strokeLinejoin: "round"
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var hasA11yProp = (props) => {
-	for (const prop in props) if (prop.startsWith("aria-") || prop === "role" || prop === "title") return true;
-	return false;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/Icon.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var Icon = (0, import_react.forwardRef)(({ color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, iconNode, ...rest }, ref) => (0, import_react.createElement)("svg", {
-	ref,
-	...defaultAttributes,
-	width: size,
-	height: size,
-	stroke: color,
-	strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-	className: mergeClasses("lucide", className),
-	...!children && !hasA11yProp(rest) && { "aria-hidden": "true" },
-	...rest
-}, [...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)), ...Array.isArray(children) ? children : [children]]));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/createLucideIcon.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var createLucideIcon = (iconName, iconNode) => {
-	const Component = (0, import_react.forwardRef)(({ className, ...props }, ref) => (0, import_react.createElement)(Icon, {
-		ref,
-		iconNode,
-		className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className),
-		...props
-	}));
-	Component.displayName = toPascalCase(iconName);
-	return Component;
-};
-var ArrowLeft = createLucideIcon("arrow-left", [["path", {
-	d: "m12 19-7-7 7-7",
-	key: "1l729n"
-}], ["path", {
-	d: "M19 12H5",
-	key: "x3x0zl"
-}]]);
-var ArrowRight = createLucideIcon("arrow-right", [["path", {
-	d: "M5 12h14",
-	key: "1ays0h"
-}], ["path", {
-	d: "m12 5 7 7-7 7",
-	key: "xquz4c"
-}]]);
-var CalendarDays = createLucideIcon("calendar-days", [
-	["path", {
-		d: "M8 2v4",
-		key: "1cmpym"
-	}],
-	["path", {
-		d: "M16 2v4",
-		key: "4m81vk"
-	}],
-	["rect", {
-		width: "18",
-		height: "18",
-		x: "3",
-		y: "4",
-		rx: "2",
-		key: "1hopcy"
-	}],
-	["path", {
-		d: "M3 10h18",
-		key: "8toen8"
-	}],
-	["path", {
-		d: "M8 14h.01",
-		key: "6423bh"
-	}],
-	["path", {
-		d: "M12 14h.01",
-		key: "1etili"
-	}],
-	["path", {
-		d: "M16 14h.01",
-		key: "1gbofw"
-	}],
-	["path", {
-		d: "M8 18h.01",
-		key: "lrp35t"
-	}],
-	["path", {
-		d: "M12 18h.01",
-		key: "mhygvu"
-	}],
-	["path", {
-		d: "M16 18h.01",
-		key: "kzsmim"
-	}]
-]);
-var ChevronRight = createLucideIcon("chevron-right", [["path", {
-	d: "m9 18 6-6-6-6",
-	key: "mthhwq"
-}]]);
-var Clock = createLucideIcon("clock", [["circle", {
-	cx: "12",
-	cy: "12",
-	r: "10",
-	key: "1mglay"
-}], ["path", {
-	d: "M12 6v6l4 2",
-	key: "mmk7yg"
-}]]);
-var FileText = createLucideIcon("file-text", [
-	["path", {
-		d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z",
-		key: "1oefj6"
-	}],
-	["path", {
-		d: "M14 2v5a1 1 0 0 0 1 1h5",
-		key: "wfsgrz"
-	}],
-	["path", {
-		d: "M10 9H8",
-		key: "b1mrlr"
-	}],
-	["path", {
-		d: "M16 13H8",
-		key: "t4e002"
-	}],
-	["path", {
-		d: "M16 17H8",
-		key: "z1uh3a"
-	}]
-]);
-var Menu = createLucideIcon("menu", [
-	["path", {
-		d: "M4 5h16",
-		key: "1tepv9"
-	}],
-	["path", {
-		d: "M4 12h16",
-		key: "1lakjw"
-	}],
-	["path", {
-		d: "M4 19h16",
-		key: "1djgab"
-	}]
-]);
-var Search = createLucideIcon("search", [["path", {
-	d: "m21 21-4.34-4.34",
-	key: "14j7rj"
-}], ["circle", {
-	cx: "11",
-	cy: "11",
-	r: "8",
-	key: "4ej97u"
-}]]);
-var ShieldAlert = createLucideIcon("shield-alert", [
-	["path", {
-		d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-		key: "oel41y"
-	}],
-	["path", {
-		d: "M12 8v4",
-		key: "1got3b"
-	}],
-	["path", {
-		d: "M12 16h.01",
-		key: "1drbdi"
-	}]
-]);
-var Stethoscope = createLucideIcon("stethoscope", [
-	["path", {
-		d: "M11 2v2",
-		key: "1539x4"
-	}],
-	["path", {
-		d: "M5 2v2",
-		key: "1yf1q8"
-	}],
-	["path", {
-		d: "M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1",
-		key: "rb5t3r"
-	}],
-	["path", {
-		d: "M8 15a6 6 0 0 0 12 0v-3",
-		key: "x18d4x"
-	}],
-	["circle", {
-		cx: "20",
-		cy: "10",
-		r: "2",
-		key: "ts1r5v"
-	}]
-]);
-var Tag = createLucideIcon("tag", [["path", {
-	d: "M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z",
-	key: "vktsd0"
-}], ["circle", {
-	cx: "7.5",
-	cy: "7.5",
-	r: ".5",
-	fill: "currentColor",
-	key: "kqv944"
-}]]);
-var X = createLucideIcon("x", [["path", {
-	d: "M18 6 6 18",
-	key: "1bl5f8"
-}], ["path", {
-	d: "m6 6 12 12",
-	key: "d8bk6v"
-}]]);
-typeof window !== "undefined" && window.document && window.document.createElement;
-function composeEventHandlers(originalEventHandler, ourEventHandler, { checkForDefaultPrevented = true } = {}) {
-	return function handleEvent(event) {
-		originalEventHandler?.(event);
-		if (checkForDefaultPrevented === false || !event.defaultPrevented) return ourEventHandler?.(event);
-	};
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-compose-refs@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-compose-refs/dist/index.mjs
-function setRef(ref, value) {
-	if (typeof ref === "function") return ref(value);
-	else if (ref !== null && ref !== void 0) ref.current = value;
-}
-function composeRefs(...refs) {
-	return (node) => {
-		let hasCleanup = false;
-		const cleanups = refs.map((ref) => {
-			const cleanup = setRef(ref, node);
-			if (!hasCleanup && typeof cleanup == "function") hasCleanup = true;
-			return cleanup;
-		});
-		if (hasCleanup) return () => {
-			for (let i = 0; i < cleanups.length; i++) {
-				const cleanup = cleanups[i];
-				if (typeof cleanup == "function") cleanup();
-				else setRef(refs[i], null);
-			}
-		};
-	};
-}
-function useComposedRefs(...refs) {
-	return import_react.useCallback(composeRefs(...refs), refs);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react@19.2.4/node_modules/react/cjs/react-jsx-runtime.development.js
-/**
-* @license React
-* react-jsx-runtime.development.js
-*
-* Copyright (c) Meta Platforms, Inc. and affiliates.
-*
-* This source code is licensed under the MIT license found in the
-* LICENSE file in the root directory of this source tree.
-*/
-var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
-	(function() {
-		function getComponentNameFromType(type) {
-			if (null == type) return null;
-			if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
-			if ("string" === typeof type) return type;
-			switch (type) {
-				case REACT_FRAGMENT_TYPE: return "Fragment";
-				case REACT_PROFILER_TYPE: return "Profiler";
-				case REACT_STRICT_MODE_TYPE: return "StrictMode";
-				case REACT_SUSPENSE_TYPE: return "Suspense";
-				case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
-				case REACT_ACTIVITY_TYPE: return "Activity";
-			}
-			if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
-				case REACT_PORTAL_TYPE: return "Portal";
-				case REACT_CONTEXT_TYPE: return type.displayName || "Context";
-				case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
-				case REACT_FORWARD_REF_TYPE:
-					var innerType = type.render;
-					type = type.displayName;
-					type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
-					return type;
-				case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
-				case REACT_LAZY_TYPE:
-					innerType = type._payload;
-					type = type._init;
-					try {
-						return getComponentNameFromType(type(innerType));
-					} catch (x) {}
-			}
-			return null;
-		}
-		function testStringCoercion(value) {
-			return "" + value;
-		}
-		function checkKeyStringCoercion(value) {
-			try {
-				testStringCoercion(value);
-				var JSCompiler_inline_result = !1;
-			} catch (e) {
-				JSCompiler_inline_result = !0;
-			}
-			if (JSCompiler_inline_result) {
-				JSCompiler_inline_result = console;
-				var JSCompiler_temp_const = JSCompiler_inline_result.error;
-				var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
-				JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
-				return testStringCoercion(value);
-			}
-		}
-		function getTaskName(type) {
-			if (type === REACT_FRAGMENT_TYPE) return "<>";
-			if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
-			try {
-				var name = getComponentNameFromType(type);
-				return name ? "<" + name + ">" : "<...>";
-			} catch (x) {
-				return "<...>";
-			}
-		}
-		function getOwner() {
-			var dispatcher = ReactSharedInternals.A;
-			return null === dispatcher ? null : dispatcher.getOwner();
-		}
-		function UnknownOwner() {
-			return Error("react-stack-top-frame");
-		}
-		function hasValidKey(config) {
-			if (hasOwnProperty.call(config, "key")) {
-				var getter = Object.getOwnPropertyDescriptor(config, "key").get;
-				if (getter && getter.isReactWarning) return !1;
-			}
-			return void 0 !== config.key;
-		}
-		function defineKeyPropWarningGetter(props, displayName) {
-			function warnAboutAccessingKey() {
-				specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
-			}
-			warnAboutAccessingKey.isReactWarning = !0;
-			Object.defineProperty(props, "key", {
-				get: warnAboutAccessingKey,
-				configurable: !0
-			});
-		}
-		function elementRefGetterWithDeprecationWarning() {
-			var componentName = getComponentNameFromType(this.type);
-			didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
-			componentName = this.props.ref;
-			return void 0 !== componentName ? componentName : null;
-		}
-		function ReactElement(type, key, props, owner, debugStack, debugTask) {
-			var refProp = props.ref;
-			type = {
-				$$typeof: REACT_ELEMENT_TYPE,
-				type,
-				key,
-				props,
-				_owner: owner
-			};
-			null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
-				enumerable: !1,
-				get: elementRefGetterWithDeprecationWarning
-			}) : Object.defineProperty(type, "ref", {
-				enumerable: !1,
-				value: null
-			});
-			type._store = {};
-			Object.defineProperty(type._store, "validated", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: 0
-			});
-			Object.defineProperty(type, "_debugInfo", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: null
-			});
-			Object.defineProperty(type, "_debugStack", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: debugStack
-			});
-			Object.defineProperty(type, "_debugTask", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: debugTask
-			});
-			Object.freeze && (Object.freeze(type.props), Object.freeze(type));
-			return type;
-		}
-		function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
-			var children = config.children;
-			if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
-				for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
-				Object.freeze && Object.freeze(children);
-			} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
-			else validateChildKeys(children);
-			if (hasOwnProperty.call(config, "key")) {
-				children = getComponentNameFromType(type);
-				var keys = Object.keys(config).filter(function(k) {
-					return "key" !== k;
-				});
-				isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
-				didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
-			}
-			children = null;
-			void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
-			hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
-			if ("key" in config) {
-				maybeKey = {};
-				for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
-			} else maybeKey = config;
-			children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
-			return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
-		}
-		function validateChildKeys(node) {
-			isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
-		}
-		function isValidElement(object) {
-			return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
-		}
-		var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
-			return null;
-		};
-		React = { react_stack_bottom_frame: function(callStackForError) {
-			return callStackForError();
-		} };
-		var specialPropKeyWarningShown;
-		var didWarnAboutElementRef = {};
-		var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
-		var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
-		var didWarnAboutKeySpread = {};
-		exports.Fragment = REACT_FRAGMENT_TYPE;
-		exports.jsx = function(type, config, maybeKey) {
-			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-			return jsxDEVImpl(type, config, maybeKey, !1, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
-		};
-		exports.jsxs = function(type, config, maybeKey) {
-			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-			return jsxDEVImpl(type, config, maybeKey, !0, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
-		};
-	})();
-}));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-context@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-context/dist/index.mjs
-var import_jsx_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
-	module.exports = require_react_jsx_runtime_development();
-})))();
-function createContext2(rootComponentName, defaultContext) {
-	const Context = import_react.createContext(defaultContext);
-	const Provider = (props) => {
-		const { children, ...context } = props;
-		const value = import_react.useMemo(() => context, Object.values(context));
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
-			value,
-			children
-		});
-	};
-	Provider.displayName = rootComponentName + "Provider";
-	function useContext2(consumerName) {
-		const context = import_react.useContext(Context);
-		if (context) return context;
-		if (defaultContext !== void 0) return defaultContext;
-		throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
-	}
-	return [Provider, useContext2];
-}
-function createContextScope(scopeName, createContextScopeDeps = []) {
-	let defaultContexts = [];
-	function createContext3(rootComponentName, defaultContext) {
-		const BaseContext = import_react.createContext(defaultContext);
-		const index = defaultContexts.length;
-		defaultContexts = [...defaultContexts, defaultContext];
-		const Provider = (props) => {
-			const { scope, children, ...context } = props;
-			const Context = scope?.[scopeName]?.[index] || BaseContext;
-			const value = import_react.useMemo(() => context, Object.values(context));
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
-				value,
-				children
-			});
-		};
-		Provider.displayName = rootComponentName + "Provider";
-		function useContext2(consumerName, scope) {
-			const Context = scope?.[scopeName]?.[index] || BaseContext;
-			const context = import_react.useContext(Context);
-			if (context) return context;
-			if (defaultContext !== void 0) return defaultContext;
-			throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
-		}
-		return [Provider, useContext2];
-	}
-	const createScope = () => {
-		const scopeContexts = defaultContexts.map((defaultContext) => {
-			return import_react.createContext(defaultContext);
-		});
-		return function useScope(scope) {
-			const contexts = scope?.[scopeName] || scopeContexts;
-			return import_react.useMemo(() => ({ [`__scope${scopeName}`]: {
-				...scope,
-				[scopeName]: contexts
-			} }), [scope, contexts]);
-		};
-	};
-	createScope.scopeName = scopeName;
-	return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
-}
-function composeContextScopes(...scopes) {
-	const baseScope = scopes[0];
-	if (scopes.length === 1) return baseScope;
-	const createScope = () => {
-		const scopeHooks = scopes.map((createScope2) => ({
-			useScope: createScope2(),
-			scopeName: createScope2.scopeName
-		}));
-		return function useComposedScopes(overrideScopes) {
-			const nextScopes = scopeHooks.reduce((nextScopes2, { useScope, scopeName }) => {
-				const currentScope = useScope(overrideScopes)[`__scope${scopeName}`];
-				return {
-					...nextScopes2,
-					...currentScope
-				};
-			}, {});
-			return import_react.useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
-		};
-	};
-	createScope.scopeName = baseScope.scopeName;
-	return createScope;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-layout-effect@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
-var useLayoutEffect2 = globalThis?.document ? import_react.useLayoutEffect : () => {};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-id@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-id/dist/index.mjs
-var useReactId = import_react[" useId ".trim().toString()] || (() => void 0);
-var count$1 = 0;
-function useId(deterministicId) {
-	const [id, setId] = import_react.useState(useReactId());
-	useLayoutEffect2(() => {
-		if (!deterministicId) setId((reactId) => reactId ?? String(count$1++));
-	}, [deterministicId]);
-	return deterministicId || (id ? `radix-${id}` : "");
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-controllable-state@1.2.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs
-var useInsertionEffect = import_react[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
-function useControllableState({ prop, defaultProp, onChange = () => {}, caller }) {
-	const [uncontrolledProp, setUncontrolledProp, onChangeRef] = useUncontrolledState({
-		defaultProp,
-		onChange
-	});
-	const isControlled = prop !== void 0;
-	const value = isControlled ? prop : uncontrolledProp;
-	{
-		const isControlledRef = import_react.useRef(prop !== void 0);
-		import_react.useEffect(() => {
-			const wasControlled = isControlledRef.current;
-			if (wasControlled !== isControlled) {
-				const from = wasControlled ? "controlled" : "uncontrolled";
-				const to = isControlled ? "controlled" : "uncontrolled";
-				console.warn(`${caller} is changing from ${from} to ${to}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`);
-			}
-			isControlledRef.current = isControlled;
-		}, [isControlled, caller]);
-	}
-	return [value, import_react.useCallback((nextValue) => {
-		if (isControlled) {
-			const value2 = isFunction(nextValue) ? nextValue(prop) : nextValue;
-			if (value2 !== prop) onChangeRef.current?.(value2);
-		} else setUncontrolledProp(nextValue);
-	}, [
-		isControlled,
-		prop,
-		setUncontrolledProp,
-		onChangeRef
-	])];
-}
-function useUncontrolledState({ defaultProp, onChange }) {
-	const [value, setValue] = import_react.useState(defaultProp);
-	const prevValueRef = import_react.useRef(value);
-	const onChangeRef = import_react.useRef(onChange);
-	useInsertionEffect(() => {
-		onChangeRef.current = onChange;
-	}, [onChange]);
-	import_react.useEffect(() => {
-		if (prevValueRef.current !== value) {
-			onChangeRef.current?.(value);
-			prevValueRef.current = value;
-		}
-	}, [value, prevValueRef]);
-	return [
-		value,
-		setValue,
-		onChangeRef
-	];
-}
-function isFunction(value) {
-	return typeof value === "function";
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-slot@1.2.3_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-slot/dist/index.mjs
-/* @__NO_SIDE_EFFECTS__ */
-function createSlot$1(ownerName) {
-	const SlotClone = /* @__PURE__ */ createSlotClone$1(ownerName);
-	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
-		const { children, ...slotProps } = props;
-		const childrenArray = import_react.Children.toArray(children);
-		const slottable = childrenArray.find(isSlottable$1);
-		if (slottable) {
-			const newElement = slottable.props.children;
-			const newChildren = childrenArray.map((child) => {
-				if (child === slottable) {
-					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
-					return import_react.isValidElement(newElement) ? newElement.props.children : null;
-				} else return child;
-			});
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
-				...slotProps,
-				ref: forwardedRef,
-				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
-			});
-		}
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
-			...slotProps,
-			ref: forwardedRef,
-			children
-		});
-	});
-	Slot2.displayName = `${ownerName}.Slot`;
-	return Slot2;
-}
-/* @__NO_SIDE_EFFECTS__ */
-function createSlotClone$1(ownerName) {
-	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
-		const { children, ...slotProps } = props;
-		if (import_react.isValidElement(children)) {
-			const childrenRef = getElementRef$2(children);
-			const props2 = mergeProps$1(slotProps, children.props);
-			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
-			return import_react.cloneElement(children, props2);
-		}
-		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
-	});
-	SlotClone.displayName = `${ownerName}.SlotClone`;
-	return SlotClone;
-}
-var SLOTTABLE_IDENTIFIER$1 = Symbol("radix.slottable");
-function isSlottable$1(child) {
-	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$1;
-}
-function mergeProps$1(slotProps, childProps) {
-	const overrideProps = { ...childProps };
-	for (const propName in childProps) {
-		const slotPropValue = slotProps[propName];
-		const childPropValue = childProps[propName];
-		if (/^on[A-Z]/.test(propName)) {
-			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
-				const result = childPropValue(...args);
-				slotPropValue(...args);
-				return result;
-			};
-			else if (slotPropValue) overrideProps[propName] = slotPropValue;
-		} else if (propName === "style") overrideProps[propName] = {
-			...slotPropValue,
-			...childPropValue
-		};
-		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
-	}
-	return {
-		...slotProps,
-		...overrideProps
-	};
-}
-function getElementRef$2(element) {
-	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
-	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.ref;
-	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
-	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.props.ref;
-	return element.props.ref || element.ref;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-primitive@2.1.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_1181ea5061ec9212248424669240e4ec/node_modules/@radix-ui/react-primitive/dist/index.mjs
-var Primitive = [
-	"a",
-	"button",
-	"div",
-	"form",
-	"h2",
-	"h3",
-	"img",
-	"input",
-	"label",
-	"li",
-	"nav",
-	"ol",
-	"p",
-	"select",
-	"span",
-	"svg",
-	"ul"
-].reduce((primitive, node) => {
-	const Slot = /* @__PURE__ */ createSlot$1(`Primitive.${node}`);
-	const Node = import_react.forwardRef((props, forwardedRef) => {
-		const { asChild, ...primitiveProps } = props;
-		const Comp = asChild ? Slot : node;
-		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
-			...primitiveProps,
-			ref: forwardedRef
-		});
-	});
-	Node.displayName = `Primitive.${node}`;
-	return {
-		...primitive,
-		[node]: Node
-	};
-}, {});
-function dispatchDiscreteCustomEvent(target, event) {
-	if (target) import_react_dom.flushSync(() => target.dispatchEvent(event));
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-callback-ref@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs
-function useCallbackRef$1(callback) {
-	const callbackRef = import_react.useRef(callback);
-	import_react.useEffect(() => {
-		callbackRef.current = callback;
-	});
-	return import_react.useMemo(() => (...args) => callbackRef.current?.(...args), []);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-escape-keydown@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
-function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis?.document) {
-	const onEscapeKeyDown = useCallbackRef$1(onEscapeKeyDownProp);
-	import_react.useEffect(() => {
-		const handleKeyDown = (event) => {
-			if (event.key === "Escape") onEscapeKeyDown(event);
-		};
-		ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
-		return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
-	}, [onEscapeKeyDown, ownerDocument]);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-dismissable-layer@1.1.11_@types+react-dom@19.2.3_@types+react@19.2.14___3d3960154a4c07d09bb90cb341135fc5/node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs
-var DISMISSABLE_LAYER_NAME = "DismissableLayer";
-var CONTEXT_UPDATE = "dismissableLayer.update";
-var POINTER_DOWN_OUTSIDE = "dismissableLayer.pointerDownOutside";
-var FOCUS_OUTSIDE = "dismissableLayer.focusOutside";
-var originalBodyPointerEvents;
-var DismissableLayerContext = import_react.createContext({
-	layers: /* @__PURE__ */ new Set(),
-	layersWithOutsidePointerEventsDisabled: /* @__PURE__ */ new Set(),
-	branches: /* @__PURE__ */ new Set()
-});
-var DismissableLayer = import_react.forwardRef((props, forwardedRef) => {
-	const { disableOutsidePointerEvents = false, onEscapeKeyDown, onPointerDownOutside, onFocusOutside, onInteractOutside, onDismiss, ...layerProps } = props;
-	const context = import_react.useContext(DismissableLayerContext);
-	const [node, setNode] = import_react.useState(null);
-	const ownerDocument = node?.ownerDocument ?? globalThis?.document;
-	const [, force] = import_react.useState({});
-	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
-	const layers = Array.from(context.layers);
-	const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1);
-	const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled);
-	const index = node ? layers.indexOf(node) : -1;
-	const isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0;
-	const isPointerEventsEnabled = index >= highestLayerWithOutsidePointerEventsDisabledIndex;
-	const pointerDownOutside = usePointerDownOutside((event) => {
-		const target = event.target;
-		const isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
-		if (!isPointerEventsEnabled || isPointerDownOnBranch) return;
-		onPointerDownOutside?.(event);
-		onInteractOutside?.(event);
-		if (!event.defaultPrevented) onDismiss?.();
-	}, ownerDocument);
-	const focusOutside = useFocusOutside((event) => {
-		const target = event.target;
-		if ([...context.branches].some((branch) => branch.contains(target))) return;
-		onFocusOutside?.(event);
-		onInteractOutside?.(event);
-		if (!event.defaultPrevented) onDismiss?.();
-	}, ownerDocument);
-	useEscapeKeydown((event) => {
-		if (!(index === context.layers.size - 1)) return;
-		onEscapeKeyDown?.(event);
-		if (!event.defaultPrevented && onDismiss) {
-			event.preventDefault();
-			onDismiss();
-		}
-	}, ownerDocument);
-	import_react.useEffect(() => {
-		if (!node) return;
-		if (disableOutsidePointerEvents) {
-			if (context.layersWithOutsidePointerEventsDisabled.size === 0) {
-				originalBodyPointerEvents = ownerDocument.body.style.pointerEvents;
-				ownerDocument.body.style.pointerEvents = "none";
-			}
-			context.layersWithOutsidePointerEventsDisabled.add(node);
-		}
-		context.layers.add(node);
-		dispatchUpdate();
-		return () => {
-			if (disableOutsidePointerEvents && context.layersWithOutsidePointerEventsDisabled.size === 1) ownerDocument.body.style.pointerEvents = originalBodyPointerEvents;
-		};
-	}, [
-		node,
-		ownerDocument,
-		disableOutsidePointerEvents,
-		context
-	]);
-	import_react.useEffect(() => {
-		return () => {
-			if (!node) return;
-			context.layers.delete(node);
-			context.layersWithOutsidePointerEventsDisabled.delete(node);
-			dispatchUpdate();
-		};
-	}, [node, context]);
-	import_react.useEffect(() => {
-		const handleUpdate = () => force({});
-		document.addEventListener(CONTEXT_UPDATE, handleUpdate);
-		return () => document.removeEventListener(CONTEXT_UPDATE, handleUpdate);
-	}, []);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
-		...layerProps,
-		ref: composedRefs,
-		style: {
-			pointerEvents: isBodyPointerEventsDisabled ? isPointerEventsEnabled ? "auto" : "none" : void 0,
-			...props.style
-		},
-		onFocusCapture: composeEventHandlers(props.onFocusCapture, focusOutside.onFocusCapture),
-		onBlurCapture: composeEventHandlers(props.onBlurCapture, focusOutside.onBlurCapture),
-		onPointerDownCapture: composeEventHandlers(props.onPointerDownCapture, pointerDownOutside.onPointerDownCapture)
-	});
-});
-DismissableLayer.displayName = DISMISSABLE_LAYER_NAME;
-var BRANCH_NAME = "DismissableLayerBranch";
-var DismissableLayerBranch = import_react.forwardRef((props, forwardedRef) => {
-	const context = import_react.useContext(DismissableLayerContext);
-	const ref = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, ref);
-	import_react.useEffect(() => {
-		const node = ref.current;
-		if (node) {
-			context.branches.add(node);
-			return () => {
-				context.branches.delete(node);
-			};
-		}
-	}, [context.branches]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
-		...props,
-		ref: composedRefs
-	});
-});
-DismissableLayerBranch.displayName = BRANCH_NAME;
-function usePointerDownOutside(onPointerDownOutside, ownerDocument = globalThis?.document) {
-	const handlePointerDownOutside = useCallbackRef$1(onPointerDownOutside);
-	const isPointerInsideReactTreeRef = import_react.useRef(false);
-	const handleClickRef = import_react.useRef(() => {});
-	import_react.useEffect(() => {
-		const handlePointerDown = (event) => {
-			if (event.target && !isPointerInsideReactTreeRef.current) {
-				let handleAndDispatchPointerDownOutsideEvent2 = function() {
-					handleAndDispatchCustomEvent(POINTER_DOWN_OUTSIDE, handlePointerDownOutside, eventDetail, { discrete: true });
-				};
-				const eventDetail = { originalEvent: event };
-				if (event.pointerType === "touch") {
-					ownerDocument.removeEventListener("click", handleClickRef.current);
-					handleClickRef.current = handleAndDispatchPointerDownOutsideEvent2;
-					ownerDocument.addEventListener("click", handleClickRef.current, { once: true });
-				} else handleAndDispatchPointerDownOutsideEvent2();
-			} else ownerDocument.removeEventListener("click", handleClickRef.current);
-			isPointerInsideReactTreeRef.current = false;
-		};
-		const timerId = window.setTimeout(() => {
-			ownerDocument.addEventListener("pointerdown", handlePointerDown);
-		}, 0);
-		return () => {
-			window.clearTimeout(timerId);
-			ownerDocument.removeEventListener("pointerdown", handlePointerDown);
-			ownerDocument.removeEventListener("click", handleClickRef.current);
-		};
-	}, [ownerDocument, handlePointerDownOutside]);
-	return { onPointerDownCapture: () => isPointerInsideReactTreeRef.current = true };
-}
-function useFocusOutside(onFocusOutside, ownerDocument = globalThis?.document) {
-	const handleFocusOutside = useCallbackRef$1(onFocusOutside);
-	const isFocusInsideReactTreeRef = import_react.useRef(false);
-	import_react.useEffect(() => {
-		const handleFocus = (event) => {
-			if (event.target && !isFocusInsideReactTreeRef.current) handleAndDispatchCustomEvent(FOCUS_OUTSIDE, handleFocusOutside, { originalEvent: event }, { discrete: false });
-		};
-		ownerDocument.addEventListener("focusin", handleFocus);
-		return () => ownerDocument.removeEventListener("focusin", handleFocus);
-	}, [ownerDocument, handleFocusOutside]);
-	return {
-		onFocusCapture: () => isFocusInsideReactTreeRef.current = true,
-		onBlurCapture: () => isFocusInsideReactTreeRef.current = false
-	};
-}
-function dispatchUpdate() {
-	const event = new CustomEvent(CONTEXT_UPDATE);
-	document.dispatchEvent(event);
-}
-function handleAndDispatchCustomEvent(name, handler, detail, { discrete }) {
-	const target = detail.originalEvent.target;
-	const event = new CustomEvent(name, {
-		bubbles: false,
-		cancelable: true,
-		detail
-	});
-	if (handler) target.addEventListener(name, handler, { once: true });
-	if (discrete) dispatchDiscreteCustomEvent(target, event);
-	else target.dispatchEvent(event);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-focus-scope@1.1.7_@types+react-dom@19.2.3_@types+react@19.2.14__@types+_f62f3af4ca2ba305a7aecf04c8534604/node_modules/@radix-ui/react-focus-scope/dist/index.mjs
-var AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount";
-var AUTOFOCUS_ON_UNMOUNT = "focusScope.autoFocusOnUnmount";
-var EVENT_OPTIONS = {
-	bubbles: false,
-	cancelable: true
-};
-var FOCUS_SCOPE_NAME = "FocusScope";
-var FocusScope = import_react.forwardRef((props, forwardedRef) => {
-	const { loop = false, trapped = false, onMountAutoFocus: onMountAutoFocusProp, onUnmountAutoFocus: onUnmountAutoFocusProp, ...scopeProps } = props;
-	const [container, setContainer] = import_react.useState(null);
-	const onMountAutoFocus = useCallbackRef$1(onMountAutoFocusProp);
-	const onUnmountAutoFocus = useCallbackRef$1(onUnmountAutoFocusProp);
-	const lastFocusedElementRef = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, (node) => setContainer(node));
-	const focusScope = import_react.useRef({
-		paused: false,
-		pause() {
-			this.paused = true;
-		},
-		resume() {
-			this.paused = false;
-		}
-	}).current;
-	import_react.useEffect(() => {
-		if (trapped) {
-			let handleFocusIn2 = function(event) {
-				if (focusScope.paused || !container) return;
-				const target = event.target;
-				if (container.contains(target)) lastFocusedElementRef.current = target;
-				else focus(lastFocusedElementRef.current, { select: true });
-			}, handleFocusOut2 = function(event) {
-				if (focusScope.paused || !container) return;
-				const relatedTarget = event.relatedTarget;
-				if (relatedTarget === null) return;
-				if (!container.contains(relatedTarget)) focus(lastFocusedElementRef.current, { select: true });
-			}, handleMutations2 = function(mutations) {
-				if (document.activeElement !== document.body) return;
-				for (const mutation of mutations) if (mutation.removedNodes.length > 0) focus(container);
-			};
-			document.addEventListener("focusin", handleFocusIn2);
-			document.addEventListener("focusout", handleFocusOut2);
-			const mutationObserver = new MutationObserver(handleMutations2);
-			if (container) mutationObserver.observe(container, {
-				childList: true,
-				subtree: true
-			});
-			return () => {
-				document.removeEventListener("focusin", handleFocusIn2);
-				document.removeEventListener("focusout", handleFocusOut2);
-				mutationObserver.disconnect();
-			};
-		}
-	}, [
-		trapped,
-		container,
-		focusScope.paused
-	]);
-	import_react.useEffect(() => {
-		if (container) {
-			focusScopesStack.add(focusScope);
-			const previouslyFocusedElement = document.activeElement;
-			if (!container.contains(previouslyFocusedElement)) {
-				const mountEvent = new CustomEvent(AUTOFOCUS_ON_MOUNT, EVENT_OPTIONS);
-				container.addEventListener(AUTOFOCUS_ON_MOUNT, onMountAutoFocus);
-				container.dispatchEvent(mountEvent);
-				if (!mountEvent.defaultPrevented) {
-					focusFirst(removeLinks(getTabbableCandidates(container)), { select: true });
-					if (document.activeElement === previouslyFocusedElement) focus(container);
-				}
-			}
-			return () => {
-				container.removeEventListener(AUTOFOCUS_ON_MOUNT, onMountAutoFocus);
-				setTimeout(() => {
-					const unmountEvent = new CustomEvent(AUTOFOCUS_ON_UNMOUNT, EVENT_OPTIONS);
-					container.addEventListener(AUTOFOCUS_ON_UNMOUNT, onUnmountAutoFocus);
-					container.dispatchEvent(unmountEvent);
-					if (!unmountEvent.defaultPrevented) focus(previouslyFocusedElement ?? document.body, { select: true });
-					container.removeEventListener(AUTOFOCUS_ON_UNMOUNT, onUnmountAutoFocus);
-					focusScopesStack.remove(focusScope);
-				}, 0);
-			};
-		}
-	}, [
-		container,
-		onMountAutoFocus,
-		onUnmountAutoFocus,
-		focusScope
-	]);
-	const handleKeyDown = import_react.useCallback((event) => {
-		if (!loop && !trapped) return;
-		if (focusScope.paused) return;
-		const isTabKey = event.key === "Tab" && !event.altKey && !event.ctrlKey && !event.metaKey;
-		const focusedElement = document.activeElement;
-		if (isTabKey && focusedElement) {
-			const container2 = event.currentTarget;
-			const [first, last] = getTabbableEdges(container2);
-			if (!(first && last)) {
-				if (focusedElement === container2) event.preventDefault();
-			} else if (!event.shiftKey && focusedElement === last) {
-				event.preventDefault();
-				if (loop) focus(first, { select: true });
-			} else if (event.shiftKey && focusedElement === first) {
-				event.preventDefault();
-				if (loop) focus(last, { select: true });
-			}
-		}
-	}, [
-		loop,
-		trapped,
-		focusScope.paused
-	]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
-		tabIndex: -1,
-		...scopeProps,
-		ref: composedRefs,
-		onKeyDown: handleKeyDown
-	});
-});
-FocusScope.displayName = FOCUS_SCOPE_NAME;
-function focusFirst(candidates, { select = false } = {}) {
-	const previouslyFocusedElement = document.activeElement;
-	for (const candidate of candidates) {
-		focus(candidate, { select });
-		if (document.activeElement !== previouslyFocusedElement) return;
-	}
-}
-function getTabbableEdges(container) {
-	const candidates = getTabbableCandidates(container);
-	return [findVisible(candidates, container), findVisible(candidates.reverse(), container)];
-}
-function getTabbableCandidates(container) {
-	const nodes = [];
-	const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, { acceptNode: (node) => {
-		const isHiddenInput = node.tagName === "INPUT" && node.type === "hidden";
-		if (node.disabled || node.hidden || isHiddenInput) return NodeFilter.FILTER_SKIP;
-		return node.tabIndex >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-	} });
-	while (walker.nextNode()) nodes.push(walker.currentNode);
-	return nodes;
-}
-function findVisible(elements, container) {
-	for (const element of elements) if (!isHidden(element, { upTo: container })) return element;
-}
-function isHidden(node, { upTo }) {
-	if (getComputedStyle(node).visibility === "hidden") return true;
-	while (node) {
-		if (upTo !== void 0 && node === upTo) return false;
-		if (getComputedStyle(node).display === "none") return true;
-		node = node.parentElement;
-	}
-	return false;
-}
-function isSelectableInput(element) {
-	return element instanceof HTMLInputElement && "select" in element;
-}
-function focus(element, { select = false } = {}) {
-	if (element && element.focus) {
-		const previouslyFocusedElement = document.activeElement;
-		element.focus({ preventScroll: true });
-		if (element !== previouslyFocusedElement && isSelectableInput(element) && select) element.select();
-	}
-}
-var focusScopesStack = createFocusScopesStack();
-function createFocusScopesStack() {
-	let stack = [];
-	return {
-		add(focusScope) {
-			const activeFocusScope = stack[0];
-			if (focusScope !== activeFocusScope) activeFocusScope?.pause();
-			stack = arrayRemove(stack, focusScope);
-			stack.unshift(focusScope);
-		},
-		remove(focusScope) {
-			stack = arrayRemove(stack, focusScope);
-			stack[0]?.resume();
-		}
-	};
-}
-function arrayRemove(array, item) {
-	const updatedArray = [...array];
-	const index = updatedArray.indexOf(item);
-	if (index !== -1) updatedArray.splice(index, 1);
-	return updatedArray;
-}
-function removeLinks(items) {
-	return items.filter((item) => item.tagName !== "A");
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-portal@1.1.9_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_7668895bec2444446faa4e0f4eb5244b/node_modules/@radix-ui/react-portal/dist/index.mjs
-var PORTAL_NAME$1 = "Portal";
-var Portal$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { container: containerProp, ...portalProps } = props;
-	const [mounted, setMounted] = import_react.useState(false);
-	useLayoutEffect2(() => setMounted(true), []);
-	const container = containerProp || mounted && globalThis?.document?.body;
-	return container ? import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
-		...portalProps,
-		ref: forwardedRef
-	}), container) : null;
-});
-Portal$1.displayName = PORTAL_NAME$1;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-presence@1.1.5_@types+react-dom@19.2.3_@types+react@19.2.14__@types+rea_c01c26c80b5ab5e3ecefbda6eca51ad1/node_modules/@radix-ui/react-presence/dist/index.mjs
-function useStateMachine(initialState, machine) {
-	return import_react.useReducer((state, event) => {
-		return machine[state][event] ?? state;
-	}, initialState);
-}
-var Presence = (props) => {
-	const { present, children } = props;
-	const presence = usePresence(present);
-	const child = typeof children === "function" ? children({ present: presence.isPresent }) : import_react.Children.only(children);
-	const ref = useComposedRefs(presence.ref, getElementRef$1(child));
-	return typeof children === "function" || presence.isPresent ? import_react.cloneElement(child, { ref }) : null;
-};
-Presence.displayName = "Presence";
-function usePresence(present) {
-	const [node, setNode] = import_react.useState();
-	const stylesRef = import_react.useRef(null);
-	const prevPresentRef = import_react.useRef(present);
-	const prevAnimationNameRef = import_react.useRef("none");
-	const [state, send] = useStateMachine(present ? "mounted" : "unmounted", {
-		mounted: {
-			UNMOUNT: "unmounted",
-			ANIMATION_OUT: "unmountSuspended"
-		},
-		unmountSuspended: {
-			MOUNT: "mounted",
-			ANIMATION_END: "unmounted"
-		},
-		unmounted: { MOUNT: "mounted" }
-	});
-	import_react.useEffect(() => {
-		const currentAnimationName = getAnimationName(stylesRef.current);
-		prevAnimationNameRef.current = state === "mounted" ? currentAnimationName : "none";
-	}, [state]);
-	useLayoutEffect2(() => {
-		const styles = stylesRef.current;
-		const wasPresent = prevPresentRef.current;
-		if (wasPresent !== present) {
-			const prevAnimationName = prevAnimationNameRef.current;
-			const currentAnimationName = getAnimationName(styles);
-			if (present) send("MOUNT");
-			else if (currentAnimationName === "none" || styles?.display === "none") send("UNMOUNT");
-			else if (wasPresent && prevAnimationName !== currentAnimationName) send("ANIMATION_OUT");
-			else send("UNMOUNT");
-			prevPresentRef.current = present;
-		}
-	}, [present, send]);
-	useLayoutEffect2(() => {
-		if (node) {
-			let timeoutId;
-			const ownerWindow = node.ownerDocument.defaultView ?? window;
-			const handleAnimationEnd = (event) => {
-				const isCurrentAnimation = getAnimationName(stylesRef.current).includes(CSS.escape(event.animationName));
-				if (event.target === node && isCurrentAnimation) {
-					send("ANIMATION_END");
-					if (!prevPresentRef.current) {
-						const currentFillMode = node.style.animationFillMode;
-						node.style.animationFillMode = "forwards";
-						timeoutId = ownerWindow.setTimeout(() => {
-							if (node.style.animationFillMode === "forwards") node.style.animationFillMode = currentFillMode;
-						});
-					}
-				}
-			};
-			const handleAnimationStart = (event) => {
-				if (event.target === node) prevAnimationNameRef.current = getAnimationName(stylesRef.current);
-			};
-			node.addEventListener("animationstart", handleAnimationStart);
-			node.addEventListener("animationcancel", handleAnimationEnd);
-			node.addEventListener("animationend", handleAnimationEnd);
-			return () => {
-				ownerWindow.clearTimeout(timeoutId);
-				node.removeEventListener("animationstart", handleAnimationStart);
-				node.removeEventListener("animationcancel", handleAnimationEnd);
-				node.removeEventListener("animationend", handleAnimationEnd);
-			};
-		} else send("ANIMATION_END");
-	}, [node, send]);
-	return {
-		isPresent: ["mounted", "unmountSuspended"].includes(state),
-		ref: import_react.useCallback((node2) => {
-			stylesRef.current = node2 ? getComputedStyle(node2) : null;
-			setNode(node2);
-		}, [])
-	};
-}
-function getAnimationName(styles) {
-	return styles?.animationName || "none";
-}
-function getElementRef$1(element) {
-	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
-	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.ref;
-	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
-	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.props.ref;
-	return element.props.ref || element.ref;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-focus-guards@1.1.3_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-focus-guards/dist/index.mjs
-var count = 0;
-function useFocusGuards() {
-	import_react.useEffect(() => {
-		const edgeGuards = document.querySelectorAll("[data-radix-focus-guard]");
-		document.body.insertAdjacentElement("afterbegin", edgeGuards[0] ?? createFocusGuard());
-		document.body.insertAdjacentElement("beforeend", edgeGuards[1] ?? createFocusGuard());
-		count++;
-		return () => {
-			if (count === 1) document.querySelectorAll("[data-radix-focus-guard]").forEach((node) => node.remove());
-			count--;
-		};
-	}, []);
-}
-function createFocusGuard() {
-	const element = document.createElement("span");
-	element.setAttribute("data-radix-focus-guard", "");
-	element.tabIndex = 0;
-	element.style.outline = "none";
-	element.style.opacity = "0";
-	element.style.position = "fixed";
-	element.style.pointerEvents = "none";
-	return element;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/tslib@2.8.1/node_modules/tslib/tslib.es6.mjs
-var __assign = function() {
-	__assign = Object.assign || function __assign(t) {
-		for (var s, i = 1, n = arguments.length; i < n; i++) {
-			s = arguments[i];
-			for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-		}
-		return t;
-	};
-	return __assign.apply(this, arguments);
-};
-function __rest(s, e) {
-	var t = {};
-	for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-	if (s != null && typeof Object.getOwnPropertySymbols === "function") {
-		for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
-	}
-	return t;
-}
-function __spreadArray(to, from, pack) {
-	if (pack || arguments.length === 2) {
-		for (var i = 0, l = from.length, ar; i < l; i++) if (ar || !(i in from)) {
-			if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-			ar[i] = from[i];
-		}
-	}
-	return to.concat(ar || Array.prototype.slice.call(from));
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll-bar@2.3.8_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll-bar/dist/es2015/constants.js
-var zeroRightClassName = "right-scroll-bar-position";
-var fullWidthClassName = "width-before-scroll-bar";
-var noScrollbarsClassName = "with-scroll-bars-hidden";
-/**
-* Name of a CSS variable containing the amount of "hidden" scrollbar
-* ! might be undefined ! use will fallback!
-*/
-var removedBarSizeVariable = "--removed-body-scroll-bar-size";
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-callback-ref@1.3.3_@types+react@19.2.14_react@19.2.4/node_modules/use-callback-ref/dist/es2015/assignRef.js
-/**
-* Assigns a value for a given ref, no matter of the ref format
-* @param {RefObject} ref - a callback function or ref object
-* @param value - a new value
-*
-* @see https://github.com/theKashey/use-callback-ref#assignref
-* @example
-* const refObject = useRef();
-* const refFn = (ref) => {....}
-*
-* assignRef(refObject, "refValue");
-* assignRef(refFn, "refValue");
-*/
-function assignRef(ref, value) {
-	if (typeof ref === "function") ref(value);
-	else if (ref) ref.current = value;
-	return ref;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-callback-ref@1.3.3_@types+react@19.2.14_react@19.2.4/node_modules/use-callback-ref/dist/es2015/useRef.js
-/**
-* creates a MutableRef with ref change callback
-* @param initialValue - initial ref value
-* @param {Function} callback - a callback to run when value changes
-*
-* @example
-* const ref = useCallbackRef(0, (newValue, oldValue) => console.log(oldValue, '->', newValue);
-* ref.current = 1;
-* // prints 0 -> 1
-*
-* @see https://reactjs.org/docs/hooks-reference.html#useref
-* @see https://github.com/theKashey/use-callback-ref#usecallbackref---to-replace-reactuseref
-* @returns {MutableRefObject}
-*/
-function useCallbackRef(initialValue, callback) {
-	var ref = (0, import_react.useState)(function() {
-		return {
-			value: initialValue,
-			callback,
-			facade: {
-				get current() {
-					return ref.value;
-				},
-				set current(value) {
-					var last = ref.value;
-					if (last !== value) {
-						ref.value = value;
-						ref.callback(value, last);
-					}
-				}
-			}
-		};
-	})[0];
-	ref.callback = callback;
-	return ref.facade;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-callback-ref@1.3.3_@types+react@19.2.14_react@19.2.4/node_modules/use-callback-ref/dist/es2015/useMergeRef.js
-var useIsomorphicLayoutEffect = typeof window !== "undefined" ? import_react.useLayoutEffect : import_react.useEffect;
-var currentValues = /* @__PURE__ */ new WeakMap();
-/**
-* Merges two or more refs together providing a single interface to set their value
-* @param {RefObject|Ref} refs
-* @returns {MutableRefObject} - a new ref, which translates all changes to {refs}
-*
-* @see {@link mergeRefs} a version without buit-in memoization
-* @see https://github.com/theKashey/use-callback-ref#usemergerefs
-* @example
-* const Component = React.forwardRef((props, ref) => {
-*   const ownRef = useRef();
-*   const domRef = useMergeRefs([ref, ownRef]); // 👈 merge together
-*   return <div ref={domRef}>...</div>
-* }
-*/
-function useMergeRefs(refs, defaultValue) {
-	var callbackRef = useCallbackRef(defaultValue || null, function(newValue) {
-		return refs.forEach(function(ref) {
-			return assignRef(ref, newValue);
-		});
-	});
-	useIsomorphicLayoutEffect(function() {
-		var oldValue = currentValues.get(callbackRef);
-		if (oldValue) {
-			var prevRefs_1 = new Set(oldValue);
-			var nextRefs_1 = new Set(refs);
-			var current_1 = callbackRef.current;
-			prevRefs_1.forEach(function(ref) {
-				if (!nextRefs_1.has(ref)) assignRef(ref, null);
-			});
-			nextRefs_1.forEach(function(ref) {
-				if (!prevRefs_1.has(ref)) assignRef(ref, current_1);
-			});
-		}
-		currentValues.set(callbackRef, refs);
-	}, [refs]);
-	return callbackRef;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-sidecar@1.1.3_@types+react@19.2.14_react@19.2.4/node_modules/use-sidecar/dist/es2015/medium.js
-function ItoI(a) {
-	return a;
-}
-function innerCreateMedium(defaults, middleware) {
-	if (middleware === void 0) middleware = ItoI;
-	var buffer = [];
-	var assigned = false;
-	return {
-		read: function() {
-			if (assigned) throw new Error("Sidecar: could not `read` from an `assigned` medium. `read` could be used only with `useMedium`.");
-			if (buffer.length) return buffer[buffer.length - 1];
-			return defaults;
-		},
-		useMedium: function(data) {
-			var item = middleware(data, assigned);
-			buffer.push(item);
-			return function() {
-				buffer = buffer.filter(function(x) {
-					return x !== item;
-				});
-			};
-		},
-		assignSyncMedium: function(cb) {
-			assigned = true;
-			while (buffer.length) {
-				var cbs = buffer;
-				buffer = [];
-				cbs.forEach(cb);
-			}
-			buffer = {
-				push: function(x) {
-					return cb(x);
-				},
-				filter: function() {
-					return buffer;
-				}
-			};
-		},
-		assignMedium: function(cb) {
-			assigned = true;
-			var pendingQueue = [];
-			if (buffer.length) {
-				var cbs = buffer;
-				buffer = [];
-				cbs.forEach(cb);
-				pendingQueue = buffer;
-			}
-			var executeQueue = function() {
-				var cbs = pendingQueue;
-				pendingQueue = [];
-				cbs.forEach(cb);
-			};
-			var cycle = function() {
-				return Promise.resolve().then(executeQueue);
-			};
-			cycle();
-			buffer = {
-				push: function(x) {
-					pendingQueue.push(x);
-					cycle();
-				},
-				filter: function(filter) {
-					pendingQueue = pendingQueue.filter(filter);
-					return buffer;
-				}
-			};
-		}
-	};
-}
-function createSidecarMedium(options) {
-	if (options === void 0) options = {};
-	var medium = innerCreateMedium(null);
-	medium.options = __assign({
-		async: true,
-		ssr: false
-	}, options);
-	return medium;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-sidecar@1.1.3_@types+react@19.2.14_react@19.2.4/node_modules/use-sidecar/dist/es2015/exports.js
-var SideCar = function(_a) {
-	var sideCar = _a.sideCar, rest = __rest(_a, ["sideCar"]);
-	if (!sideCar) throw new Error("Sidecar: please provide `sideCar` property to import the right car");
-	var Target = sideCar.read();
-	if (!Target) throw new Error("Sidecar medium not found");
-	return import_react.createElement(Target, __assign({}, rest));
-};
-SideCar.isSideCarExport = true;
-function exportSidecar(medium, exported) {
-	medium.useMedium(exported);
-	return SideCar;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/medium.js
-var effectCar = createSidecarMedium();
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/UI.js
-var nothing = function() {};
-/**
-* Removes scrollbar from the page and contain the scroll within the Lock
-*/
-var RemoveScroll = import_react.forwardRef(function(props, parentRef) {
-	var ref = import_react.useRef(null);
-	var _a = import_react.useState({
-		onScrollCapture: nothing,
-		onWheelCapture: nothing,
-		onTouchMoveCapture: nothing
-	}), callbacks = _a[0], setCallbacks = _a[1];
-	var forwardProps = props.forwardProps, children = props.children, className = props.className, removeScrollBar = props.removeScrollBar, enabled = props.enabled, shards = props.shards, sideCar = props.sideCar, noRelative = props.noRelative, noIsolation = props.noIsolation, inert = props.inert, allowPinchZoom = props.allowPinchZoom, _b = props.as, Container = _b === void 0 ? "div" : _b, gapMode = props.gapMode, rest = __rest(props, [
-		"forwardProps",
-		"children",
-		"className",
-		"removeScrollBar",
-		"enabled",
-		"shards",
-		"sideCar",
-		"noRelative",
-		"noIsolation",
-		"inert",
-		"allowPinchZoom",
-		"as",
-		"gapMode"
-	]);
-	var SideCar = sideCar;
-	var containerRef = useMergeRefs([ref, parentRef]);
-	var containerProps = __assign(__assign({}, rest), callbacks);
-	return import_react.createElement(import_react.Fragment, null, enabled && import_react.createElement(SideCar, {
-		sideCar: effectCar,
-		removeScrollBar,
-		shards,
-		noRelative,
-		noIsolation,
-		inert,
-		setCallbacks,
-		allowPinchZoom: !!allowPinchZoom,
-		lockRef: ref,
-		gapMode
-	}), forwardProps ? import_react.cloneElement(import_react.Children.only(children), __assign(__assign({}, containerProps), { ref: containerRef })) : import_react.createElement(Container, __assign({}, containerProps, {
-		className,
-		ref: containerRef
-	}), children));
-});
-RemoveScroll.defaultProps = {
-	enabled: true,
-	removeScrollBar: true,
-	inert: false
-};
-RemoveScroll.classNames = {
-	fullWidth: fullWidthClassName,
-	zeroRight: zeroRightClassName
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/get-nonce@1.0.1/node_modules/get-nonce/dist/es2015/index.js
-var currentNonce;
-var getNonce = function() {
-	if (currentNonce) return currentNonce;
-	if (typeof __webpack_nonce__ !== "undefined") return __webpack_nonce__;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-style-singleton@2.2.3_@types+react@19.2.14_react@19.2.4/node_modules/react-style-singleton/dist/es2015/singleton.js
-function makeStyleTag() {
-	if (!document) return null;
-	var tag = document.createElement("style");
-	tag.type = "text/css";
-	var nonce = getNonce();
-	if (nonce) tag.setAttribute("nonce", nonce);
-	return tag;
-}
-function injectStyles(tag, css) {
-	if (tag.styleSheet) tag.styleSheet.cssText = css;
-	else tag.appendChild(document.createTextNode(css));
-}
-function insertStyleTag(tag) {
-	(document.head || document.getElementsByTagName("head")[0]).appendChild(tag);
-}
-var stylesheetSingleton = function() {
-	var counter = 0;
-	var stylesheet = null;
-	return {
-		add: function(style) {
-			if (counter == 0) {
-				if (stylesheet = makeStyleTag()) {
-					injectStyles(stylesheet, style);
-					insertStyleTag(stylesheet);
-				}
-			}
-			counter++;
-		},
-		remove: function() {
-			counter--;
-			if (!counter && stylesheet) {
-				stylesheet.parentNode && stylesheet.parentNode.removeChild(stylesheet);
-				stylesheet = null;
-			}
-		}
-	};
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-style-singleton@2.2.3_@types+react@19.2.14_react@19.2.4/node_modules/react-style-singleton/dist/es2015/hook.js
-/**
-* creates a hook to control style singleton
-* @see {@link styleSingleton} for a safer component version
-* @example
-* ```tsx
-* const useStyle = styleHookSingleton();
-* ///
-* useStyle('body { overflow: hidden}');
-*/
-var styleHookSingleton = function() {
-	var sheet = stylesheetSingleton();
-	return function(styles, isDynamic) {
-		import_react.useEffect(function() {
-			sheet.add(styles);
-			return function() {
-				sheet.remove();
-			};
-		}, [styles && isDynamic]);
-	};
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-style-singleton@2.2.3_@types+react@19.2.14_react@19.2.4/node_modules/react-style-singleton/dist/es2015/component.js
-/**
-* create a Component to add styles on demand
-* - styles are added when first instance is mounted
-* - styles are removed when the last instance is unmounted
-* - changing styles in runtime does nothing unless dynamic is set. But with multiple components that can lead to the undefined behavior
-*/
-var styleSingleton = function() {
-	var useStyle = styleHookSingleton();
-	var Sheet = function(_a) {
-		var styles = _a.styles, dynamic = _a.dynamic;
-		useStyle(styles, dynamic);
-		return null;
-	};
-	return Sheet;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll-bar@2.3.8_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll-bar/dist/es2015/utils.js
-var zeroGap = {
-	left: 0,
-	top: 0,
-	right: 0,
-	gap: 0
-};
-var parse = function(x) {
-	return parseInt(x || "", 10) || 0;
-};
-var getOffset = function(gapMode) {
-	var cs = window.getComputedStyle(document.body);
-	var left = cs[gapMode === "padding" ? "paddingLeft" : "marginLeft"];
-	var top = cs[gapMode === "padding" ? "paddingTop" : "marginTop"];
-	var right = cs[gapMode === "padding" ? "paddingRight" : "marginRight"];
-	return [
-		parse(left),
-		parse(top),
-		parse(right)
-	];
-};
-var getGapWidth = function(gapMode) {
-	if (gapMode === void 0) gapMode = "margin";
-	if (typeof window === "undefined") return zeroGap;
-	var offsets = getOffset(gapMode);
-	var documentWidth = document.documentElement.clientWidth;
-	var windowWidth = window.innerWidth;
-	return {
-		left: offsets[0],
-		top: offsets[1],
-		right: offsets[2],
-		gap: Math.max(0, windowWidth - documentWidth + offsets[2] - offsets[0])
-	};
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll-bar@2.3.8_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll-bar/dist/es2015/component.js
-var Style = styleSingleton();
-var lockAttribute = "data-scroll-locked";
-var getStyles = function(_a, allowRelative, gapMode, important) {
-	var left = _a.left, top = _a.top, right = _a.right, gap = _a.gap;
-	if (gapMode === void 0) gapMode = "margin";
-	return "\n  .".concat(noScrollbarsClassName, " {\n   overflow: hidden ").concat(important, ";\n   padding-right: ").concat(gap, "px ").concat(important, ";\n  }\n  body[").concat(lockAttribute, "] {\n    overflow: hidden ").concat(important, ";\n    overscroll-behavior: contain;\n    ").concat([
-		allowRelative && "position: relative ".concat(important, ";"),
-		gapMode === "margin" && "\n    padding-left: ".concat(left, "px;\n    padding-top: ").concat(top, "px;\n    padding-right: ").concat(right, "px;\n    margin-left:0;\n    margin-top:0;\n    margin-right: ").concat(gap, "px ").concat(important, ";\n    "),
-		gapMode === "padding" && "padding-right: ".concat(gap, "px ").concat(important, ";")
-	].filter(Boolean).join(""), "\n  }\n  \n  .").concat(zeroRightClassName, " {\n    right: ").concat(gap, "px ").concat(important, ";\n  }\n  \n  .").concat(fullWidthClassName, " {\n    margin-right: ").concat(gap, "px ").concat(important, ";\n  }\n  \n  .").concat(zeroRightClassName, " .").concat(zeroRightClassName, " {\n    right: 0 ").concat(important, ";\n  }\n  \n  .").concat(fullWidthClassName, " .").concat(fullWidthClassName, " {\n    margin-right: 0 ").concat(important, ";\n  }\n  \n  body[").concat(lockAttribute, "] {\n    ").concat(removedBarSizeVariable, ": ").concat(gap, "px;\n  }\n");
-};
-var getCurrentUseCounter = function() {
-	var counter = parseInt(document.body.getAttribute("data-scroll-locked") || "0", 10);
-	return isFinite(counter) ? counter : 0;
-};
-var useLockAttribute = function() {
-	import_react.useEffect(function() {
-		document.body.setAttribute(lockAttribute, (getCurrentUseCounter() + 1).toString());
-		return function() {
-			var newCounter = getCurrentUseCounter() - 1;
-			if (newCounter <= 0) document.body.removeAttribute(lockAttribute);
-			else document.body.setAttribute(lockAttribute, newCounter.toString());
-		};
-	}, []);
-};
-/**
-* Removes page scrollbar and blocks page scroll when mounted
-*/
-var RemoveScrollBar = function(_a) {
-	var noRelative = _a.noRelative, noImportant = _a.noImportant, _b = _a.gapMode, gapMode = _b === void 0 ? "margin" : _b;
-	useLockAttribute();
-	var gap = import_react.useMemo(function() {
-		return getGapWidth(gapMode);
-	}, [gapMode]);
-	return import_react.createElement(Style, { styles: getStyles(gap, !noRelative, gapMode, !noImportant ? "!important" : "") });
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/aggresiveCapture.js
-var passiveSupported = false;
-if (typeof window !== "undefined") try {
-	var options = Object.defineProperty({}, "passive", { get: function() {
-		passiveSupported = true;
-		return true;
-	} });
-	window.addEventListener("test", options, options);
-	window.removeEventListener("test", options, options);
-} catch (err) {
-	passiveSupported = false;
-}
-var nonPassive = passiveSupported ? { passive: false } : false;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/handleScroll.js
-var alwaysContainsScroll = function(node) {
-	return node.tagName === "TEXTAREA";
-};
-var elementCanBeScrolled = function(node, overflow) {
-	if (!(node instanceof Element)) return false;
-	var styles = window.getComputedStyle(node);
-	return styles[overflow] !== "hidden" && !(styles.overflowY === styles.overflowX && !alwaysContainsScroll(node) && styles[overflow] === "visible");
-};
-var elementCouldBeVScrolled = function(node) {
-	return elementCanBeScrolled(node, "overflowY");
-};
-var elementCouldBeHScrolled = function(node) {
-	return elementCanBeScrolled(node, "overflowX");
-};
-var locationCouldBeScrolled = function(axis, node) {
-	var ownerDocument = node.ownerDocument;
-	var current = node;
-	do {
-		if (typeof ShadowRoot !== "undefined" && current instanceof ShadowRoot) current = current.host;
-		if (elementCouldBeScrolled(axis, current)) {
-			var _a = getScrollVariables(axis, current);
-			if (_a[1] > _a[2]) return true;
-		}
-		current = current.parentNode;
-	} while (current && current !== ownerDocument.body);
-	return false;
-};
-var getVScrollVariables = function(_a) {
-	return [
-		_a.scrollTop,
-		_a.scrollHeight,
-		_a.clientHeight
-	];
-};
-var getHScrollVariables = function(_a) {
-	return [
-		_a.scrollLeft,
-		_a.scrollWidth,
-		_a.clientWidth
-	];
-};
-var elementCouldBeScrolled = function(axis, node) {
-	return axis === "v" ? elementCouldBeVScrolled(node) : elementCouldBeHScrolled(node);
-};
-var getScrollVariables = function(axis, node) {
-	return axis === "v" ? getVScrollVariables(node) : getHScrollVariables(node);
-};
-var getDirectionFactor = function(axis, direction) {
-	/**
-	* If the element's direction is rtl (right-to-left), then scrollLeft is 0 when the scrollbar is at its rightmost position,
-	* and then increasingly negative as you scroll towards the end of the content.
-	* @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollLeft
-	*/
-	return axis === "h" && direction === "rtl" ? -1 : 1;
-};
-var handleScroll = function(axis, endTarget, event, sourceDelta, noOverscroll) {
-	var directionFactor = getDirectionFactor(axis, window.getComputedStyle(endTarget).direction);
-	var delta = directionFactor * sourceDelta;
-	var target = event.target;
-	var targetInLock = endTarget.contains(target);
-	var shouldCancelScroll = false;
-	var isDeltaPositive = delta > 0;
-	var availableScroll = 0;
-	var availableScrollTop = 0;
-	do {
-		if (!target) break;
-		var _a = getScrollVariables(axis, target), position = _a[0];
-		var elementScroll = _a[1] - _a[2] - directionFactor * position;
-		if (position || elementScroll) {
-			if (elementCouldBeScrolled(axis, target)) {
-				availableScroll += elementScroll;
-				availableScrollTop += position;
-			}
-		}
-		var parent_1 = target.parentNode;
-		target = parent_1 && parent_1.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? parent_1.host : parent_1;
-	} while (!targetInLock && target !== document.body || targetInLock && (endTarget.contains(target) || endTarget === target));
-	if (isDeltaPositive && (noOverscroll && Math.abs(availableScroll) < 1 || !noOverscroll && delta > availableScroll)) shouldCancelScroll = true;
-	else if (!isDeltaPositive && (noOverscroll && Math.abs(availableScrollTop) < 1 || !noOverscroll && -delta > availableScrollTop)) shouldCancelScroll = true;
-	return shouldCancelScroll;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
-var getTouchXY = function(event) {
-	return "changedTouches" in event ? [event.changedTouches[0].clientX, event.changedTouches[0].clientY] : [0, 0];
-};
-var getDeltaXY = function(event) {
-	return [event.deltaX, event.deltaY];
-};
-var extractRef = function(ref) {
-	return ref && "current" in ref ? ref.current : ref;
-};
-var deltaCompare = function(x, y) {
-	return x[0] === y[0] && x[1] === y[1];
-};
-var generateStyle = function(id) {
-	return "\n  .block-interactivity-".concat(id, " {pointer-events: none;}\n  .allow-interactivity-").concat(id, " {pointer-events: all;}\n");
-};
-var idCounter = 0;
-var lockStack = [];
-function RemoveScrollSideCar(props) {
-	var shouldPreventQueue = import_react.useRef([]);
-	var touchStartRef = import_react.useRef([0, 0]);
-	var activeAxis = import_react.useRef();
-	var id = import_react.useState(idCounter++)[0];
-	var Style = import_react.useState(styleSingleton)[0];
-	var lastProps = import_react.useRef(props);
-	import_react.useEffect(function() {
-		lastProps.current = props;
-	}, [props]);
-	import_react.useEffect(function() {
-		if (props.inert) {
-			document.body.classList.add("block-interactivity-".concat(id));
-			var allow_1 = __spreadArray([props.lockRef.current], (props.shards || []).map(extractRef), true).filter(Boolean);
-			allow_1.forEach(function(el) {
-				return el.classList.add("allow-interactivity-".concat(id));
-			});
-			return function() {
-				document.body.classList.remove("block-interactivity-".concat(id));
-				allow_1.forEach(function(el) {
-					return el.classList.remove("allow-interactivity-".concat(id));
-				});
-			};
-		}
-	}, [
-		props.inert,
-		props.lockRef.current,
-		props.shards
-	]);
-	var shouldCancelEvent = import_react.useCallback(function(event, parent) {
-		if ("touches" in event && event.touches.length === 2 || event.type === "wheel" && event.ctrlKey) return !lastProps.current.allowPinchZoom;
-		var touch = getTouchXY(event);
-		var touchStart = touchStartRef.current;
-		var deltaX = "deltaX" in event ? event.deltaX : touchStart[0] - touch[0];
-		var deltaY = "deltaY" in event ? event.deltaY : touchStart[1] - touch[1];
-		var currentAxis;
-		var target = event.target;
-		var moveDirection = Math.abs(deltaX) > Math.abs(deltaY) ? "h" : "v";
-		if ("touches" in event && moveDirection === "h" && target.type === "range") return false;
-		var selection = window.getSelection();
-		var anchorNode = selection && selection.anchorNode;
-		if (anchorNode ? anchorNode === target || anchorNode.contains(target) : false) return false;
-		var canBeScrolledInMainDirection = locationCouldBeScrolled(moveDirection, target);
-		if (!canBeScrolledInMainDirection) return true;
-		if (canBeScrolledInMainDirection) currentAxis = moveDirection;
-		else {
-			currentAxis = moveDirection === "v" ? "h" : "v";
-			canBeScrolledInMainDirection = locationCouldBeScrolled(moveDirection, target);
-		}
-		if (!canBeScrolledInMainDirection) return false;
-		if (!activeAxis.current && "changedTouches" in event && (deltaX || deltaY)) activeAxis.current = currentAxis;
-		if (!currentAxis) return true;
-		var cancelingAxis = activeAxis.current || currentAxis;
-		return handleScroll(cancelingAxis, parent, event, cancelingAxis === "h" ? deltaX : deltaY, true);
-	}, []);
-	var shouldPrevent = import_react.useCallback(function(_event) {
-		var event = _event;
-		if (!lockStack.length || lockStack[lockStack.length - 1] !== Style) return;
-		var delta = "deltaY" in event ? getDeltaXY(event) : getTouchXY(event);
-		var sourceEvent = shouldPreventQueue.current.filter(function(e) {
-			return e.name === event.type && (e.target === event.target || event.target === e.shadowParent) && deltaCompare(e.delta, delta);
-		})[0];
-		if (sourceEvent && sourceEvent.should) {
-			if (event.cancelable) event.preventDefault();
-			return;
-		}
-		if (!sourceEvent) {
-			var shardNodes = (lastProps.current.shards || []).map(extractRef).filter(Boolean).filter(function(node) {
-				return node.contains(event.target);
-			});
-			if (shardNodes.length > 0 ? shouldCancelEvent(event, shardNodes[0]) : !lastProps.current.noIsolation) {
-				if (event.cancelable) event.preventDefault();
-			}
-		}
-	}, []);
-	var shouldCancel = import_react.useCallback(function(name, delta, target, should) {
-		var event = {
-			name,
-			delta,
-			target,
-			should,
-			shadowParent: getOutermostShadowParent(target)
-		};
-		shouldPreventQueue.current.push(event);
-		setTimeout(function() {
-			shouldPreventQueue.current = shouldPreventQueue.current.filter(function(e) {
-				return e !== event;
-			});
-		}, 1);
-	}, []);
-	var scrollTouchStart = import_react.useCallback(function(event) {
-		touchStartRef.current = getTouchXY(event);
-		activeAxis.current = void 0;
-	}, []);
-	var scrollWheel = import_react.useCallback(function(event) {
-		shouldCancel(event.type, getDeltaXY(event), event.target, shouldCancelEvent(event, props.lockRef.current));
-	}, []);
-	var scrollTouchMove = import_react.useCallback(function(event) {
-		shouldCancel(event.type, getTouchXY(event), event.target, shouldCancelEvent(event, props.lockRef.current));
-	}, []);
-	import_react.useEffect(function() {
-		lockStack.push(Style);
-		props.setCallbacks({
-			onScrollCapture: scrollWheel,
-			onWheelCapture: scrollWheel,
-			onTouchMoveCapture: scrollTouchMove
-		});
-		document.addEventListener("wheel", shouldPrevent, nonPassive);
-		document.addEventListener("touchmove", shouldPrevent, nonPassive);
-		document.addEventListener("touchstart", scrollTouchStart, nonPassive);
-		return function() {
-			lockStack = lockStack.filter(function(inst) {
-				return inst !== Style;
-			});
-			document.removeEventListener("wheel", shouldPrevent, nonPassive);
-			document.removeEventListener("touchmove", shouldPrevent, nonPassive);
-			document.removeEventListener("touchstart", scrollTouchStart, nonPassive);
-		};
-	}, []);
-	var removeScrollBar = props.removeScrollBar, inert = props.inert;
-	return import_react.createElement(import_react.Fragment, null, inert ? import_react.createElement(Style, { styles: generateStyle(id) }) : null, removeScrollBar ? import_react.createElement(RemoveScrollBar, {
-		noRelative: props.noRelative,
-		gapMode: props.gapMode
-	}) : null);
-}
-function getOutermostShadowParent(node) {
-	var shadowParent = null;
-	while (node !== null) {
-		if (node instanceof ShadowRoot) {
-			shadowParent = node.host;
-			node = node.host;
-		}
-		node = node.parentNode;
-	}
-	return shadowParent;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/sidecar.js
-var sidecar_default = exportSidecar(effectCar, RemoveScrollSideCar);
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react-remove-scroll@2.7.2_@types+react@19.2.14_react@19.2.4/node_modules/react-remove-scroll/dist/es2015/Combination.js
-var ReactRemoveScroll = import_react.forwardRef(function(props, ref) {
-	return import_react.createElement(RemoveScroll, __assign({}, props, {
-		ref,
-		sideCar: sidecar_default
-	}));
-});
-ReactRemoveScroll.classNames = RemoveScroll.classNames;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/aria-hidden@1.2.6/node_modules/aria-hidden/dist/es2015/index.js
-var getDefaultParent = function(originalTarget) {
-	if (typeof document === "undefined") return null;
-	return (Array.isArray(originalTarget) ? originalTarget[0] : originalTarget).ownerDocument.body;
-};
-var counterMap = /* @__PURE__ */ new WeakMap();
-var uncontrolledNodes = /* @__PURE__ */ new WeakMap();
-var markerMap = {};
-var lockCount = 0;
-var unwrapHost = function(node) {
-	return node && (node.host || unwrapHost(node.parentNode));
-};
-var correctTargets = function(parent, targets) {
-	return targets.map(function(target) {
-		if (parent.contains(target)) return target;
-		var correctedTarget = unwrapHost(target);
-		if (correctedTarget && parent.contains(correctedTarget)) return correctedTarget;
-		console.error("aria-hidden", target, "in not contained inside", parent, ". Doing nothing");
-		return null;
-	}).filter(function(x) {
-		return Boolean(x);
-	});
-};
-/**
-* Marks everything except given node(or nodes) as aria-hidden
-* @param {Element | Element[]} originalTarget - elements to keep on the page
-* @param [parentNode] - top element, defaults to document.body
-* @param {String} [markerName] - a special attribute to mark every node
-* @param {String} [controlAttribute] - html Attribute to control
-* @return {Undo} undo command
-*/
-var applyAttributeToOthers = function(originalTarget, parentNode, markerName, controlAttribute) {
-	var targets = correctTargets(parentNode, Array.isArray(originalTarget) ? originalTarget : [originalTarget]);
-	if (!markerMap[markerName]) markerMap[markerName] = /* @__PURE__ */ new WeakMap();
-	var markerCounter = markerMap[markerName];
-	var hiddenNodes = [];
-	var elementsToKeep = /* @__PURE__ */ new Set();
-	var elementsToStop = new Set(targets);
-	var keep = function(el) {
-		if (!el || elementsToKeep.has(el)) return;
-		elementsToKeep.add(el);
-		keep(el.parentNode);
-	};
-	targets.forEach(keep);
-	var deep = function(parent) {
-		if (!parent || elementsToStop.has(parent)) return;
-		Array.prototype.forEach.call(parent.children, function(node) {
-			if (elementsToKeep.has(node)) deep(node);
-			else try {
-				var attr = node.getAttribute(controlAttribute);
-				var alreadyHidden = attr !== null && attr !== "false";
-				var counterValue = (counterMap.get(node) || 0) + 1;
-				var markerValue = (markerCounter.get(node) || 0) + 1;
-				counterMap.set(node, counterValue);
-				markerCounter.set(node, markerValue);
-				hiddenNodes.push(node);
-				if (counterValue === 1 && alreadyHidden) uncontrolledNodes.set(node, true);
-				if (markerValue === 1) node.setAttribute(markerName, "true");
-				if (!alreadyHidden) node.setAttribute(controlAttribute, "true");
-			} catch (e) {
-				console.error("aria-hidden: cannot operate on ", node, e);
-			}
-		});
-	};
-	deep(parentNode);
-	elementsToKeep.clear();
-	lockCount++;
-	return function() {
-		hiddenNodes.forEach(function(node) {
-			var counterValue = counterMap.get(node) - 1;
-			var markerValue = markerCounter.get(node) - 1;
-			counterMap.set(node, counterValue);
-			markerCounter.set(node, markerValue);
-			if (!counterValue) {
-				if (!uncontrolledNodes.has(node)) node.removeAttribute(controlAttribute);
-				uncontrolledNodes.delete(node);
-			}
-			if (!markerValue) node.removeAttribute(markerName);
-		});
-		lockCount--;
-		if (!lockCount) {
-			counterMap = /* @__PURE__ */ new WeakMap();
-			counterMap = /* @__PURE__ */ new WeakMap();
-			uncontrolledNodes = /* @__PURE__ */ new WeakMap();
-			markerMap = {};
-		}
-	};
-};
-/**
-* Marks everything except given node(or nodes) as aria-hidden
-* @param {Element | Element[]} originalTarget - elements to keep on the page
-* @param [parentNode] - top element, defaults to document.body
-* @param {String} [markerName] - a special attribute to mark every node
-* @return {Undo} undo command
-*/
-var hideOthers = function(originalTarget, parentNode, markerName) {
-	if (markerName === void 0) markerName = "data-aria-hidden";
-	var targets = Array.from(Array.isArray(originalTarget) ? originalTarget : [originalTarget]);
-	var activeParentNode = parentNode || getDefaultParent(originalTarget);
-	if (!activeParentNode) return function() {
-		return null;
-	};
-	targets.push.apply(targets, Array.from(activeParentNode.querySelectorAll("[aria-live], script")));
-	return applyAttributeToOthers(targets, activeParentNode, markerName, "aria-hidden");
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-dialog@1.1.15_@types+react-dom@19.2.3_@types+react@19.2.14__@types+reac_779045218dc2799d336e7197abef9d38/node_modules/@radix-ui/react-dialog/dist/index.mjs
-var DIALOG_NAME = "Dialog";
-var [createDialogContext, createDialogScope] = createContextScope(DIALOG_NAME);
-var [DialogProvider, useDialogContext] = createDialogContext(DIALOG_NAME);
-var Dialog$1 = (props) => {
-	const { __scopeDialog, children, open: openProp, defaultOpen, onOpenChange, modal = true } = props;
-	const triggerRef = import_react.useRef(null);
-	const contentRef = import_react.useRef(null);
-	const [open, setOpen] = useControllableState({
-		prop: openProp,
-		defaultProp: defaultOpen ?? false,
-		onChange: onOpenChange,
-		caller: DIALOG_NAME
-	});
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogProvider, {
-		scope: __scopeDialog,
-		triggerRef,
-		contentRef,
-		contentId: useId(),
-		titleId: useId(),
-		descriptionId: useId(),
-		open,
-		onOpenChange: setOpen,
-		onOpenToggle: import_react.useCallback(() => setOpen((prevOpen) => !prevOpen), [setOpen]),
-		modal,
-		children
-	});
-};
-Dialog$1.displayName = DIALOG_NAME;
-var TRIGGER_NAME = "DialogTrigger";
-var DialogTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeDialog, ...triggerProps } = props;
-	const context = useDialogContext(TRIGGER_NAME, __scopeDialog);
-	const composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
-		type: "button",
-		"aria-haspopup": "dialog",
-		"aria-expanded": context.open,
-		"aria-controls": context.contentId,
-		"data-state": getState(context.open),
-		...triggerProps,
-		ref: composedTriggerRef,
-		onClick: composeEventHandlers(props.onClick, context.onOpenToggle)
-	});
-});
-DialogTrigger$1.displayName = TRIGGER_NAME;
-var PORTAL_NAME = "DialogPortal";
-var [PortalProvider, usePortalContext] = createDialogContext(PORTAL_NAME, { forceMount: void 0 });
-var DialogPortal$1 = (props) => {
-	const { __scopeDialog, forceMount, children, container } = props;
-	const context = useDialogContext(PORTAL_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PortalProvider, {
-		scope: __scopeDialog,
-		forceMount,
-		children: import_react.Children.map(children, (child) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-			present: forceMount || context.open,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal$1, {
-				asChild: true,
-				container,
-				children: child
-			})
-		}))
-	});
-};
-DialogPortal$1.displayName = PORTAL_NAME;
-var OVERLAY_NAME = "DialogOverlay";
-var DialogOverlay$1 = import_react.forwardRef((props, forwardedRef) => {
-	const portalContext = usePortalContext(OVERLAY_NAME, props.__scopeDialog);
-	const { forceMount = portalContext.forceMount, ...overlayProps } = props;
-	const context = useDialogContext(OVERLAY_NAME, props.__scopeDialog);
-	return context.modal ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-		present: forceMount || context.open,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlayImpl, {
-			...overlayProps,
-			ref: forwardedRef
-		})
-	}) : null;
-});
-DialogOverlay$1.displayName = OVERLAY_NAME;
-var Slot$1 = /* @__PURE__ */ createSlot$1("DialogOverlay.RemoveScroll");
-var DialogOverlayImpl = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeDialog, ...overlayProps } = props;
-	const context = useDialogContext(OVERLAY_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ReactRemoveScroll, {
-		as: Slot$1,
-		allowPinchZoom: true,
-		shards: [context.contentRef],
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
-			"data-state": getState(context.open),
-			...overlayProps,
-			ref: forwardedRef,
-			style: {
-				pointerEvents: "auto",
-				...overlayProps.style
-			}
-		})
-	});
-});
-var CONTENT_NAME = "DialogContent";
-var DialogContent$1 = import_react.forwardRef((props, forwardedRef) => {
-	const portalContext = usePortalContext(CONTENT_NAME, props.__scopeDialog);
-	const { forceMount = portalContext.forceMount, ...contentProps } = props;
-	const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-		present: forceMount || context.open,
-		children: context.modal ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContentModal, {
-			...contentProps,
-			ref: forwardedRef
-		}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContentNonModal, {
-			...contentProps,
-			ref: forwardedRef
-		})
-	});
-});
-DialogContent$1.displayName = CONTENT_NAME;
-var DialogContentModal = import_react.forwardRef((props, forwardedRef) => {
-	const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
-	const contentRef = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, context.contentRef, contentRef);
-	import_react.useEffect(() => {
-		const content = contentRef.current;
-		if (content) return hideOthers(content);
-	}, []);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContentImpl, {
-		...props,
-		ref: composedRefs,
-		trapFocus: context.open,
-		disableOutsidePointerEvents: true,
-		onCloseAutoFocus: composeEventHandlers(props.onCloseAutoFocus, (event) => {
-			event.preventDefault();
-			context.triggerRef.current?.focus();
-		}),
-		onPointerDownOutside: composeEventHandlers(props.onPointerDownOutside, (event) => {
-			const originalEvent = event.detail.originalEvent;
-			const ctrlLeftClick = originalEvent.button === 0 && originalEvent.ctrlKey === true;
-			if (originalEvent.button === 2 || ctrlLeftClick) event.preventDefault();
-		}),
-		onFocusOutside: composeEventHandlers(props.onFocusOutside, (event) => event.preventDefault())
-	});
-});
-var DialogContentNonModal = import_react.forwardRef((props, forwardedRef) => {
-	const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
-	const hasInteractedOutsideRef = import_react.useRef(false);
-	const hasPointerDownOutsideRef = import_react.useRef(false);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContentImpl, {
-		...props,
-		ref: forwardedRef,
-		trapFocus: false,
-		disableOutsidePointerEvents: false,
-		onCloseAutoFocus: (event) => {
-			props.onCloseAutoFocus?.(event);
-			if (!event.defaultPrevented) {
-				if (!hasInteractedOutsideRef.current) context.triggerRef.current?.focus();
-				event.preventDefault();
-			}
-			hasInteractedOutsideRef.current = false;
-			hasPointerDownOutsideRef.current = false;
-		},
-		onInteractOutside: (event) => {
-			props.onInteractOutside?.(event);
-			if (!event.defaultPrevented) {
-				hasInteractedOutsideRef.current = true;
-				if (event.detail.originalEvent.type === "pointerdown") hasPointerDownOutsideRef.current = true;
-			}
-			const target = event.target;
-			if (context.triggerRef.current?.contains(target)) event.preventDefault();
-			if (event.detail.originalEvent.type === "focusin" && hasPointerDownOutsideRef.current) event.preventDefault();
-		}
-	});
-});
-var DialogContentImpl = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeDialog, trapFocus, onOpenAutoFocus, onCloseAutoFocus, ...contentProps } = props;
-	const context = useDialogContext(CONTENT_NAME, __scopeDialog);
-	const contentRef = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, contentRef);
-	useFocusGuards();
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusScope, {
-		asChild: true,
-		loop: true,
-		trapped: trapFocus,
-		onMountAutoFocus: onOpenAutoFocus,
-		onUnmountAutoFocus: onCloseAutoFocus,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DismissableLayer, {
-			role: "dialog",
-			id: context.contentId,
-			"aria-describedby": context.descriptionId,
-			"aria-labelledby": context.titleId,
-			"data-state": getState(context.open),
-			...contentProps,
-			ref: composedRefs,
-			onDismiss: () => context.onOpenChange(false)
-		})
-	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TitleWarning, { titleId: context.titleId }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DescriptionWarning, {
-		contentRef,
-		descriptionId: context.descriptionId
-	})] })] });
-});
-var TITLE_NAME = "DialogTitle";
-var DialogTitle$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeDialog, ...titleProps } = props;
-	const context = useDialogContext(TITLE_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.h2, {
-		id: context.titleId,
-		...titleProps,
-		ref: forwardedRef
-	});
-});
-DialogTitle$1.displayName = TITLE_NAME;
-var DESCRIPTION_NAME = "DialogDescription";
-var DialogDescription$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeDialog, ...descriptionProps } = props;
-	const context = useDialogContext(DESCRIPTION_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.p, {
-		id: context.descriptionId,
-		...descriptionProps,
-		ref: forwardedRef
-	});
-});
-DialogDescription$1.displayName = DESCRIPTION_NAME;
-var CLOSE_NAME = "DialogClose";
-var DialogClose$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeDialog, ...closeProps } = props;
-	const context = useDialogContext(CLOSE_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
-		type: "button",
-		...closeProps,
-		ref: forwardedRef,
-		onClick: composeEventHandlers(props.onClick, () => context.onOpenChange(false))
-	});
-});
-DialogClose$1.displayName = CLOSE_NAME;
-function getState(open) {
-	return open ? "open" : "closed";
-}
-var TITLE_WARNING_NAME = "DialogTitleWarning";
-var [WarningProvider, useWarningContext] = createContext2(TITLE_WARNING_NAME, {
-	contentName: CONTENT_NAME,
-	titleName: TITLE_NAME,
-	docsSlug: "dialog"
-});
-var TitleWarning = ({ titleId }) => {
-	const titleWarningContext = useWarningContext(TITLE_WARNING_NAME);
-	const MESSAGE = `\`${titleWarningContext.contentName}\` requires a \`${titleWarningContext.titleName}\` for the component to be accessible for screen reader users.
-
-If you want to hide the \`${titleWarningContext.titleName}\`, you can wrap it with our VisuallyHidden component.
-
-For more information, see https://radix-ui.com/primitives/docs/components/${titleWarningContext.docsSlug}`;
-	import_react.useEffect(() => {
-		if (titleId) {
-			if (!document.getElementById(titleId)) console.error(MESSAGE);
-		}
-	}, [MESSAGE, titleId]);
-	return null;
-};
-var DESCRIPTION_WARNING_NAME = "DialogDescriptionWarning";
-var DescriptionWarning = ({ contentRef, descriptionId }) => {
-	const MESSAGE = `Warning: Missing \`Description\` or \`aria-describedby={undefined}\` for {${useWarningContext(DESCRIPTION_WARNING_NAME).contentName}}.`;
-	import_react.useEffect(() => {
-		const describedById = contentRef.current?.getAttribute("aria-describedby");
-		if (descriptionId && describedById) {
-			if (!document.getElementById(descriptionId)) console.warn(MESSAGE);
-		}
-	}, [
-		MESSAGE,
-		contentRef,
-		descriptionId
-	]);
-	return null;
-};
-var Root = Dialog$1;
-var Portal = DialogPortal$1;
-var Overlay = DialogOverlay$1;
-var Content = DialogContent$1;
-var Title = DialogTitle$1;
-var Description = DialogDescription$1;
-var Close = DialogClose$1;
-//#endregion
-//#region src/components/ui/dialog.tsx
-var Dialog = Root;
-var DialogPortal = Portal;
-var DialogOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay, {
-	"data-uid": "src/components/ui/dialog.tsx:20:3",
+//#region src/components/ui/toast.tsx
+var ToastProvider = Provider;
+var ToastViewport = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Viewport, {
+	"data-uid": "src/components/ui/toast.tsx:15:3",
 	"data-prohibitions": "[editContent]",
 	ref,
-	className: cn("fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
+	className: cn("fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]", className),
 	...props
 }));
-DialogOverlay.displayName = Overlay.displayName;
-var DialogContent = import_react.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogPortal, {
-	"data-uid": "src/components/ui/dialog.tsx:35:3",
-	"data-prohibitions": "[editContent]",
-	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlay, {
-		"data-uid": "src/components/ui/dialog.tsx:36:5",
-		"data-prohibitions": "[editContent]"
-	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Content, {
-		"data-uid": "src/components/ui/dialog.tsx:37:5",
+ToastViewport.displayName = Viewport.displayName;
+var toastVariants = cva("group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full", {
+	variants: { variant: {
+		default: "border bg-background text-foreground",
+		destructive: "destructive group border-destructive bg-destructive text-destructive-foreground"
+	} },
+	defaultVariants: { variant: "default" }
+});
+var Toast = import_react.forwardRef(({ className, variant, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root2, {
+		"data-uid": "src/components/ui/toast.tsx:47:5",
 		"data-prohibitions": "[editContent]",
 		ref,
-		className: cn("fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overflow-y-auto max-h-screen", className),
-		...props,
-		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Close, {
-			"data-uid": "src/components/ui/dialog.tsx:46:7",
-			"data-prohibitions": "[]",
-			className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, {
-				"data-uid": "src/components/ui/dialog.tsx:47:9",
+		className: cn(toastVariants({ variant }), className),
+		...props
+	});
+});
+Toast.displayName = Root2.displayName;
+var ToastAction = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Action, {
+	"data-uid": "src/components/ui/toast.tsx:60:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive", className),
+	...props
+}));
+ToastAction.displayName = Action.displayName;
+var ToastClose = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Close, {
+	"data-uid": "src/components/ui/toast.tsx:75:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600", className),
+	"toast-close": "",
+	...props,
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, {
+		"data-uid": "src/components/ui/toast.tsx:84:5",
+		"data-prohibitions": "[editContent]",
+		className: "h-4 w-4"
+	})
+}));
+ToastClose.displayName = Close.displayName;
+var ToastTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title, {
+	"data-uid": "src/components/ui/toast.tsx:93:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("text-sm font-semibold", className),
+	...props
+}));
+ToastTitle.displayName = Title.displayName;
+var ToastDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Description, {
+	"data-uid": "src/components/ui/toast.tsx:101:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("text-sm opacity-90", className),
+	...props
+}));
+ToastDescription.displayName = Description.displayName;
+//#endregion
+//#region src/components/ui/toaster.tsx
+function Toaster() {
+	const { toasts } = useToast();
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(ToastProvider, {
+		"data-uid": "src/components/ui/toaster.tsx:16:5",
+		"data-prohibitions": "[editContent]",
+		children: [toasts.map(function({ id, title, description, action, ...props }) {
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Toast, {
+				"data-uid": "src/components/ui/toaster.tsx:19:11",
 				"data-prohibitions": "[editContent]",
-				className: "h-4 w-4"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-				"data-uid": "src/components/ui/dialog.tsx:48:9",
-				"data-prohibitions": "[]",
-				className: "sr-only",
-				children: "Close"
-			})]
+				...props,
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/ui/toaster.tsx:20:13",
+						"data-prohibitions": "[editContent]",
+						className: "grid gap-1",
+						children: [title && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastTitle, {
+							"data-uid": "src/components/ui/toaster.tsx:21:25",
+							"data-prohibitions": "[editContent]",
+							children: title
+						}), description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastDescription, {
+							"data-uid": "src/components/ui/toaster.tsx:22:31",
+							"data-prohibitions": "[editContent]",
+							children: description
+						})]
+					}),
+					action,
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastClose, {
+						"data-uid": "src/components/ui/toaster.tsx:25:13",
+						"data-prohibitions": "[editContent]"
+					})
+				]
+			}, id);
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastViewport, {
+			"data-uid": "src/components/ui/toaster.tsx:29:7",
+			"data-prohibitions": "[editContent]"
 		})]
-	})]
-}));
-DialogContent.displayName = Content.displayName;
-var DialogHeader = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/dialog.tsx:56:3",
-	"data-prohibitions": "[editContent]",
-	className: cn("flex flex-col space-y-1.5 text-center sm:text-left", className),
-	...props
-});
-DialogHeader.displayName = "DialogHeader";
-var DialogFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/dialog.tsx:61:3",
-	"data-prohibitions": "[editContent]",
-	className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
-	...props
-});
-DialogFooter.displayName = "DialogFooter";
-var DialogTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title, {
-	"data-uid": "src/components/ui/dialog.tsx:72:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("text-lg font-semibold leading-none tracking-tight", className),
-	...props
-}));
-DialogTitle.displayName = Title.displayName;
-var DialogDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Description, {
-	"data-uid": "src/components/ui/dialog.tsx:84:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("text-sm text-muted-foreground", className),
-	...props
-}));
-DialogDescription.displayName = Description.displayName;
-//#endregion
-//#region src/components/ui/input.tsx
-var Input = import_react.forwardRef(({ className, type, ...props }, ref) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-		"data-uid": "src/components/ui/input.tsx:9:7",
-		"data-prohibitions": "[editContent]",
-		type,
-		className: cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className),
-		ref,
-		...props
 	});
-});
-Input.displayName = "Input";
+}
 //#endregion
-//#region src/data/articles.ts
-var articles = [
+//#region src/components/Layout.tsx
+function Layout() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/components/Layout.tsx:6:5",
+		"data-prohibitions": "[editContent]",
+		className: "min-h-screen flex flex-col font-sans",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("header", {
+				"data-uid": "src/components/Layout.tsx:7:7",
+				"data-prohibitions": "[]",
+				className: "sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md shadow-sm",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/Layout.tsx:8:9",
+					"data-prohibitions": "[]",
+					className: "container mx-auto px-4 h-16 flex items-center justify-between",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+						"data-uid": "src/components/Layout.tsx:9:11",
+						"data-prohibitions": "[]",
+						to: "/",
+						className: "flex items-center gap-2 hover:opacity-90 transition-opacity",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/components/Layout.tsx:10:13",
+							"data-prohibitions": "[]",
+							className: "bg-teal-700 text-white p-1.5 rounded-lg shadow-sm",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
+								"data-uid": "src/components/Layout.tsx:11:15",
+								"data-prohibitions": "[editContent]",
+								className: "w-5 h-5"
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							"data-uid": "src/components/Layout.tsx:13:13",
+							"data-prohibitions": "[]",
+							className: "font-bold text-xl tracking-tight text-slate-900",
+							children: ["Ponto Crítico ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/components/Layout.tsx:14:29",
+								"data-prohibitions": "[]",
+								className: "text-teal-700",
+								children: "Pediátrico"
+							})]
+						})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("nav", {
+						"data-uid": "src/components/Layout.tsx:17:11",
+						"data-prohibitions": "[]",
+						className: "hidden md:flex items-center gap-6",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							"data-uid": "src/components/Layout.tsx:18:13",
+							"data-prohibitions": "[]",
+							to: "/",
+							className: "text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors",
+							children: "Início"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							"data-uid": "src/components/Layout.tsx:24:13",
+							"data-prohibitions": "[]",
+							to: "/sobre",
+							className: "text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors",
+							children: "Sobre"
+						})]
+					})]
+				})
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+				"data-uid": "src/components/Layout.tsx:34:7",
+				"data-prohibitions": "[]",
+				className: "flex-1 flex flex-col",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {
+					"data-uid": "src/components/Layout.tsx:35:9",
+					"data-prohibitions": "[editContent]"
+				})
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("footer", {
+				"data-uid": "src/components/Layout.tsx:38:7",
+				"data-prohibitions": "[editContent]",
+				className: "bg-slate-900 text-slate-400 py-12 border-t border-slate-800",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/Layout.tsx:39:9",
+					"data-prohibitions": "[editContent]",
+					className: "container mx-auto px-4 text-center",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/components/Layout.tsx:40:11",
+							"data-prohibitions": "[]",
+							className: "flex items-center justify-center gap-2 mb-4",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
+								"data-uid": "src/components/Layout.tsx:41:13",
+								"data-prohibitions": "[editContent]",
+								className: "w-5 h-5 text-teal-500"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/components/Layout.tsx:42:13",
+								"data-prohibitions": "[]",
+								className: "font-bold text-xl text-white tracking-tight",
+								children: "Ponto Crítico Pediátrico"
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							"data-uid": "src/components/Layout.tsx:46:11",
+							"data-prohibitions": "[]",
+							className: "mb-6 max-w-md mx-auto leading-relaxed",
+							children: "Conteúdo educacional médico. Não substitui o julgamento clínico no atendimento ao paciente."
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/components/Layout.tsx:50:11",
+							"data-prohibitions": "[editContent]",
+							className: "text-sm text-slate-500",
+							children: [
+								"© ",
+								(/* @__PURE__ */ new Date()).getFullYear(),
+								" Ponto Crítico Pediátrico. Todos os direitos reservados."
+							]
+						})
+					]
+				})
+			})
+		]
+	});
+}
+//#endregion
+//#region src/assets/editedimage_1773608286853-085b3.png
+var editedimage_1773608286853_085b3_default = "/assets/editedimage_1773608286853-085b3-CGm0YbFS.png";
+//#endregion
+//#region src/pages/Index.tsx
+var CATEGORIES$1 = [
 	{
-		id: "1",
-		title: "Manejo da Cetoacidose Diabética em Pediatria",
-		summary: "Protocolo atualizado para hidratação, insulinoterapia e monitoramento de eletrólitos em pacientes pediátricos com CAD.",
-		content: "A cetoacidose diabética (CAD) é uma complicação grave e potencialmente fatal do diabetes mellitus. Na pediatria, o manejo exige atenção rigorosa à reposição volêmica cautelosa para evitar edema cerebral. A infusão contínua de insulina deve ser iniciada apenas após a expansão de volume inicial. O monitoramento horário da glicemia capilar e gasometria venosa é essencial nas primeiras 12-24 horas. Reposição de potássio deve ser iniciada precocemente devido à depleção corporal total, mesmo com níveis séricos normais na admissão.",
-		category: "UTI Pediátrica",
-		date: "15 Mar 2026",
-		readTime: "8 min",
-		isNew: true
+		id: "uti-pediatrica",
+		name: "UTI Pediátrica",
+		bgX: "0%",
+		bgY: "0%"
 	},
 	{
-		id: "2",
-		title: "Reconhecimento Precoce da Sepse Pediátrica",
-		summary: "Sinais de alerta, escores de triagem e o 'pacote de uma hora' para otimização da sobrevida em emergências.",
-		content: "A sepse continua sendo uma das principais causas de mortalidade infantil globalmente. O reconhecimento precoce baseia-se na identificação rápida de sinais de disfunção orgânica, taquicardia desproporcional à febre e alteração do estado mental. A implementação do 'bundle' da primeira hora - que inclui obtenção de acessos, coleta de hemoculturas, administração de fluidos em bólus (10-20 mL/kg) e início de antibioticoterapia de amplo espectro - reduz significativamente a mortalidade.",
-		category: "Urgências",
-		date: "10 Mar 2026",
-		readTime: "6 min"
+		id: "emergencias-pediatricas",
+		name: "Emergências Pediátricas",
+		bgX: "50%",
+		bgY: "0%"
 	},
 	{
-		id: "3",
-		title: "Ventilação Mecânica Protetora em Pediatria",
-		summary: "Estratégias de ventilação mecânica para minimizar lesões induzidas pelo ventilador (VILI) em neonatos e lactentes.",
-		content: "A ventilação protetora visa evitar o volutrauma, barotrauma e atelectrauma. Estratégias incluem o uso de volumes correntes fisiológicos (5-8 mL/kg), limitação da pressão de platô (< 28-30 cmH2O) e titulação adequada do PEEP para manter os alvéolos abertos sem causar superdistensão. A hipercapnia permissiva pode ser tolerada desde que o pH seja mantido > 7.20, exceto em pacientes com hipertensão intracraniana ou hipertensão pulmonar grave.",
-		category: "UTI Pediátrica",
-		date: "05 Mar 2026",
-		readTime: "12 min"
+		id: "sepse",
+		name: "Sepse",
+		bgX: "100%",
+		bgY: "0%"
 	},
 	{
-		id: "4",
-		title: "Manejo do Choque Anafilático",
-		summary: "Diretrizes práticas para o tratamento imediato da anafilaxia no departamento de emergência pediátrica.",
-		content: "A epinefrina intramuscular (0.01 mg/kg, máx 0.5 mg) na região ântero-lateral da coxa é o tratamento de primeira linha e deve ser administrada imediatamente em qualquer caso suspeito de anafilaxia com comprometimento respiratório ou cardiovascular. Terapias adjuvantes incluem anti-histamínicos H1 e H2, corticosteróides e broncodilatadores, porém nunca devem atrasar a administração da epinefrina. Monitoramento rigoroso por pelo menos 4-6 horas é necessário devido ao risco de reações bifásicas.",
-		category: "Urgências",
-		date: "28 Fev 2026",
-		readTime: "7 min"
+		id: "ventilacao-mecanica",
+		name: "Ventilação Mecânica",
+		bgX: "50%",
+		bgY: "50%"
+	},
+	{
+		id: "choque",
+		name: "Choque",
+		bgX: "100%",
+		bgY: "50%"
+	},
+	{
+		id: "artigo-comentado",
+		name: "Artigo Comentado",
+		bgX: "0%",
+		bgY: "100%"
+	},
+	{
+		id: "ponto-critico",
+		name: "Ponto Crítico",
+		bgX: "50%",
+		bgY: "100%"
 	}
 ];
-//#endregion
-//#region src/stores/useSearchStore.ts
-var globalIsOpen = false;
-var listeners = /* @__PURE__ */ new Set();
-var notify = () => listeners.forEach((l) => l());
-function useSearchStore() {
-	const [isOpen, setIsOpenState] = (0, import_react.useState)(globalIsOpen);
-	(0, import_react.useEffect)(() => {
-		const listener = () => setIsOpenState(globalIsOpen);
-		listeners.add(listener);
-		return () => {
-			listeners.delete(listener);
-		};
-	}, []);
-	const setIsOpen = (newVal) => {
-		globalIsOpen = newVal;
-		notify();
-	};
-	return {
-		isOpen,
-		setIsOpen
-	};
-}
-//#endregion
-//#region src/components/SearchDialog.tsx
-function SearchDialog() {
-	const { isOpen, setIsOpen } = useSearchStore();
-	const [query, setQuery] = (0, import_react.useState)("");
-	const navigate = useNavigate();
-	const results = query.trim() === "" ? [] : articles.filter((a) => a.title.toLowerCase().includes(query.toLowerCase()) || a.category.toLowerCase().includes(query.toLowerCase()));
-	(0, import_react.useEffect)(() => {
-		const handleKeyDown = (e) => {
-			if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-				e.preventDefault();
-				setIsOpen(!isOpen);
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isOpen, setIsOpen]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
-		"data-uid": "src/components/SearchDialog.tsx:41:5",
+function Index() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/Index.tsx:17:5",
 		"data-prohibitions": "[editContent]",
-		open: isOpen,
-		onOpenChange: setIsOpen,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
-			"data-uid": "src/components/SearchDialog.tsx:42:7",
-			"data-prohibitions": "[editContent]",
-			className: "sm:max-w-[600px] bg-background/95 backdrop-blur-xl border-white/10 p-0 overflow-hidden shadow-2xl",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, {
-					"data-uid": "src/components/SearchDialog.tsx:43:9",
-					"data-prohibitions": "[]",
-					className: "sr-only",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-						"data-uid": "src/components/SearchDialog.tsx:44:11",
+		className: "min-h-screen bg-slate-50 flex flex-col",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+			"data-uid": "src/pages/Index.tsx:18:7",
+			"data-prohibitions": "[]",
+			className: "bg-teal-900 text-white py-20 px-4 relative overflow-hidden",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Index.tsx:19:9",
+				"data-prohibitions": "[]",
+				className: "absolute inset-0 opacity-10 pointer-events-none",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:20:11",
 						"data-prohibitions": "[]",
-						children: "Buscar Artigos"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
-						"data-uid": "src/components/SearchDialog.tsx:45:11",
+						className: "absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:21:11",
 						"data-prohibitions": "[]",
-						children: "Digite para buscar artigos por título ou categoria."
-					})]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/SearchDialog.tsx:47:9",
-					"data-prohibitions": "[]",
-					className: "flex items-center px-4 border-b border-white/10",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-						"data-uid": "src/components/SearchDialog.tsx:48:11",
-						"data-prohibitions": "[editContent]",
-						className: "w-5 h-5 text-muted-foreground mr-2"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						"data-uid": "src/components/SearchDialog.tsx:49:11",
-						"data-prohibitions": "[editContent]",
-						placeholder: "Buscar em Ponto Crítico...",
-						className: "border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg h-14 w-full",
-						value: query,
-						onChange: (e) => setQuery(e.target.value),
-						autoFocus: true
-					})]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/components/SearchDialog.tsx:57:9",
-					"data-prohibitions": "[editContent]",
-					className: "max-h-[60vh] overflow-y-auto p-2",
-					children: results.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/SearchDialog.tsx:59:13",
-						"data-prohibitions": "[editContent]",
-						className: "space-y-1",
-						children: results.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							"data-uid": "src/components/SearchDialog.tsx:61:17",
+						className: "absolute top-0 -right-4 w-72 h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:22:11",
+						"data-prohibitions": "[]",
+						className: "absolute -bottom-8 left-20 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"
+					})
+				]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Index.tsx:25:9",
+				"data-prohibitions": "[]",
+				className: "max-w-5xl mx-auto relative z-10 text-center",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Index.tsx:26:11",
+						"data-prohibitions": "[]",
+						className: "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/50 border border-teal-700/50 mb-6",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
+							"data-uid": "src/pages/Index.tsx:27:13",
 							"data-prohibitions": "[editContent]",
-							className: "w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 transition-colors group",
-							onClick: () => {
-								setIsOpen(false);
-								navigate(`/article/${article.id}`);
-							},
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/components/SearchDialog.tsx:69:19",
-								"data-prohibitions": "[]",
-								className: "w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileText, {
-									"data-uid": "src/components/SearchDialog.tsx:70:21",
-									"data-prohibitions": "[editContent]",
-									className: "w-5 h-5"
-								})
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/components/SearchDialog.tsx:72:19",
-								"data-prohibitions": "[editContent]",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/components/SearchDialog.tsx:73:21",
-									"data-prohibitions": "[editContent]",
-									className: "font-medium text-white",
-									children: article.title
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/components/SearchDialog.tsx:74:21",
-									"data-prohibitions": "[editContent]",
-									className: "text-xs text-muted-foreground",
-									children: article.category
-								})]
-							})]
-						}, article.id))
-					}) : query.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/SearchDialog.tsx:80:13",
-						"data-prohibitions": "[editContent]",
-						className: "text-center py-12 text-muted-foreground",
-						children: [
-							"Nenhum artigo encontrado para \"",
-							query,
-							"\""
-						]
-					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/SearchDialog.tsx:84:13",
-						"data-prohibitions": "[]",
-						className: "text-center py-12 text-muted-foreground flex flex-col items-center",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-							"data-uid": "src/components/SearchDialog.tsx:85:15",
-							"data-prohibitions": "[editContent]",
-							className: "w-12 h-12 opacity-20 mb-4"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/components/SearchDialog.tsx:86:15",
+							className: "w-4 h-4 text-orange-400"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							"data-uid": "src/pages/Index.tsx:28:13",
 							"data-prohibitions": "[]",
-							children: "Comece a digitar para buscar resumos e diretrizes."
+							className: "text-sm font-medium text-teal-100",
+							children: "Atualizado para 2026"
+						})]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
+						"data-uid": "src/pages/Index.tsx:30:11",
+						"data-prohibitions": "[]",
+						className: "text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight",
+						children: [
+							"Decisões rápidas salvam",
+							" ",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/pages/Index.tsx:32:13",
+								"data-prohibitions": "[]",
+								className: "text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-300",
+								children: "pequenas vidas."
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/Index.tsx:36:11",
+						"data-prohibitions": "[]",
+						className: "text-lg md:text-xl text-teal-100 mb-10 max-w-2xl mx-auto leading-relaxed",
+						children: "Resumos práticos e baseados em evidências sobre terapia intensiva e emergências pediátricas, direto ao ponto para a beira do leito."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Index.tsx:40:11",
+						"data-prohibitions": "[]",
+						className: "flex flex-col sm:flex-row gap-4 justify-center",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
+							"data-uid": "src/pages/Index.tsx:41:13",
+							"data-prohibitions": "[]",
+							href: "#categorias",
+							className: "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors gap-2 shadow-lg shadow-orange-500/20",
+							children: ["Explorar Temas ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, {
+								"data-uid": "src/pages/Index.tsx:45:30",
+								"data-prohibitions": "[editContent]",
+								className: "w-4 h-4"
+							})]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+							"data-uid": "src/pages/Index.tsx:47:13",
+							"data-prohibitions": "[]",
+							to: "/sobre",
+							className: "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-teal-800 text-white font-semibold hover:bg-teal-700 transition-colors gap-2 border border-teal-700 shadow-sm",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, {
+								"data-uid": "src/pages/Index.tsx:51:15",
+								"data-prohibitions": "[editContent]",
+								className: "w-4 h-4"
+							}), " Sobre o Projeto"]
 						})]
 					})
-				})
-			]
-		})
+				]
+			})]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+			"data-uid": "src/pages/Index.tsx:57:7",
+			"data-prohibitions": "[editContent]",
+			id: "categorias",
+			className: "py-20 px-4 max-w-6xl mx-auto w-full",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Index.tsx:58:9",
+				"data-prohibitions": "[]",
+				className: "text-center mb-16",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:59:11",
+						"data-prohibitions": "[]",
+						className: "inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-100 mb-4 text-teal-800 shadow-sm",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stethoscope, {
+							"data-uid": "src/pages/Index.tsx:60:13",
+							"data-prohibitions": "[editContent]",
+							className: "w-6 h-6"
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+						"data-uid": "src/pages/Index.tsx:62:11",
+						"data-prohibitions": "[]",
+						className: "text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4",
+						children: "Navegue por Categorias"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/Index.tsx:65:11",
+						"data-prohibitions": "[]",
+						className: "text-lg text-slate-600 max-w-2xl mx-auto",
+						children: "Acesse rapidamente os protocolos, resumos e artigos mais relevantes para sua prática clínica na pediatria."
+					})
+				]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/Index.tsx:71:9",
+				"data-prohibitions": "[editContent]",
+				className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8",
+				children: CATEGORIES$1.map((cat) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+					"data-uid": "src/pages/Index.tsx:73:13",
+					"data-prohibitions": "[editContent]",
+					to: `/categoria/${cat.id}`,
+					className: "group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/Index.tsx:78:15",
+							"data-prohibitions": "[editContent]",
+							className: "absolute inset-0 w-full h-full bg-no-repeat transition-transform duration-700 group-hover:scale-105",
+							style: {
+								backgroundImage: `url(${editedimage_1773608286853_085b3_default})`,
+								backgroundSize: "300% 300%",
+								backgroundPosition: `${cat.bgX} ${cat.bgY}`
+							}
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/Index.tsx:86:15",
+							"data-prohibitions": "[editContent]",
+							className: "absolute inset-0 bg-gradient-to-t from-teal-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/Index.tsx:87:15",
+							"data-prohibitions": "[editContent]",
+							className: "absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem]"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							"data-uid": "src/pages/Index.tsx:88:15",
+							"data-prohibitions": "[editContent]",
+							className: "sr-only",
+							children: cat.name
+						})
+					]
+				}, cat.id))
+			})]
+		})]
 	});
 }
 //#endregion
@@ -24434,59 +21060,6 @@ function getElementRef(element) {
 	return element.props.ref || element.ref;
 }
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority/dist/index.mjs
-/**
-* Copyright 2022 Joe Bell. All rights reserved.
-*
-* This file is licensed to you under the Apache License, Version 2.0
-* (the "License"); you may not use this file except in compliance with the
-* License. You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-* WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the
-* License for the specific language governing permissions and limitations under
-* the License.
-*/ var falsyToString = (value) => typeof value === "boolean" ? `${value}` : value === 0 ? "0" : value;
-var cx = clsx;
-var cva = (base, config) => (props) => {
-	var _config_compoundVariants;
-	if ((config === null || config === void 0 ? void 0 : config.variants) == null) return cx(base, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
-	const { variants, defaultVariants } = config;
-	const getVariantClassNames = Object.keys(variants).map((variant) => {
-		const variantProp = props === null || props === void 0 ? void 0 : props[variant];
-		const defaultVariantProp = defaultVariants === null || defaultVariants === void 0 ? void 0 : defaultVariants[variant];
-		if (variantProp === null) return null;
-		const variantKey = falsyToString(variantProp) || falsyToString(defaultVariantProp);
-		return variants[variant][variantKey];
-	});
-	const propsWithoutUndefined = props && Object.entries(props).reduce((acc, param) => {
-		let [key, value] = param;
-		if (value === void 0) return acc;
-		acc[key] = value;
-		return acc;
-	}, {});
-	return cx(base, getVariantClassNames, config === null || config === void 0 ? void 0 : (_config_compoundVariants = config.compoundVariants) === null || _config_compoundVariants === void 0 ? void 0 : _config_compoundVariants.reduce((acc, param) => {
-		let { class: cvClass, className: cvClassName, ...compoundVariantOptions } = param;
-		return Object.entries(compoundVariantOptions).every((param) => {
-			let [key, value] = param;
-			return Array.isArray(value) ? value.includes({
-				...defaultVariants,
-				...propsWithoutUndefined
-			}[key]) : {
-				...defaultVariants,
-				...propsWithoutUndefined
-			}[key] === value;
-		}) ? [
-			...acc,
-			cvClass,
-			cvClassName
-		] : acc;
-	}, []), props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
-};
-//#endregion
 //#region src/components/ui/button.tsx
 var buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", {
 	variants: {
@@ -24525,910 +21098,589 @@ var Button = import_react.forwardRef(({ className, variant, size, asChild = fals
 });
 Button.displayName = "Button";
 //#endregion
-//#region src/assets/generatedimage_1773607393240-f55fc.png
-var generatedimage_1773607393240_f55fc_default = "/assets/generatedimage_1773607393240-f55fc-Ca9FkCmk.png";
-//#endregion
-//#region src/components/Header.tsx
-function Header() {
-	const location = useLocation();
-	const { setIsOpen } = useSearchStore();
-	const [isScrolled, setIsScrolled] = (0, import_react.useState)(false);
-	const [mobileMenuOpen, setMobileMenuOpen] = (0, import_react.useState)(false);
-	(0, import_react.useEffect)(() => {
-		const handleScroll = () => {
-			setIsScrolled(window.scrollY > 20);
-		};
-		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, []);
-	const navLinks = [
-		{
-			path: "/",
-			label: "Início"
-		},
-		{
-			path: "/category/uti-pediatrica",
-			label: "UTI Pediátrica"
-		},
-		{
-			path: "/category/urgencias",
-			label: "Urgências"
-		},
-		{
-			path: "/about",
-			label: "Sobre"
-		}
-	];
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-		"data-uid": "src/components/Header.tsx:32:5",
-		"data-prohibitions": "[editContent]",
-		className: cn("fixed top-0 w-full z-50 transition-all duration-300 border-b", isScrolled ? "glass-header shadow-md border-white/10 py-3" : "bg-transparent border-transparent py-5"),
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/components/Header.tsx:40:7",
-				"data-prohibitions": "[editContent]",
-				className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/Header.tsx:41:9",
-					"data-prohibitions": "[editContent]",
-					className: "flex justify-between items-center",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-							"data-uid": "src/components/Header.tsx:42:11",
-							"data-prohibitions": "[]",
-							to: "/",
-							className: "flex items-center space-x-3 group",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/components/Header.tsx:43:13",
-								"data-prohibitions": "[]",
-								className: "relative",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/components/Header.tsx:44:15",
-									"data-prohibitions": "[editContent]",
-									className: "absolute inset-0 bg-primary/20 rounded-xl blur-md group-hover:bg-primary/40 transition-colors"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-									"data-uid": "src/components/Header.tsx:45:15",
-									"data-prohibitions": "[editContent]",
-									src: generatedimage_1773607393240_f55fc_default,
-									alt: "Logo",
-									className: "w-10 h-10 rounded-xl relative z-10 shadow-sm border border-white/10 object-cover"
-								})]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/components/Header.tsx:51:13",
-								"data-prohibitions": "[]",
-								className: "flex flex-col",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/components/Header.tsx:52:15",
-									"data-prohibitions": "[]",
-									className: "font-extrabold text-lg leading-none tracking-tight text-white",
-									children: "Ponto Crítico"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/components/Header.tsx:55:15",
-									"data-prohibitions": "[]",
-									className: "text-primary text-xs font-semibold uppercase tracking-wider",
-									children: "Pediátrico"
-								})]
-							})]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", {
-							"data-uid": "src/components/Header.tsx:61:11",
-							"data-prohibitions": "[editContent]",
-							className: "hidden md:flex items-center space-x-8",
-							children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-								"data-uid": "src/components/Header.tsx:63:15",
-								"data-prohibitions": "[editContent]",
-								to: link.path,
-								className: cn("text-sm font-medium transition-colors hover:text-primary relative py-1", location.pathname === link.path ? "text-primary" : "text-muted-foreground"),
-								children: [link.label, location.pathname === link.path && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/components/Header.tsx:73:19",
-									"data-prohibitions": "[editContent]",
-									className: "absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full animate-fade-in"
-								})]
-							}, link.path))
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/Header.tsx:79:11",
-							"data-prohibitions": "[editContent]",
-							className: "flex items-center space-x-4",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-								"data-uid": "src/components/Header.tsx:80:13",
-								"data-prohibitions": "[]",
-								variant: "ghost",
-								size: "icon",
-								onClick: () => setIsOpen(true),
-								className: "text-muted-foreground hover:text-white hover:bg-white/5 rounded-full",
-								"aria-label": "Buscar",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-									"data-uid": "src/components/Header.tsx:87:15",
-									"data-prohibitions": "[editContent]",
-									className: "h-5 w-5"
-								})
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-								"data-uid": "src/components/Header.tsx:90:13",
-								"data-prohibitions": "[editContent]",
-								variant: "ghost",
-								size: "icon",
-								className: "md:hidden text-muted-foreground hover:text-white",
-								onClick: () => setMobileMenuOpen(!mobileMenuOpen),
-								children: mobileMenuOpen ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, {
-									"data-uid": "src/components/Header.tsx:96:33",
-									"data-prohibitions": "[editContent]",
-									className: "h-6 w-6"
-								}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Menu, {
-									"data-uid": "src/components/Header.tsx:96:61",
-									"data-prohibitions": "[editContent]",
-									className: "h-6 w-6"
-								})
-							})]
-						})
-					]
-				})
-			}),
-			mobileMenuOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/components/Header.tsx:103:9",
-				"data-prohibitions": "[editContent]",
-				className: "md:hidden absolute top-full left-0 w-full glass-header border-b border-white/10 py-4 px-4 animate-slide-down",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/components/Header.tsx:104:11",
-					"data-prohibitions": "[editContent]",
-					className: "flex flex-col space-y-4",
-					children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-						"data-uid": "src/components/Header.tsx:106:15",
-						"data-prohibitions": "[editContent]",
-						to: link.path,
-						onClick: () => setMobileMenuOpen(false),
-						className: cn("text-base font-medium px-4 py-2 rounded-lg transition-colors", location.pathname === link.path ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-white"),
-						children: link.label
-					}, link.path))
-				})
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SearchDialog, {
-				"data-uid": "src/components/Header.tsx:123:7",
-				"data-prohibitions": "[editContent]"
-			})
-		]
-	});
-}
-//#endregion
-//#region src/components/Footer.tsx
-function Footer() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-		"data-uid": "src/components/Footer.tsx:6:5",
-		"data-prohibitions": "[editContent]",
-		className: "bg-background/80 backdrop-blur-md border-t border-white/5 py-12 mt-16 relative overflow-hidden",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			"data-uid": "src/components/Footer.tsx:7:7",
-			"data-prohibitions": "[editContent]",
-			className: "absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-32 bg-primary/10 rounded-t-full blur-3xl z-0"
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/components/Footer.tsx:8:7",
-			"data-prohibitions": "[editContent]",
-			className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/Footer.tsx:9:9",
-				"data-prohibitions": "[]",
-				className: "flex flex-col md:flex-row justify-between items-center gap-6",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/Footer.tsx:10:11",
-					"data-prohibitions": "[]",
-					className: "flex items-center space-x-3",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-						"data-uid": "src/components/Footer.tsx:11:13",
-						"data-prohibitions": "[editContent]",
-						src: generatedimage_1773607393240_f55fc_default,
-						alt: "Logo",
-						className: "w-8 h-8 rounded-lg opacity-80"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						"data-uid": "src/components/Footer.tsx:12:13",
-						"data-prohibitions": "[]",
-						className: "font-semibold text-lg text-white/90",
-						children: "Ponto Crítico Pediátrico"
-					})]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/Footer.tsx:14:11",
-					"data-prohibitions": "[]",
-					className: "text-sm text-muted-foreground flex gap-4",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-							"data-uid": "src/components/Footer.tsx:15:13",
-							"data-prohibitions": "[]",
-							to: "/",
-							className: "hover:text-primary transition-colors",
-							children: "Início"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-							"data-uid": "src/components/Footer.tsx:18:13",
-							"data-prohibitions": "[]",
-							to: "/about",
-							className: "hover:text-primary transition-colors",
-							children: "Sobre"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-							"data-uid": "src/components/Footer.tsx:21:13",
-							"data-prohibitions": "[]",
-							to: "/contact",
-							className: "hover:text-primary transition-colors",
-							children: "Contato"
-						})
-					]
-				})]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/Footer.tsx:26:9",
-				"data-prohibitions": "[editContent]",
-				className: "mt-8 text-center text-xs text-muted-foreground/60",
-				children: [
-					"© ",
-					(/* @__PURE__ */ new Date()).getFullYear(),
-					" Ponto Crítico Pediátrico. Proteção Técnica. Todos os direitos reservados."
-				]
-			})]
-		})]
-	});
-}
-//#endregion
-//#region src/components/Layout.tsx
-function Layout() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/components/Layout.tsx:7:5",
-		"data-prohibitions": "[]",
-		className: "min-h-screen flex flex-col relative overflow-hidden",
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/Layout.tsx:8:7",
-				"data-prohibitions": "[]",
-				className: "fixed inset-0 pointer-events-none z-[-1]",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/Layout.tsx:9:9",
-						"data-prohibitions": "[editContent]",
-						className: "absolute top-[20%] w-full h-32 opacity-10",
-						style: {
-							backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50 L80 50 L90 20 L100 80 L110 10 L120 90 L130 50 L200 50' stroke='%2300D2D3' fill='none' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-							backgroundRepeat: "repeat-x",
-							backgroundSize: "200px 100px"
-						}
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/Layout.tsx:17:9",
-						"data-prohibitions": "[editContent]",
-						className: "absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full border border-primary/10 mix-blend-overlay"
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/Layout.tsx:18:9",
-						"data-prohibitions": "[editContent]",
-						className: "absolute top-[5%] right-[5%] w-[20vw] h-[20vw] rounded-full border border-primary/20 mix-blend-overlay"
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/Layout.tsx:19:9",
-						"data-prohibitions": "[editContent]",
-						className: "absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full border border-white/5 bg-primary/5 blur-3xl"
-					})
-				]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Header, {
-				"data-uid": "src/components/Layout.tsx:22:7",
-				"data-prohibitions": "[editContent]"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
-				"data-uid": "src/components/Layout.tsx:23:7",
-				"data-prohibitions": "[]",
-				className: "flex-grow pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {
-					"data-uid": "src/components/Layout.tsx:24:9",
-					"data-prohibitions": "[editContent]"
-				})
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Footer, {
-				"data-uid": "src/components/Layout.tsx:26:7",
-				"data-prohibitions": "[editContent]"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScrollRestoration, {
-				"data-uid": "src/components/Layout.tsx:27:7",
-				"data-prohibitions": "[editContent]"
-			})
-		]
-	});
-}
-//#endregion
-//#region src/assets/generatedimage_1773607389389-8494a.png
-var generatedimage_1773607389389_8494a_default = "/assets/generatedimage_1773607389389-8494a-DJJSnlaL.png";
-//#endregion
-//#region src/components/ui/badge.tsx
-var badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", {
-	variants: { variant: {
-		default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-		secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-		destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-		outline: "text-foreground"
-	} },
-	defaultVariants: { variant: "default" }
-});
-function Badge({ className, variant, ...props }) {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		"data-uid": "src/components/ui/badge.tsx:30:10",
-		"data-prohibitions": "[editContent]",
-		className: cn(badgeVariants({ variant }), className),
-		...props
-	});
-}
-//#endregion
-//#region src/components/ui/card.tsx
-var Card = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:8:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("rounded-lg border bg-card text-card-foreground shadow-sm", className),
-	...props
-}));
-Card.displayName = "Card";
-var CardHeader = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:19:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("flex flex-col space-y-1.5 p-6", className),
-	...props
-}));
-CardHeader.displayName = "CardHeader";
-var CardTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:26:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("text-2xl font-semibold leading-none tracking-tight", className),
-	...props
-}));
-CardTitle.displayName = "CardTitle";
-var CardDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:37:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("text-sm text-muted-foreground", className),
-	...props
-}));
-CardDescription.displayName = "CardDescription";
-var CardContent = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:44:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("p-6 pt-0", className),
-	...props
-}));
-CardContent.displayName = "CardContent";
-var CardFooter = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:51:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn("flex items-center p-6 pt-0", className),
-	...props
-}));
-CardFooter.displayName = "CardFooter";
-//#endregion
 //#region src/components/ArticleCard.tsx
 function ArticleCard({ article }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-		"data-uid": "src/components/ArticleCard.tsx:9:5",
+		"data-uid": "src/components/ArticleCard.tsx:19:5",
 		"data-prohibitions": "[editContent]",
-		to: `/article/${article.id}`,
-		className: "block h-full",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Card, {
-			"data-uid": "src/components/ArticleCard.tsx:10:7",
+		to: `/artigo/${article.id}`,
+		className: "group block p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-teal-200 hover:shadow-md transition-all duration-300",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/components/ArticleCard.tsx:23:7",
 			"data-prohibitions": "[editContent]",
-			className: "glass-card flex flex-col h-full overflow-hidden group border-white/10 relative",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/components/ArticleCard.tsx:11:9",
+			className: "flex flex-col sm:flex-row sm:items-center justify-between gap-4",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/ArticleCard.tsx:24:9",
+				"data-prohibitions": "[editContent]",
+				className: "flex-1",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+					"data-uid": "src/components/ArticleCard.tsx:25:11",
 					"data-prohibitions": "[editContent]",
-					className: "absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-50 group-hover:opacity-100 transition-opacity"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CardHeader, {
-					"data-uid": "src/components/ArticleCard.tsx:13:9",
+					className: "text-lg font-bold text-slate-800 group-hover:text-teal-700 transition-colors mb-2",
+					children: article.title
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/ArticleCard.tsx:28:11",
 					"data-prohibitions": "[editContent]",
-					className: "pb-4",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/ArticleCard.tsx:14:11",
-						"data-prohibitions": "[editContent]",
-						className: "flex justify-between items-start mb-2",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-							"data-uid": "src/components/ArticleCard.tsx:15:13",
+					className: "flex flex-wrap items-center gap-4 text-sm text-slate-500",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							"data-uid": "src/components/ArticleCard.tsx:29:13",
 							"data-prohibitions": "[editContent]",
-							variant: "outline",
-							className: "bg-primary/10 text-primary border-primary/20 backdrop-blur-md",
-							children: article.category
-						}), article.isNew && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-							"data-uid": "src/components/ArticleCard.tsx:22:15",
-							"data-prohibitions": "[]",
-							className: "bg-accent/20 text-accent border-accent/20 hover:bg-accent/30",
-							children: "Novo"
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/components/ArticleCard.tsx:27:11",
-						"data-prohibitions": "[editContent]",
-						className: "text-xl font-bold leading-tight group-hover:text-primary transition-colors text-foreground",
-						children: article.title
-					})]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardContent, {
-					"data-uid": "src/components/ArticleCard.tsx:31:9",
+							className: "flex items-center gap-1.5",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
+									"data-uid": "src/components/ArticleCard.tsx:30:15",
+									"data-prohibitions": "[editContent]",
+									className: "w-4 h-4"
+								}),
+								" ",
+								article.date
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							"data-uid": "src/components/ArticleCard.tsx:32:13",
+							"data-prohibitions": "[editContent]",
+							className: "flex items-center gap-1.5",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(User, {
+									"data-uid": "src/components/ArticleCard.tsx:33:15",
+									"data-prohibitions": "[editContent]",
+									className: "w-4 h-4"
+								}),
+								" ",
+								article.author
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							"data-uid": "src/components/ArticleCard.tsx:35:13",
+							"data-prohibitions": "[editContent]",
+							className: "flex items-center gap-1.5",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
+									"data-uid": "src/components/ArticleCard.tsx:36:15",
+									"data-prohibitions": "[editContent]",
+									className: "w-4 h-4"
+								}),
+								" ",
+								article.readTime,
+								" leitura"
+							]
+						})
+					]
+				})]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/components/ArticleCard.tsx:40:9",
+				"data-prohibitions": "[]",
+				className: "hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, {
+					"data-uid": "src/components/ArticleCard.tsx:41:11",
 					"data-prohibitions": "[editContent]",
-					className: "flex-grow",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/components/ArticleCard.tsx:32:11",
-						"data-prohibitions": "[editContent]",
-						className: "text-muted-foreground text-sm line-clamp-3",
-						children: article.summary
-					})
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CardFooter, {
-					"data-uid": "src/components/ArticleCard.tsx:34:9",
-					"data-prohibitions": "[editContent]",
-					className: "pt-4 border-t border-white/5 flex items-center justify-between text-xs text-muted-foreground",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/ArticleCard.tsx:35:11",
-						"data-prohibitions": "[editContent]",
-						className: "flex items-center space-x-4",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/ArticleCard.tsx:36:13",
-							"data-prohibitions": "[editContent]",
-							className: "flex items-center",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CalendarDays, {
-								"data-uid": "src/components/ArticleCard.tsx:37:15",
-								"data-prohibitions": "[editContent]",
-								className: "mr-1 h-3 w-3"
-							}), article.date]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/ArticleCard.tsx:40:13",
-							"data-prohibitions": "[editContent]",
-							className: "flex items-center",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
-								"data-uid": "src/components/ArticleCard.tsx:41:15",
-								"data-prohibitions": "[editContent]",
-								className: "mr-1 h-3 w-3"
-							}), article.readTime]
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/ArticleCard.tsx:45:11",
-						"data-prohibitions": "[]",
-						className: "flex items-center text-primary font-medium opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all",
-						children: ["Ler ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, {
-							"data-uid": "src/components/ArticleCard.tsx:46:17",
-							"data-prohibitions": "[editContent]",
-							className: "ml-1 h-3 w-3"
-						})]
-					})]
+					className: "w-5 h-5"
 				})
-			]
+			})]
 		})
 	});
 }
 //#endregion
-//#region src/pages/Index.tsx
-function Index() {
-	const recentArticles = articles.slice(0, 3);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Index.tsx:12:5",
-		"data-prohibitions": "[editContent]",
-		className: "space-y-20",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-			"data-uid": "src/pages/Index.tsx:13:7",
-			"data-prohibitions": "[]",
-			className: "relative w-full rounded-3xl overflow-hidden glass-panel border-white/10 mt-4 shadow-2xl",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/Index.tsx:14:9",
-				"data-prohibitions": "[editContent]",
-				className: "absolute inset-0 ekg-bg opacity-10 mix-blend-screen pointer-events-none"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/Index.tsx:15:9",
+//#region src/data/articles.ts
+var MOCK_ARTICLES = [
+	{
+		id: 1,
+		title: "Manejo Inicial do Choque Séptico em Pediatria",
+		date: "10 Mar 2026",
+		author: "Dr. Silva",
+		categoryId: "sepse",
+		readTime: "5 min"
+	},
+	{
+		id: 2,
+		title: "Atualizações no Protocolo de Sepse 2026",
+		date: "05 Mar 2026",
+		author: "Dra. Costa",
+		categoryId: "sepse",
+		readTime: "8 min"
+	},
+	{
+		id: 3,
+		title: "Intubação Sequência Rápida na Emergência",
+		date: "28 Fev 2026",
+		author: "Dr. Silva",
+		categoryId: "emergencias-pediatricas",
+		readTime: "6 min"
+	},
+	{
+		id: 4,
+		title: "Estratégias Protetoras na Sara Pediátrica",
+		date: "15 Fev 2026",
+		author: "Dra. Almeida",
+		categoryId: "ventilacao-mecanica",
+		readTime: "10 min"
+	},
+	{
+		id: 5,
+		title: "Drogas Vasoativas: Qual escolher e quando?",
+		date: "10 Fev 2026",
+		author: "Dr. Costa",
+		categoryId: "choque",
+		readTime: "7 min"
+	},
+	{
+		id: 6,
+		title: "Dicas Práticas para o Plantão na UTI",
+		date: "01 Fev 2026",
+		author: "Dr. Mendes",
+		categoryId: "uti-pediatrica",
+		readTime: "4 min"
+	},
+	{
+		id: 7,
+		title: "Discussão: Novo Guideline de Asma Aguda",
+		date: "20 Jan 2026",
+		author: "Equipe Editorial",
+		categoryId: "artigo-comentado",
+		readTime: "12 min"
+	},
+	{
+		id: 8,
+		title: "Sinais de Alerta no Paciente Pediátrico",
+		date: "15 Jan 2026",
+		author: "Dra. Fernandes",
+		categoryId: "ponto-critico",
+		readTime: "3 min"
+	}
+];
+//#endregion
+//#region src/pages/CategoryPage.tsx
+var CATEGORIES = [
+	{
+		id: "uti-pediatrica",
+		name: "UTI Pediátrica",
+		bgX: "0%",
+		bgY: "0%",
+		desc: "Protocolos e manejos em Unidade de Terapia Intensiva."
+	},
+	{
+		id: "emergencias-pediatricas",
+		name: "Emergências Pediátricas",
+		bgX: "50%",
+		bgY: "0%",
+		desc: "Atendimentos de urgência e emergência no pronto-socorro."
+	},
+	{
+		id: "sepse",
+		name: "Sepse",
+		bgX: "100%",
+		bgY: "0%",
+		desc: "Reconhecimento precoce e tratamento da sepse na pediatria."
+	},
+	{
+		id: "ventilacao-mecanica",
+		name: "Ventilação Mecânica",
+		bgX: "50%",
+		bgY: "50%",
+		desc: "Parâmetros e estratégias de ventilação mecânica."
+	},
+	{
+		id: "choque",
+		name: "Choque",
+		bgX: "100%",
+		bgY: "50%",
+		desc: "Tipos de choque, reposição volêmica e drogas vasoativas."
+	},
+	{
+		id: "artigo-comentado",
+		name: "Artigo Comentado",
+		bgX: "0%",
+		bgY: "100%",
+		desc: "Análises aprofundadas sobre a literatura médica recente."
+	},
+	{
+		id: "ponto-critico",
+		name: "Ponto Crítico",
+		bgX: "50%",
+		bgY: "100%",
+		desc: "Dicas rápidas e insights valiosos para a beira do leito."
+	}
+];
+function CategoryPage() {
+	const { categoryId } = useParams();
+	const category = CATEGORIES.find((c) => c.id === categoryId);
+	const articles = MOCK_ARTICLES.filter((a) => a.categoryId === categoryId);
+	if (!category) return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/CategoryPage.tsx:68:7",
+		"data-prohibitions": "[]",
+		className: "min-h-[70vh] flex flex-col items-center justify-center p-4 text-center",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+				"data-uid": "src/pages/CategoryPage.tsx:69:9",
 				"data-prohibitions": "[]",
-				className: "grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 lg:p-16",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Index.tsx:16:11",
+				className: "text-3xl font-bold text-slate-800 mb-4",
+				children: "Categoria não encontrada"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				"data-uid": "src/pages/CategoryPage.tsx:70:9",
+				"data-prohibitions": "[]",
+				className: "text-slate-600 mb-8",
+				children: "Não conseguimos localizar a categoria que você está procurando."
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+				"data-uid": "src/pages/CategoryPage.tsx:73:9",
+				"data-prohibitions": "[]",
+				asChild: true,
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+					"data-uid": "src/pages/CategoryPage.tsx:74:11",
 					"data-prohibitions": "[]",
-					className: "space-y-6 z-10 animate-fade-in-up",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/Index.tsx:17:13",
-							"data-prohibitions": "[]",
-							className: "inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent backdrop-blur-md",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/Index.tsx:18:15",
-								"data-prohibitions": "[editContent]",
-								className: "flex w-2 h-2 rounded-full bg-accent mr-2 animate-pulse"
-							}), "Excelência Médica"]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
-							"data-uid": "src/pages/Index.tsx:21:13",
-							"data-prohibitions": "[]",
-							className: "text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight",
-							children: [
-								"Ponto Crítico ",
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("br", {
-									"data-uid": "src/pages/Index.tsx:22:29",
-									"data-prohibitions": "[editContent]"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/pages/Index.tsx:23:15",
-									"data-prohibitions": "[]",
-									className: "text-primary text-glow",
-									children: "Pediátrico"
-								})
-							]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/Index.tsx:25:13",
-							"data-prohibitions": "[]",
-							className: "text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed",
-							children: "Proteção Técnica em Terapia Intensiva e Urgências Pediátricas. Acesso rápido a resumos e diretrizes atualizadas."
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/Index.tsx:29:13",
-							"data-prohibitions": "[]",
-							className: "flex flex-wrap gap-4 pt-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-								"data-uid": "src/pages/Index.tsx:30:15",
-								"data-prohibitions": "[]",
-								size: "lg",
-								className: "bg-accent hover:bg-accent/90 text-white font-semibold rounded-full px-8 shadow-[0_0_20px_rgba(255,87,34,0.4)] hover:shadow-[0_0_30px_rgba(255,87,34,0.6)] transition-all h-12",
-								children: "Explorar Artigos"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								"data-uid": "src/pages/Index.tsx:36:15",
-								"data-prohibitions": "[]",
-								to: "/about",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/Index.tsx:37:17",
-									"data-prohibitions": "[]",
-									size: "lg",
-									variant: "outline",
-									className: "rounded-full px-8 border-white/20 hover:bg-white/10 text-white h-12",
-									children: "Nossa Missão"
-								})
-							})]
-						})
-					]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Index.tsx:47:11",
-					"data-prohibitions": "[]",
-					className: "relative z-10 flex justify-center animate-fade-in-up",
-					style: { animationDelay: "0.2s" },
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Index.tsx:51:13",
-						"data-prohibitions": "[]",
-						className: "relative w-full max-w-md aspect-square rounded-2xl overflow-hidden shadow-2xl border border-white/10 group",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/Index.tsx:52:15",
-								"data-prohibitions": "[editContent]",
-								className: "absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent z-10 opacity-80"
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-								"data-uid": "src/pages/Index.tsx:53:15",
-								"data-prohibitions": "[editContent]",
-								src: generatedimage_1773607389389_8494a_default,
-								alt: "Ponto Crítico Pediátrico Hero",
-								className: "w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/Index.tsx:58:15",
-								"data-prohibitions": "[]",
-								className: "absolute bottom-6 left-6 right-6 z-20",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/Index.tsx:59:17",
-									"data-prohibitions": "[]",
-									className: "glass p-4 rounded-xl border-white/20",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										"data-uid": "src/pages/Index.tsx:60:19",
-										"data-prohibitions": "[]",
-										className: "text-sm font-medium text-white/90",
-										children: "Destaque do Mês"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										"data-uid": "src/pages/Index.tsx:61:19",
-										"data-prohibitions": "[]",
-										className: "text-primary font-bold",
-										children: "Atualizações em Ventilação Mecânica"
-									})]
-								})
-							})
-						]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:65:13",
-						"data-prohibitions": "[editContent]",
-						className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/20 rounded-full blur-[100px] -z-10"
-					})]
-				})]
-			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-			"data-uid": "src/pages/Index.tsx:70:7",
+					to: "/",
+					children: "Voltar ao Início"
+				})
+			})
+		]
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/CategoryPage.tsx:81:5",
+		"data-prohibitions": "[editContent]",
+		className: "min-h-screen bg-slate-50 pb-20",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/pages/CategoryPage.tsx:82:7",
 			"data-prohibitions": "[editContent]",
-			className: "space-y-8 animate-fade-in-up",
-			style: { animationDelay: "0.3s" },
+			className: "bg-teal-950 text-white pt-20 pb-24 px-4 relative overflow-hidden",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Index.tsx:71:9",
-					"data-prohibitions": "[]",
-					className: "flex justify-between items-end",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Index.tsx:72:11",
-						"data-prohibitions": "[]",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-							"data-uid": "src/pages/Index.tsx:73:13",
-							"data-prohibitions": "[]",
-							className: "text-3xl font-bold text-white mb-2",
-							children: "Artigos Recentes"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/Index.tsx:74:13",
-							"data-prohibitions": "[]",
-							className: "text-muted-foreground",
-							children: "Últimas atualizações e resumos clínicos."
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-						"data-uid": "src/pages/Index.tsx:76:11",
-						"data-prohibitions": "[]",
-						to: "/category/uti-pediatrica",
-						className: "hidden sm:flex items-center text-primary hover:text-primary/80 font-medium transition-colors",
-						children: ["Ver todos ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, {
-							"data-uid": "src/pages/Index.tsx:80:23",
-							"data-prohibitions": "[editContent]",
-							className: "w-4 h-4 ml-1"
-						})]
-					})]
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:83:9",
+					"data-prohibitions": "[editContent]",
+					className: "absolute inset-0 opacity-10 filter blur-sm transform scale-110 pointer-events-none",
+					style: {
+						backgroundImage: `url(${editedimage_1773608286853_085b3_default})`,
+						backgroundSize: "300% 300%",
+						backgroundPosition: `${category.bgX} ${category.bgY}`
+					}
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Index.tsx:84:9",
+					"data-uid": "src/pages/CategoryPage.tsx:91:9",
 					"data-prohibitions": "[editContent]",
-					className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
-					children: recentArticles.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
-						"data-uid": "src/pages/Index.tsx:86:13",
+					className: "absolute inset-0 bg-gradient-to-t from-slate-50 to-transparent bottom-0 h-16 pointer-events-none"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:93:9",
+					"data-prohibitions": "[editContent]",
+					className: "max-w-4xl mx-auto relative z-10",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+						"data-uid": "src/pages/CategoryPage.tsx:94:11",
+						"data-prohibitions": "[]",
+						to: "/",
+						className: "inline-flex items-center text-teal-200 hover:text-white mb-8 transition-colors text-sm font-medium",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
+							"data-uid": "src/pages/CategoryPage.tsx:98:13",
+							"data-prohibitions": "[editContent]",
+							className: "w-4 h-4 mr-2"
+						}), " Voltar para Categorias"]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/CategoryPage.tsx:101:11",
+						"data-prohibitions": "[editContent]",
+						className: "flex flex-col md:flex-row items-center md:items-start gap-8",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/CategoryPage.tsx:102:13",
+							"data-prohibitions": "[editContent]",
+							className: "w-32 h-32 md:w-48 md:h-48 rounded-[2rem] shrink-0 shadow-2xl ring-4 ring-white/10",
+							style: {
+								backgroundImage: `url(${editedimage_1773608286853_085b3_default})`,
+								backgroundSize: "300% 300%",
+								backgroundPosition: `${category.bgX} ${category.bgY}`
+							}
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/CategoryPage.tsx:110:13",
+							"data-prohibitions": "[editContent]",
+							className: "text-center md:text-left pt-2 md:pt-4",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									"data-uid": "src/pages/CategoryPage.tsx:111:15",
+									"data-prohibitions": "[]",
+									className: "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-sm font-medium mb-4 border border-orange-500/20",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, {
+										"data-uid": "src/pages/CategoryPage.tsx:112:17",
+										"data-prohibitions": "[editContent]",
+										className: "w-4 h-4"
+									}), " Categoria"]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+									"data-uid": "src/pages/CategoryPage.tsx:114:15",
+									"data-prohibitions": "[editContent]",
+									className: "text-3xl md:text-5xl font-bold tracking-tight mb-4",
+									children: category.name
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									"data-uid": "src/pages/CategoryPage.tsx:117:15",
+									"data-prohibitions": "[editContent]",
+									className: "text-teal-100 text-lg md:text-xl max-w-xl leading-relaxed",
+									children: category.desc
+								})
+							]
+						})]
+					})]
+				})
+			]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-uid": "src/pages/CategoryPage.tsx:125:7",
+			"data-prohibitions": "[editContent]",
+			className: "max-w-4xl mx-auto px-4 -mt-10 relative z-20",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/CategoryPage.tsx:126:9",
+				"data-prohibitions": "[editContent]",
+				className: "bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
+					"data-uid": "src/pages/CategoryPage.tsx:127:11",
+					"data-prohibitions": "[editContent]",
+					className: "text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2",
+					children: ["Publicações Recentes", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						"data-uid": "src/pages/CategoryPage.tsx:129:13",
+						"data-prohibitions": "[editContent]",
+						className: "bg-slate-100 text-slate-600 text-sm py-1 px-3 rounded-full font-medium ml-2",
+						children: articles.length
+					})]
+				}), articles.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:135:13",
+					"data-prohibitions": "[editContent]",
+					className: "space-y-4",
+					children: articles.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
+						"data-uid": "src/pages/CategoryPage.tsx:137:17",
 						"data-prohibitions": "[editContent]",
 						article
 					}, article.id))
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Index.tsx:90:9",
+				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:141:13",
 					"data-prohibitions": "[]",
-					className: "sm:hidden flex justify-center mt-6",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-						"data-uid": "src/pages/Index.tsx:91:11",
-						"data-prohibitions": "[]",
-						to: "/category/uti-pediatrica",
-						className: "w-full",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/Index.tsx:92:13",
+					className: "text-center py-16 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-200",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, {
+							"data-uid": "src/pages/CategoryPage.tsx:142:15",
+							"data-prohibitions": "[editContent]",
+							className: "w-12 h-12 text-slate-300 mx-auto mb-4"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+							"data-uid": "src/pages/CategoryPage.tsx:143:15",
 							"data-prohibitions": "[]",
-							variant: "outline",
-							className: "w-full rounded-full border-white/20",
-							children: "Ver todos os artigos"
+							className: "text-lg font-semibold text-slate-700 mb-2",
+							children: "Nenhum artigo encontrado"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							"data-uid": "src/pages/CategoryPage.tsx:146:15",
+							"data-prohibitions": "[]",
+							className: "text-slate-500",
+							children: "Ainda não há publicações nesta categoria. Volte em breve!"
 						})
-					})
-				})
-			]
+					]
+				})]
+			})
 		})]
 	});
 }
 //#endregion
 //#region src/pages/ArticlePage.tsx
 function ArticlePage() {
-	const { id } = useParams();
-	const article = articles.find((a) => a.id === id);
-	if (!article) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		"data-uid": "src/pages/ArticlePage.tsx:10:24",
-		"data-prohibitions": "[]",
-		className: "text-center py-20 text-white",
-		children: "Artigo não encontrado."
-	});
+	const { articleId } = useParams();
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/ArticlePage.tsx:13:5",
+		"data-uid": "src/pages/ArticlePage.tsx:9:5",
 		"data-prohibitions": "[editContent]",
-		className: "max-w-3xl mx-auto animate-fade-in-up",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-			"data-uid": "src/pages/ArticlePage.tsx:14:7",
-			"data-prohibitions": "[]",
-			to: "/",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-				"data-uid": "src/pages/ArticlePage.tsx:15:9",
-				"data-prohibitions": "[]",
-				variant: "ghost",
-				className: "mb-6 text-muted-foreground hover:text-white hover:bg-white/5",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
-					"data-uid": "src/pages/ArticlePage.tsx:19:11",
-					"data-prohibitions": "[editContent]",
-					className: "mr-2 h-4 w-4"
-				}), " Voltar"]
-			})
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-			"data-uid": "src/pages/ArticlePage.tsx:22:7",
+		className: "min-h-screen bg-slate-50 pb-20",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-uid": "src/pages/ArticlePage.tsx:10:7",
 			"data-prohibitions": "[editContent]",
-			className: "glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/ArticlePage.tsx:23:9",
+			className: "bg-white border-b border-slate-200 pt-12 pb-12 px-4 shadow-sm relative z-10",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/ArticlePage.tsx:11:9",
 				"data-prohibitions": "[editContent]",
-				className: "absolute -top-32 -right-32 w-64 h-64 bg-primary/20 rounded-full blur-[60px]"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/ArticlePage.tsx:24:9",
-				"data-prohibitions": "[editContent]",
-				className: "relative z-10",
+				className: "max-w-3xl mx-auto",
 				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+						"data-uid": "src/pages/ArticlePage.tsx:12:11",
+						"data-prohibitions": "[]",
+						to: "/",
+						className: "inline-flex items-center text-teal-700 hover:text-teal-800 mb-8 transition-colors text-sm font-medium",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
+							"data-uid": "src/pages/ArticlePage.tsx:16:13",
+							"data-prohibitions": "[editContent]",
+							className: "w-4 h-4 mr-2"
+						}), " Voltar ao Início"]
+					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/ArticlePage.tsx:25:11",
+						"data-uid": "src/pages/ArticlePage.tsx:19:11",
 						"data-prohibitions": "[editContent]",
-						className: "flex flex-wrap items-center gap-4 mb-6 text-sm text-muted-foreground",
+						className: "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-medium mb-4 border border-teal-100",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								"data-uid": "src/pages/ArticlePage.tsx:26:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
+								"data-uid": "src/pages/ArticlePage.tsx:20:13",
 								"data-prohibitions": "[editContent]",
-								className: "flex items-center text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, {
-									"data-uid": "src/pages/ArticlePage.tsx:27:15",
+								className: "w-4 h-4"
+							}),
+							" Artigo Clínico ",
+							articleId ? `#${articleId}` : ""
+						]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+						"data-uid": "src/pages/ArticlePage.tsx:22:11",
+						"data-prohibitions": "[]",
+						className: "text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6 leading-tight",
+						children: "Manejo Inicial do Choque Séptico em Pediatria"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/ArticlePage.tsx:26:11",
+						"data-prohibitions": "[]",
+						className: "flex flex-wrap items-center gap-6 text-sm text-slate-600 font-medium",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							"data-uid": "src/pages/ArticlePage.tsx:27:13",
+							"data-prohibitions": "[]",
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
+								"data-uid": "src/pages/ArticlePage.tsx:28:15",
+								"data-prohibitions": "[editContent]",
+								className: "w-4 h-4 text-slate-400"
+							}), " 10 Mar 2026"]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							"data-uid": "src/pages/ArticlePage.tsx:30:13",
+							"data-prohibitions": "[]",
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(User, {
+								"data-uid": "src/pages/ArticlePage.tsx:31:15",
+								"data-prohibitions": "[editContent]",
+								className: "w-4 h-4 text-slate-400"
+							}), " Dr. Silva"]
+						})]
+					})
+				]
+			})
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/pages/ArticlePage.tsx:37:7",
+			"data-prohibitions": "[]",
+			className: "max-w-3xl mx-auto px-4 py-12",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/ArticlePage.tsx:38:9",
+				"data-prohibitions": "[]",
+				className: "prose prose-teal md:prose-lg max-w-none text-slate-700",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/ArticlePage.tsx:39:11",
+						"data-prohibitions": "[]",
+						className: "lead text-xl text-slate-600 mb-8 leading-relaxed",
+						children: "O reconhecimento precoce e a intervenção rápida são fundamentais para reduzir a mortalidade no choque séptico pediátrico. Este artigo revisa as diretrizes mais recentes aplicadas à beira do leito."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+						"data-uid": "src/pages/ArticlePage.tsx:45:11",
+						"data-prohibitions": "[]",
+						className: "text-2xl font-bold text-slate-900 mt-10 mb-4",
+						children: "Reconhecimento Inicial"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/ArticlePage.tsx:46:11",
+						"data-prohibitions": "[]",
+						className: "mb-6 leading-relaxed",
+						children: "A tríade clássica de febre, taquicardia e alteração da perfusão periférica deve levantar imediatamente a suspeita de sepse em crianças. A hipotensão é um sinal tardio e indica descompensação grave, não devendo ser aguardada para o início das medidas terapêuticas."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/ArticlePage.tsx:52:11",
+						"data-prohibitions": "[]",
+						className: "bg-orange-50/50 border border-orange-200 p-6 rounded-2xl mb-8 relative overflow-hidden",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/ArticlePage.tsx:53:13",
+								"data-prohibitions": "[editContent]",
+								className: "absolute top-0 left-0 w-1.5 h-full bg-orange-500"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/pages/ArticlePage.tsx:54:13",
+								"data-prohibitions": "[]",
+								className: "flex items-center gap-3 mb-3",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShieldAlert, {
+									"data-uid": "src/pages/ArticlePage.tsx:55:15",
 									"data-prohibitions": "[editContent]",
-									className: "w-3 h-3 mr-2"
-								}), article.category]
+									className: "w-6 h-6 text-orange-600"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+									"data-uid": "src/pages/ArticlePage.tsx:56:15",
+									"data-prohibitions": "[]",
+									className: "text-lg font-bold text-orange-900 m-0",
+									children: "Ponto de Atenção"
+								})]
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								"data-uid": "src/pages/ArticlePage.tsx:30:13",
-								"data-prohibitions": "[editContent]",
-								className: "flex items-center",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+								"data-uid": "src/pages/ArticlePage.tsx:58:13",
+								"data-prohibitions": "[]",
+								className: "text-orange-800 m-0 leading-relaxed",
 								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CalendarDays, {
-										"data-uid": "src/pages/ArticlePage.tsx:31:15",
-										"data-prohibitions": "[editContent]",
-										className: "w-4 h-4 mr-2"
-									}),
+									"Não aguarde a hipotensão para iniciar o tratamento. O tempo capilar prolongado (",
+									">",
 									" ",
-									article.date
-								]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								"data-uid": "src/pages/ArticlePage.tsx:33:13",
-								"data-prohibitions": "[editContent]",
-								className: "flex items-center",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
-										"data-uid": "src/pages/ArticlePage.tsx:34:15",
-										"data-prohibitions": "[editContent]",
-										className: "w-4 h-4 mr-2"
-									}),
-									" ",
-									article.readTime
+									"3s) e alterações do estado mental são sinais cruciais na avaliação inicial da pediatria."
 								]
 							})
 						]
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-						"data-uid": "src/pages/ArticlePage.tsx:37:11",
-						"data-prohibitions": "[editContent]",
-						className: "text-3xl md:text-5xl font-extrabold text-white mb-8 leading-tight",
-						children: article.title
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+						"data-uid": "src/pages/ArticlePage.tsx:65:11",
+						"data-prohibitions": "[]",
+						className: "text-2xl font-bold text-slate-900 mt-10 mb-4",
+						children: "Pacote da Primeira Hora (Bundle)"
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/ArticlePage.tsx:40:11",
-						"data-prohibitions": "[editContent]",
-						className: "prose prose-invert prose-lg max-w-none prose-headings:text-white prose-a:text-primary",
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/ArticlePage.tsx:68:11",
+						"data-prohibitions": "[]",
+						className: "mb-4",
+						children: "As intervenções a seguir devem ser idealmente completadas em até 60 minutos após o reconhecimento:"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
+						"data-uid": "src/pages/ArticlePage.tsx:72:11",
+						"data-prohibitions": "[]",
+						className: "list-disc pl-6 mb-8 space-y-3 marker:text-teal-600",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/ArticlePage.tsx:41:13",
-								"data-prohibitions": "[editContent]",
-								className: "text-xl text-muted-foreground mb-8 leading-relaxed font-medium",
-								children: article.summary
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/ArticlePage.tsx:44:13",
-								"data-prohibitions": "[editContent]",
-								className: "h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-8"
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/ArticlePage.tsx:45:13",
-								"data-prohibitions": "[editContent]",
-								className: "text-foreground/90 leading-relaxed",
-								children: article.content
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/ArticlePage.tsx:46:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+								"data-uid": "src/pages/ArticlePage.tsx:73:13",
 								"data-prohibitions": "[]",
-								className: "text-2xl font-bold mt-10 mb-6",
-								children: "Pontos Chave e Diretrizes"
+								children: "Obtenção de acesso vascular (Intravenoso ou Intraósseo) em até 5 minutos."
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
-								"data-uid": "src/pages/ArticlePage.tsx:47:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+								"data-uid": "src/pages/ArticlePage.tsx:74:13",
 								"data-prohibitions": "[]",
-								className: "list-disc pl-5 space-y-3 text-foreground/90",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-										"data-uid": "src/pages/ArticlePage.tsx:48:15",
-										"data-prohibitions": "[]",
-										children: "Monitoramento contínuo dos sinais vitais e estabilização imediata."
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-										"data-uid": "src/pages/ArticlePage.tsx:49:15",
-										"data-prohibitions": "[]",
-										children: "Avaliação rápida do estado neurológico e perfusão periférica."
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-										"data-uid": "src/pages/ArticlePage.tsx:50:15",
-										"data-prohibitions": "[]",
-										children: "Intervenção guiada por metas baseada nos protocolos mais recentes."
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-										"data-uid": "src/pages/ArticlePage.tsx:51:15",
-										"data-prohibitions": "[]",
-										children: "Documentação detalhada e reavaliação seriada da conduta adotada."
-									})
-								]
+								children: "Coleta de hemoculturas antes do início dos antibióticos (sem atrasar o tratamento em caso de dificuldade no acesso)."
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+								"data-uid": "src/pages/ArticlePage.tsx:78:13",
+								"data-prohibitions": "[]",
+								children: "Administração de antibióticos de amplo espectro."
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+								"data-uid": "src/pages/ArticlePage.tsx:79:13",
+								"data-prohibitions": "[]",
+								children: "Ressuscitação volêmica com cristaloides balanceados (10-20 mL/kg em bolus, avaliando resposta clínica a cada etapa)."
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+								"data-uid": "src/pages/ArticlePage.tsx:83:13",
+								"data-prohibitions": "[]",
+								children: "Início de drogas vasoativas (ex: Epinefrina ou Norepinefrina) se refratário a fluidos."
 							})
 						]
 					})
 				]
-			})]
-		})]
-	});
-}
-//#endregion
-//#region src/pages/CategoryPage.tsx
-function CategoryPage() {
-	const { slug } = useParams();
-	const isUti = slug === "uti-pediatrica";
-	const categoryName = isUti ? "UTI Pediátrica" : "Urgências";
-	const Icon = isUti ? Stethoscope : ShieldAlert;
-	const filteredArticles = articles.filter((a) => a.category === categoryName);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/CategoryPage.tsx:16:5",
-		"data-prohibitions": "[editContent]",
-		className: "space-y-12 animate-fade-in-up",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/CategoryPage.tsx:17:7",
-			"data-prohibitions": "[editContent]",
-			className: "glass-panel rounded-3xl p-8 md:p-12 relative overflow-hidden",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/CategoryPage.tsx:18:9",
-				"data-prohibitions": "[editContent]",
-				className: "absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/CategoryPage.tsx:19:9",
-				"data-prohibitions": "[editContent]",
-				className: "relative z-10 flex items-center gap-6",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:20:11",
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/ArticlePage.tsx:89:9",
+				"data-prohibitions": "[]",
+				className: "mt-16 pt-8 border-t border-slate-200 text-center",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+					"data-uid": "src/pages/ArticlePage.tsx:90:11",
 					"data-prohibitions": "[]",
-					className: "w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-white/10 flex items-center justify-center text-primary shadow-lg",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon, {
-						"data-uid": "src/pages/CategoryPage.tsx:21:13",
-						"data-prohibitions": "[editContent]",
-						className: "w-8 h-8"
+					asChild: true,
+					variant: "outline",
+					size: "lg",
+					className: "gap-2 rounded-full border-slate-300 text-slate-700 hover:bg-slate-50",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+						"data-uid": "src/pages/ArticlePage.tsx:96:13",
+						"data-prohibitions": "[]",
+						to: "/",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
+							"data-uid": "src/pages/ArticlePage.tsx:97:15",
+							"data-prohibitions": "[editContent]",
+							className: "w-4 h-4"
+						}), " Explorar mais artigos"]
 					})
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:23:11",
-					"data-prohibitions": "[editContent]",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-						"data-uid": "src/pages/CategoryPage.tsx:24:13",
-						"data-prohibitions": "[editContent]",
-						className: "text-3xl md:text-4xl font-extrabold text-white mb-2",
-						children: categoryName
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-						"data-uid": "src/pages/CategoryPage.tsx:25:13",
-						"data-prohibitions": "[editContent]",
-						className: "text-muted-foreground",
-						children: [
-							"Artigos, resumos e diretrizes focadas em ",
-							categoryName.toLowerCase(),
-							"."
-						]
-					})]
-				})]
-			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			"data-uid": "src/pages/CategoryPage.tsx:32:7",
-			"data-prohibitions": "[editContent]",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/CategoryPage.tsx:33:9",
-				"data-prohibitions": "[editContent]",
-				className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
-				children: filteredArticles.length > 0 ? filteredArticles.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
-					"data-uid": "src/pages/CategoryPage.tsx:35:47",
-					"data-prohibitions": "[editContent]",
-					article
-				}, article.id)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:37:13",
-					"data-prohibitions": "[]",
-					className: "col-span-full py-20 text-center text-muted-foreground",
-					children: "Nenhum artigo encontrado nesta categoria."
 				})
-			})
+			})]
 		})]
 	});
 }
@@ -25437,101 +21689,32 @@ function CategoryPage() {
 function AboutPage() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		"data-uid": "src/pages/AboutPage.tsx:5:5",
-		"data-prohibitions": "[editContent]",
-		className: "max-w-4xl mx-auto space-y-12 animate-fade-in-up",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/AboutPage.tsx:6:7",
-			"data-prohibitions": "[]",
-			className: "text-center space-y-4",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
-				"data-uid": "src/pages/AboutPage.tsx:7:9",
+		"data-prohibitions": "[]",
+		className: "min-h-[70vh] flex flex-col items-center justify-center p-8 text-center max-w-2xl mx-auto",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/AboutPage.tsx:6:7",
 				"data-prohibitions": "[]",
-				className: "text-4xl md:text-5xl font-extrabold text-white",
-				children: ["Sobre o ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					"data-uid": "src/pages/AboutPage.tsx:8:19",
-					"data-prohibitions": "[]",
-					className: "text-primary text-glow",
-					children: "Ponto Crítico"
-				})]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				"data-uid": "src/pages/AboutPage.tsx:10:9",
-				"data-prohibitions": "[]",
-				className: "text-xl text-muted-foreground max-w-2xl mx-auto",
-				children: "Nossa missão é fornecer proteção técnica e conhecimento baseado em evidências para profissionais que atuam na terapia intensiva e urgências pediátricas."
-			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/AboutPage.tsx:15:7",
-			"data-prohibitions": "[editContent]",
-			className: "glass-panel p-8 md:p-12 rounded-3xl grid md:grid-cols-2 gap-12 items-center",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/AboutPage.tsx:16:9",
-				"data-prohibitions": "[editContent]",
-				className: "space-y-6",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						"data-uid": "src/pages/AboutPage.tsx:17:11",
-						"data-prohibitions": "[]",
-						className: "text-3xl font-bold text-white",
-						children: "Conhecimento que Salva Vidas"
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/pages/AboutPage.tsx:18:11",
-						"data-prohibitions": "[]",
-						className: "text-muted-foreground leading-relaxed",
-						children: "Acreditamos que a atualização constante é a chave para a excelência no atendimento pediátrico crítico. Nossa plataforma reúne os protocolos mais recentes e resumos focados na prática clínica, permitindo decisões rápidas e seguras."
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-						"data-uid": "src/pages/AboutPage.tsx:23:11",
-						"data-prohibitions": "[editContent]",
-						className: "space-y-3",
-						children: [
-							"Protocolos Atualizados",
-							"Resumos Clínicos Rápidos",
-							"Diretrizes Baseadas em Evidências"
-						].map((item, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-							"data-uid": "src/pages/AboutPage.tsx:29:15",
-							"data-prohibitions": "[editContent]",
-							className: "flex items-center text-foreground font-medium",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/AboutPage.tsx:30:17",
-								"data-prohibitions": "[]",
-								className: "w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mr-3 text-primary border border-primary/30",
-								children: "✓"
-							}), item]
-						}, i))
-					})
-				]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/AboutPage.tsx:38:9",
-				"data-prohibitions": "[]",
-				className: "relative",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/AboutPage.tsx:39:11",
-					"data-prohibitions": "[]",
-					className: "aspect-square rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 border border-white/10 flex items-center justify-center relative overflow-hidden group",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/AboutPage.tsx:40:13",
-						"data-prohibitions": "[]",
-						className: "absolute inset-0 ekg-bg opacity-30"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/AboutPage.tsx:41:13",
-						"data-prohibitions": "[]",
-						className: "w-48 h-48 rounded-2xl overflow-hidden relative shadow-2xl border border-white/20 transform group-hover:scale-105 transition-transform duration-500",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-							"data-uid": "src/pages/AboutPage.tsx:42:15",
-							"data-prohibitions": "[editContent]",
-							src: generatedimage_1773607393240_f55fc_default,
-							alt: "Brand Shield",
-							className: "w-full h-full object-cover"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/AboutPage.tsx:43:15",
-							"data-prohibitions": "[]",
-							className: "absolute inset-0 bg-primary/10 mix-blend-overlay"
-						})]
-					})]
+				className: "w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mb-6 shadow-sm",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, {
+					"data-uid": "src/pages/AboutPage.tsx:7:9",
+					"data-prohibitions": "[editContent]",
+					className: "w-10 h-10 text-teal-700"
 				})
-			})]
-		})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+				"data-uid": "src/pages/AboutPage.tsx:9:7",
+				"data-prohibitions": "[]",
+				className: "text-4xl font-bold text-slate-900 mb-6",
+				children: "Sobre o Ponto Crítico"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				"data-uid": "src/pages/AboutPage.tsx:10:7",
+				"data-prohibitions": "[]",
+				className: "text-lg text-slate-600 mb-8 leading-relaxed",
+				children: "Ponto Crítico Pediátrico é uma iniciativa focada em fornecer resumos diretos e baseados em evidências sobre terapia intensiva e emergências pediátricas. Nosso objetivo é auxiliar profissionais de saúde na tomada de decisão à beira do leito, salvando pequenas vidas."
+			})
+		]
 	});
 }
 //#endregion
@@ -25577,59 +21760,73 @@ function NotFound() {
 }
 //#endregion
 //#region src/App.tsx
-var router = createBrowserRouter([{
-	path: "/",
-	element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
-		"data-uid": "src/App.tsx:12:14",
-		"data-prohibitions": "[editContent]"
-	}),
-	errorElement: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
-		"data-uid": "src/App.tsx:13:19",
-		"data-prohibitions": "[editContent]"
-	}),
-	children: [
-		{
-			index: true,
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
-				"data-uid": "src/App.tsx:15:31",
-				"data-prohibitions": "[editContent]"
-			})
-		},
-		{
-			path: "article/:id",
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticlePage, {
-				"data-uid": "src/App.tsx:16:39",
-				"data-prohibitions": "[editContent]"
-			})
-		},
-		{
-			path: "category/:slug",
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CategoryPage, {
-				"data-uid": "src/App.tsx:17:42",
-				"data-prohibitions": "[editContent]"
-			})
-		},
-		{
-			path: "about",
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AboutPage, {
-				"data-uid": "src/App.tsx:18:33",
-				"data-prohibitions": "[editContent]"
-			})
-		},
-		{
-			path: "*",
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
-				"data-uid": "src/App.tsx:19:29",
-				"data-prohibitions": "[editContent]"
-			})
-		}
-	]
-}]);
 function App() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RouterProvider2, {
-		"data-uid": "src/App.tsx:25:10",
-		"data-prohibitions": "[editContent]",
-		router
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(BrowserRouter, {
+		"data-uid": "src/App.tsx:12:5",
+		"data-prohibitions": "[]",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Routes, {
+			"data-uid": "src/App.tsx:13:7",
+			"data-prohibitions": "[]",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Route, {
+				"data-uid": "src/App.tsx:14:9",
+				"data-prohibitions": "[]",
+				path: "/",
+				element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
+					"data-uid": "src/App.tsx:14:34",
+					"data-prohibitions": "[editContent]"
+				}),
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+						"data-uid": "src/App.tsx:15:11",
+						"data-prohibitions": "[editContent]",
+						index: true,
+						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
+							"data-uid": "src/App.tsx:15:33",
+							"data-prohibitions": "[editContent]"
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+						"data-uid": "src/App.tsx:16:11",
+						"data-prohibitions": "[editContent]",
+						path: "categoria/:categoryId",
+						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CategoryPage, {
+							"data-uid": "src/App.tsx:16:56",
+							"data-prohibitions": "[editContent]"
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+						"data-uid": "src/App.tsx:17:11",
+						"data-prohibitions": "[editContent]",
+						path: "artigo/:articleId",
+						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticlePage, {
+							"data-uid": "src/App.tsx:17:52",
+							"data-prohibitions": "[editContent]"
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+						"data-uid": "src/App.tsx:18:11",
+						"data-prohibitions": "[editContent]",
+						path: "sobre",
+						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AboutPage, {
+							"data-uid": "src/App.tsx:18:40",
+							"data-prohibitions": "[editContent]"
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+						"data-uid": "src/App.tsx:19:11",
+						"data-prohibitions": "[editContent]",
+						path: "*",
+						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
+							"data-uid": "src/App.tsx:19:36",
+							"data-prohibitions": "[editContent]"
+						})
+					})
+				]
+			})
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
+			"data-uid": "src/App.tsx:22:7",
+			"data-prohibitions": "[editContent]"
+		})]
 	});
 }
 //#endregion
@@ -25640,4 +21837,4 @@ function App() {
 }));
 //#endregion
 
-//# sourceMappingURL=index-Bp5gh-zN.js.map
+//# sourceMappingURL=index-CN91zdV-.js.map

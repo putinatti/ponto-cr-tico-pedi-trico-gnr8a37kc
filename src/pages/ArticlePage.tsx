@@ -1,58 +1,104 @@
 import { useParams, Link } from 'react-router-dom'
-import { articles } from '@/data/articles'
+import { ArrowLeft, Clock, User, Activity, ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, CalendarDays, Clock, Tag } from 'lucide-react'
 
 export default function ArticlePage() {
-  const { id } = useParams()
-  const article = articles.find((a) => a.id === id)
-
-  if (!article) return <div className="text-center py-20 text-white">Artigo não encontrado.</div>
+  const { articleId } = useParams()
 
   return (
-    <div className="max-w-3xl mx-auto animate-fade-in-up">
-      <Link to="/">
-        <Button
-          variant="ghost"
-          className="mb-6 text-muted-foreground hover:text-white hover:bg-white/5"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-      </Link>
-      <article className="glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/20 rounded-full blur-[60px]" />
-        <div className="relative z-10">
-          <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-muted-foreground">
-            <span className="flex items-center text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-              <Tag className="w-3 h-3 mr-2" />
-              {article.category}
-            </span>
-            <span className="flex items-center">
-              <CalendarDays className="w-4 h-4 mr-2" /> {article.date}
-            </span>
-            <span className="flex items-center">
-              <Clock className="w-4 h-4 mr-2" /> {article.readTime}
-            </span>
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <div className="bg-white border-b border-slate-200 pt-12 pb-12 px-4 shadow-sm relative z-10">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            to="/"
+            className="inline-flex items-center text-teal-700 hover:text-teal-800 mb-8 transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar ao Início
+          </Link>
+
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-medium mb-4 border border-teal-100">
+            <Activity className="w-4 h-4" /> Artigo Clínico {articleId ? `#${articleId}` : ''}
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-8 leading-tight">
-            {article.title}
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6 leading-tight">
+            Manejo Inicial do Choque Séptico em Pediatria
           </h1>
-          <div className="prose prose-invert prose-lg max-w-none prose-headings:text-white prose-a:text-primary">
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed font-medium">
-              {article.summary}
-            </p>
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-8" />
-            <p className="text-foreground/90 leading-relaxed">{article.content}</p>
-            <h3 className="text-2xl font-bold mt-10 mb-6">Pontos Chave e Diretrizes</h3>
-            <ul className="list-disc pl-5 space-y-3 text-foreground/90">
-              <li>Monitoramento contínuo dos sinais vitais e estabilização imediata.</li>
-              <li>Avaliação rápida do estado neurológico e perfusão periférica.</li>
-              <li>Intervenção guiada por metas baseada nos protocolos mais recentes.</li>
-              <li>Documentação detalhada e reavaliação seriada da conduta adotada.</li>
-            </ul>
+
+          <div className="flex flex-wrap items-center gap-6 text-sm text-slate-600 font-medium">
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-slate-400" /> 10 Mar 2026
+            </span>
+            <span className="flex items-center gap-2">
+              <User className="w-4 h-4 text-slate-400" /> Dr. Silva
+            </span>
           </div>
         </div>
-      </article>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        <div className="prose prose-teal md:prose-lg max-w-none text-slate-700">
+          <p className="lead text-xl text-slate-600 mb-8 leading-relaxed">
+            O reconhecimento precoce e a intervenção rápida são fundamentais para reduzir a
+            mortalidade no choque séptico pediátrico. Este artigo revisa as diretrizes mais recentes
+            aplicadas à beira do leito.
+          </p>
+
+          <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-4">Reconhecimento Inicial</h2>
+          <p className="mb-6 leading-relaxed">
+            A tríade clássica de febre, taquicardia e alteração da perfusão periférica deve levantar
+            imediatamente a suspeita de sepse em crianças. A hipotensão é um sinal tardio e indica
+            descompensação grave, não devendo ser aguardada para o início das medidas terapêuticas.
+          </p>
+
+          <div className="bg-orange-50/50 border border-orange-200 p-6 rounded-2xl mb-8 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-500" />
+            <div className="flex items-center gap-3 mb-3">
+              <ShieldAlert className="w-6 h-6 text-orange-600" />
+              <h3 className="text-lg font-bold text-orange-900 m-0">Ponto de Atenção</h3>
+            </div>
+            <p className="text-orange-800 m-0 leading-relaxed">
+              Não aguarde a hipotensão para iniciar o tratamento. O tempo capilar prolongado ({'>'}{' '}
+              3s) e alterações do estado mental são sinais cruciais na avaliação inicial da
+              pediatria.
+            </p>
+          </div>
+
+          <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-4">
+            Pacote da Primeira Hora (Bundle)
+          </h2>
+          <p className="mb-4">
+            As intervenções a seguir devem ser idealmente completadas em até 60 minutos após o
+            reconhecimento:
+          </p>
+          <ul className="list-disc pl-6 mb-8 space-y-3 marker:text-teal-600">
+            <li>Obtenção de acesso vascular (Intravenoso ou Intraósseo) em até 5 minutos.</li>
+            <li>
+              Coleta de hemoculturas antes do início dos antibióticos (sem atrasar o tratamento em
+              caso de dificuldade no acesso).
+            </li>
+            <li>Administração de antibióticos de amplo espectro.</li>
+            <li>
+              Ressuscitação volêmica com cristaloides balanceados (10-20 mL/kg em bolus, avaliando
+              resposta clínica a cada etapa).
+            </li>
+            <li>
+              Início de drogas vasoativas (ex: Epinefrina ou Norepinefrina) se refratário a fluidos.
+            </li>
+          </ul>
+        </div>
+
+        <div className="mt-16 pt-8 border-t border-slate-200 text-center">
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="gap-2 rounded-full border-slate-300 text-slate-700 hover:bg-slate-50"
+          >
+            <Link to="/">
+              <ArrowLeft className="w-4 h-4" /> Explorar mais artigos
+            </Link>
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

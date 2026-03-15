@@ -1,26 +1,27 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Layout } from '@/components/Layout'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Toaster } from '@/components/ui/toaster'
+import Layout from '@/components/Layout'
 import Index from '@/pages/Index'
-import ArticlePage from '@/pages/ArticlePage'
 import CategoryPage from '@/pages/CategoryPage'
+import ArticlePage from '@/pages/ArticlePage'
 import AboutPage from '@/pages/AboutPage'
 import NotFound from '@/pages/NotFound'
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Layout />,
-    errorElement: <NotFound />,
-    children: [
-      { index: true, element: <Index /> },
-      { path: 'article/:id', element: <ArticlePage /> },
-      { path: 'category/:slug', element: <CategoryPage /> },
-      { path: 'about', element: <AboutPage /> },
-      { path: '*', element: <NotFound /> },
-    ],
-  },
-])
-
-export default function App() {
-  return <RouterProvider router={router} />
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Index />} />
+          <Route path="categoria/:categoryId" element={<CategoryPage />} />
+          <Route path="artigo/:articleId" element={<ArticlePage />} />
+          <Route path="sobre" element={<AboutPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+      <Toaster />
+    </BrowserRouter>
+  )
 }
+
+export default App

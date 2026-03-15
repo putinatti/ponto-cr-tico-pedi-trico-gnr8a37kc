@@ -1,52 +1,46 @@
 import { Link } from 'react-router-dom'
-import { Article } from '@/data/articles'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { CalendarDays, Clock, ArrowRight } from 'lucide-react'
+import { Clock, User, Activity, ChevronRight } from 'lucide-react'
 
-export function ArticleCard({ article }: { article: Article }) {
+export interface Article {
+  id: number | string
+  title: string
+  date: string
+  author: string
+  categoryId: string
+  readTime: string
+}
+
+interface ArticleCardProps {
+  article: Article
+}
+
+export function ArticleCard({ article }: ArticleCardProps) {
   return (
-    <Link to={`/article/${article.id}`} className="block h-full">
-      <Card className="glass-card flex flex-col h-full overflow-hidden group border-white/10 relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-50 group-hover:opacity-100 transition-opacity" />
-
-        <CardHeader className="pb-4">
-          <div className="flex justify-between items-start mb-2">
-            <Badge
-              variant="outline"
-              className="bg-primary/10 text-primary border-primary/20 backdrop-blur-md"
-            >
-              {article.category}
-            </Badge>
-            {article.isNew && (
-              <Badge className="bg-accent/20 text-accent border-accent/20 hover:bg-accent/30">
-                Novo
-              </Badge>
-            )}
-          </div>
-          <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors text-foreground">
+    <Link
+      to={`/artigo/${article.id}`}
+      className="group block p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-teal-200 hover:shadow-md transition-all duration-300"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-slate-800 group-hover:text-teal-700 transition-colors mb-2">
             {article.title}
           </h3>
-        </CardHeader>
-        <CardContent className="flex-grow">
-          <p className="text-muted-foreground text-sm line-clamp-3">{article.summary}</p>
-        </CardContent>
-        <CardFooter className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <CalendarDays className="mr-1 h-3 w-3" />
-              {article.date}
-            </div>
-            <div className="flex items-center">
-              <Clock className="mr-1 h-3 w-3" />
-              {article.readTime}
-            </div>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4" /> {article.date}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <User className="w-4 h-4" /> {article.author}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Activity className="w-4 h-4" /> {article.readTime} leitura
+            </span>
           </div>
-          <div className="flex items-center text-primary font-medium opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
-            Ler <ArrowRight className="ml-1 h-3 w-3" />
-          </div>
-        </CardFooter>
-      </Card>
+        </div>
+        <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors">
+          <ChevronRight className="w-5 h-5" />
+        </div>
+      </div>
     </Link>
   )
 }
