@@ -19292,30 +19292,6 @@ function DataRoutes({ routes, future, state, isStatic, onError }) {
 		future
 	});
 }
-function Navigate({ to, replace: replace2, state, relative }) {
-	invariant(useInRouterContext(), `<Navigate> may be used only in the context of a <Router> component.`);
-	let { static: isStatic } = import_react.useContext(NavigationContext);
-	warning(!isStatic, `<Navigate> must not be used on the initial render in a <StaticRouter>. This is a no-op, but you should modify your code so the <Navigate> is only ever rendered in response to some user interaction or state change.`);
-	let { matches } = import_react.useContext(RouteContext);
-	let { pathname: locationPathname } = useLocation();
-	let navigate = useNavigate();
-	let path = resolveTo(to, getResolveToMatches(matches), locationPathname, relative === "path");
-	let jsonPath = JSON.stringify(path);
-	import_react.useEffect(() => {
-		navigate(JSON.parse(jsonPath), {
-			replace: replace2,
-			state,
-			relative
-		});
-	}, [
-		navigate,
-		jsonPath,
-		relative,
-		replace2,
-		state
-	]);
-	return null;
-}
 function Outlet(props) {
 	return useOutlet(props.context);
 }
@@ -20239,1575 +20215,8 @@ function RouterProvider2(props) {
 }
 createContext();
 //#endregion
-//#region src/hooks/use-toast.ts
-var import_client = require_client();
-var TOAST_LIMIT = 1;
-var TOAST_REMOVE_DELAY = 1e6;
-var count$2 = 0;
-function genId() {
-	count$2 = (count$2 + 1) % Number.MAX_SAFE_INTEGER;
-	return count$2.toString();
-}
-var toastTimeouts = /* @__PURE__ */ new Map();
-var addToRemoveQueue = (toastId) => {
-	if (toastTimeouts.has(toastId)) return;
-	const timeout = setTimeout(() => {
-		toastTimeouts.delete(toastId);
-		dispatch({
-			type: "REMOVE_TOAST",
-			toastId
-		});
-	}, TOAST_REMOVE_DELAY);
-	toastTimeouts.set(toastId, timeout);
-};
-var reducer = (state, action) => {
-	switch (action.type) {
-		case "ADD_TOAST": return {
-			...state,
-			toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT)
-		};
-		case "UPDATE_TOAST": return {
-			...state,
-			toasts: state.toasts.map((t) => t.id === action.toast.id ? {
-				...t,
-				...action.toast
-			} : t)
-		};
-		case "DISMISS_TOAST": {
-			const { toastId } = action;
-			if (toastId) addToRemoveQueue(toastId);
-			else state.toasts.forEach((toast) => {
-				addToRemoveQueue(toast.id);
-			});
-			return {
-				...state,
-				toasts: state.toasts.map((t) => t.id === toastId || toastId === void 0 ? {
-					...t,
-					open: false
-				} : t)
-			};
-		}
-		case "REMOVE_TOAST":
-			if (action.toastId === void 0) return {
-				...state,
-				toasts: []
-			};
-			return {
-				...state,
-				toasts: state.toasts.filter((t) => t.id !== action.toastId)
-			};
-	}
-};
-var listeners = [];
-var memoryState = { toasts: [] };
-function dispatch(action) {
-	memoryState = reducer(memoryState, action);
-	listeners.forEach((listener) => {
-		listener(memoryState);
-	});
-}
-function toast$1({ ...props }) {
-	const id = genId();
-	const update = (props) => dispatch({
-		type: "UPDATE_TOAST",
-		toast: {
-			...props,
-			id
-		}
-	});
-	const dismiss = () => dispatch({
-		type: "DISMISS_TOAST",
-		toastId: id
-	});
-	dispatch({
-		type: "ADD_TOAST",
-		toast: {
-			...props,
-			id,
-			open: true,
-			onOpenChange: (open) => {
-				if (!open) dismiss();
-			}
-		}
-	});
-	return {
-		id,
-		dismiss,
-		update
-	};
-}
-function useToast() {
-	const [state, setState] = import_react.useState(memoryState);
-	import_react.useEffect(() => {
-		listeners.push(setState);
-		return () => {
-			const index = listeners.indexOf(setState);
-			if (index > -1) listeners.splice(index, 1);
-		};
-	}, [state]);
-	return {
-		...state,
-		toast: toast$1,
-		dismiss: (toastId) => dispatch({
-			type: "DISMISS_TOAST",
-			toastId
-		})
-	};
-}
-typeof window !== "undefined" && window.document && window.document.createElement;
-function composeEventHandlers(originalEventHandler, ourEventHandler, { checkForDefaultPrevented = true } = {}) {
-	return function handleEvent(event) {
-		originalEventHandler?.(event);
-		if (checkForDefaultPrevented === false || !event.defaultPrevented) return ourEventHandler?.(event);
-	};
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-compose-refs@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-compose-refs/dist/index.mjs
-function setRef(ref, value) {
-	if (typeof ref === "function") return ref(value);
-	else if (ref !== null && ref !== void 0) ref.current = value;
-}
-function composeRefs(...refs) {
-	return (node) => {
-		let hasCleanup = false;
-		const cleanups = refs.map((ref) => {
-			const cleanup = setRef(ref, node);
-			if (!hasCleanup && typeof cleanup == "function") hasCleanup = true;
-			return cleanup;
-		});
-		if (hasCleanup) return () => {
-			for (let i = 0; i < cleanups.length; i++) {
-				const cleanup = cleanups[i];
-				if (typeof cleanup == "function") cleanup();
-				else setRef(refs[i], null);
-			}
-		};
-	};
-}
-function useComposedRefs(...refs) {
-	return import_react.useCallback(composeRefs(...refs), refs);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react@19.2.4/node_modules/react/cjs/react-jsx-runtime.development.js
-/**
-* @license React
-* react-jsx-runtime.development.js
-*
-* Copyright (c) Meta Platforms, Inc. and affiliates.
-*
-* This source code is licensed under the MIT license found in the
-* LICENSE file in the root directory of this source tree.
-*/
-var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
-	(function() {
-		function getComponentNameFromType(type) {
-			if (null == type) return null;
-			if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
-			if ("string" === typeof type) return type;
-			switch (type) {
-				case REACT_FRAGMENT_TYPE: return "Fragment";
-				case REACT_PROFILER_TYPE: return "Profiler";
-				case REACT_STRICT_MODE_TYPE: return "StrictMode";
-				case REACT_SUSPENSE_TYPE: return "Suspense";
-				case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
-				case REACT_ACTIVITY_TYPE: return "Activity";
-			}
-			if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
-				case REACT_PORTAL_TYPE: return "Portal";
-				case REACT_CONTEXT_TYPE: return type.displayName || "Context";
-				case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
-				case REACT_FORWARD_REF_TYPE:
-					var innerType = type.render;
-					type = type.displayName;
-					type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
-					return type;
-				case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
-				case REACT_LAZY_TYPE:
-					innerType = type._payload;
-					type = type._init;
-					try {
-						return getComponentNameFromType(type(innerType));
-					} catch (x) {}
-			}
-			return null;
-		}
-		function testStringCoercion(value) {
-			return "" + value;
-		}
-		function checkKeyStringCoercion(value) {
-			try {
-				testStringCoercion(value);
-				var JSCompiler_inline_result = !1;
-			} catch (e) {
-				JSCompiler_inline_result = !0;
-			}
-			if (JSCompiler_inline_result) {
-				JSCompiler_inline_result = console;
-				var JSCompiler_temp_const = JSCompiler_inline_result.error;
-				var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
-				JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
-				return testStringCoercion(value);
-			}
-		}
-		function getTaskName(type) {
-			if (type === REACT_FRAGMENT_TYPE) return "<>";
-			if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
-			try {
-				var name = getComponentNameFromType(type);
-				return name ? "<" + name + ">" : "<...>";
-			} catch (x) {
-				return "<...>";
-			}
-		}
-		function getOwner() {
-			var dispatcher = ReactSharedInternals.A;
-			return null === dispatcher ? null : dispatcher.getOwner();
-		}
-		function UnknownOwner() {
-			return Error("react-stack-top-frame");
-		}
-		function hasValidKey(config) {
-			if (hasOwnProperty.call(config, "key")) {
-				var getter = Object.getOwnPropertyDescriptor(config, "key").get;
-				if (getter && getter.isReactWarning) return !1;
-			}
-			return void 0 !== config.key;
-		}
-		function defineKeyPropWarningGetter(props, displayName) {
-			function warnAboutAccessingKey() {
-				specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
-			}
-			warnAboutAccessingKey.isReactWarning = !0;
-			Object.defineProperty(props, "key", {
-				get: warnAboutAccessingKey,
-				configurable: !0
-			});
-		}
-		function elementRefGetterWithDeprecationWarning() {
-			var componentName = getComponentNameFromType(this.type);
-			didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
-			componentName = this.props.ref;
-			return void 0 !== componentName ? componentName : null;
-		}
-		function ReactElement(type, key, props, owner, debugStack, debugTask) {
-			var refProp = props.ref;
-			type = {
-				$$typeof: REACT_ELEMENT_TYPE,
-				type,
-				key,
-				props,
-				_owner: owner
-			};
-			null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
-				enumerable: !1,
-				get: elementRefGetterWithDeprecationWarning
-			}) : Object.defineProperty(type, "ref", {
-				enumerable: !1,
-				value: null
-			});
-			type._store = {};
-			Object.defineProperty(type._store, "validated", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: 0
-			});
-			Object.defineProperty(type, "_debugInfo", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: null
-			});
-			Object.defineProperty(type, "_debugStack", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: debugStack
-			});
-			Object.defineProperty(type, "_debugTask", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: debugTask
-			});
-			Object.freeze && (Object.freeze(type.props), Object.freeze(type));
-			return type;
-		}
-		function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
-			var children = config.children;
-			if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
-				for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
-				Object.freeze && Object.freeze(children);
-			} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
-			else validateChildKeys(children);
-			if (hasOwnProperty.call(config, "key")) {
-				children = getComponentNameFromType(type);
-				var keys = Object.keys(config).filter(function(k) {
-					return "key" !== k;
-				});
-				isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
-				didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
-			}
-			children = null;
-			void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
-			hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
-			if ("key" in config) {
-				maybeKey = {};
-				for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
-			} else maybeKey = config;
-			children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
-			return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
-		}
-		function validateChildKeys(node) {
-			isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
-		}
-		function isValidElement(object) {
-			return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
-		}
-		var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
-			return null;
-		};
-		React = { react_stack_bottom_frame: function(callStackForError) {
-			return callStackForError();
-		} };
-		var specialPropKeyWarningShown;
-		var didWarnAboutElementRef = {};
-		var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
-		var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
-		var didWarnAboutKeySpread = {};
-		exports.Fragment = REACT_FRAGMENT_TYPE;
-		exports.jsx = function(type, config, maybeKey) {
-			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-			return jsxDEVImpl(type, config, maybeKey, !1, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
-		};
-		exports.jsxs = function(type, config, maybeKey) {
-			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-			return jsxDEVImpl(type, config, maybeKey, !0, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
-		};
-	})();
-}));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-context@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-context/dist/index.mjs
-var import_jsx_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
-	module.exports = require_react_jsx_runtime_development();
-})))();
-function createContext2(rootComponentName, defaultContext) {
-	const Context = import_react.createContext(defaultContext);
-	const Provider = (props) => {
-		const { children, ...context } = props;
-		const value = import_react.useMemo(() => context, Object.values(context));
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
-			value,
-			children
-		});
-	};
-	Provider.displayName = rootComponentName + "Provider";
-	function useContext2(consumerName) {
-		const context = import_react.useContext(Context);
-		if (context) return context;
-		if (defaultContext !== void 0) return defaultContext;
-		throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
-	}
-	return [Provider, useContext2];
-}
-function createContextScope(scopeName, createContextScopeDeps = []) {
-	let defaultContexts = [];
-	function createContext3(rootComponentName, defaultContext) {
-		const BaseContext = import_react.createContext(defaultContext);
-		const index = defaultContexts.length;
-		defaultContexts = [...defaultContexts, defaultContext];
-		const Provider = (props) => {
-			const { scope, children, ...context } = props;
-			const Context = scope?.[scopeName]?.[index] || BaseContext;
-			const value = import_react.useMemo(() => context, Object.values(context));
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
-				value,
-				children
-			});
-		};
-		Provider.displayName = rootComponentName + "Provider";
-		function useContext2(consumerName, scope) {
-			const Context = scope?.[scopeName]?.[index] || BaseContext;
-			const context = import_react.useContext(Context);
-			if (context) return context;
-			if (defaultContext !== void 0) return defaultContext;
-			throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
-		}
-		return [Provider, useContext2];
-	}
-	const createScope = () => {
-		const scopeContexts = defaultContexts.map((defaultContext) => {
-			return import_react.createContext(defaultContext);
-		});
-		return function useScope(scope) {
-			const contexts = scope?.[scopeName] || scopeContexts;
-			return import_react.useMemo(() => ({ [`__scope${scopeName}`]: {
-				...scope,
-				[scopeName]: contexts
-			} }), [scope, contexts]);
-		};
-	};
-	createScope.scopeName = scopeName;
-	return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
-}
-function composeContextScopes(...scopes) {
-	const baseScope = scopes[0];
-	if (scopes.length === 1) return baseScope;
-	const createScope = () => {
-		const scopeHooks = scopes.map((createScope2) => ({
-			useScope: createScope2(),
-			scopeName: createScope2.scopeName
-		}));
-		return function useComposedScopes(overrideScopes) {
-			const nextScopes = scopeHooks.reduce((nextScopes2, { useScope, scopeName }) => {
-				const currentScope = useScope(overrideScopes)[`__scope${scopeName}`];
-				return {
-					...nextScopes2,
-					...currentScope
-				};
-			}, {});
-			return import_react.useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
-		};
-	};
-	createScope.scopeName = baseScope.scopeName;
-	return createScope;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-slot@1.2.3_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-slot/dist/index.mjs
-/* @__NO_SIDE_EFFECTS__ */
-function createSlot$1(ownerName) {
-	const SlotClone = /* @__PURE__ */ createSlotClone$1(ownerName);
-	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
-		const { children, ...slotProps } = props;
-		const childrenArray = import_react.Children.toArray(children);
-		const slottable = childrenArray.find(isSlottable$1);
-		if (slottable) {
-			const newElement = slottable.props.children;
-			const newChildren = childrenArray.map((child) => {
-				if (child === slottable) {
-					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
-					return import_react.isValidElement(newElement) ? newElement.props.children : null;
-				} else return child;
-			});
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
-				...slotProps,
-				ref: forwardedRef,
-				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
-			});
-		}
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
-			...slotProps,
-			ref: forwardedRef,
-			children
-		});
-	});
-	Slot2.displayName = `${ownerName}.Slot`;
-	return Slot2;
-}
-/* @__NO_SIDE_EFFECTS__ */
-function createSlotClone$1(ownerName) {
-	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
-		const { children, ...slotProps } = props;
-		if (import_react.isValidElement(children)) {
-			const childrenRef = getElementRef$2(children);
-			const props2 = mergeProps$1(slotProps, children.props);
-			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
-			return import_react.cloneElement(children, props2);
-		}
-		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
-	});
-	SlotClone.displayName = `${ownerName}.SlotClone`;
-	return SlotClone;
-}
-var SLOTTABLE_IDENTIFIER$1 = Symbol("radix.slottable");
-/* @__NO_SIDE_EFFECTS__ */
-function createSlottable(ownerName) {
-	const Slottable2 = ({ children }) => {
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
-	};
-	Slottable2.displayName = `${ownerName}.Slottable`;
-	Slottable2.__radixId = SLOTTABLE_IDENTIFIER$1;
-	return Slottable2;
-}
-function isSlottable$1(child) {
-	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$1;
-}
-function mergeProps$1(slotProps, childProps) {
-	const overrideProps = { ...childProps };
-	for (const propName in childProps) {
-		const slotPropValue = slotProps[propName];
-		const childPropValue = childProps[propName];
-		if (/^on[A-Z]/.test(propName)) {
-			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
-				const result = childPropValue(...args);
-				slotPropValue(...args);
-				return result;
-			};
-			else if (slotPropValue) overrideProps[propName] = slotPropValue;
-		} else if (propName === "style") overrideProps[propName] = {
-			...slotPropValue,
-			...childPropValue
-		};
-		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
-	}
-	return {
-		...slotProps,
-		...overrideProps
-	};
-}
-function getElementRef$2(element) {
-	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
-	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.ref;
-	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
-	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.props.ref;
-	return element.props.ref || element.ref;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-collection@1.1.7_@types+react-dom@19.2.3_@types+react@19.2.14__@types+r_161926fa2509d0b7370b60b8bb4eb8b0/node_modules/@radix-ui/react-collection/dist/index.mjs
-function createCollection(name) {
-	const PROVIDER_NAME = name + "CollectionProvider";
-	const [createCollectionContext, createCollectionScope] = createContextScope(PROVIDER_NAME);
-	const [CollectionProviderImpl, useCollectionContext] = createCollectionContext(PROVIDER_NAME, {
-		collectionRef: { current: null },
-		itemMap: /* @__PURE__ */ new Map()
-	});
-	const CollectionProvider = (props) => {
-		const { scope, children } = props;
-		const ref = import_react.useRef(null);
-		const itemMap = import_react.useRef(/* @__PURE__ */ new Map()).current;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionProviderImpl, {
-			scope,
-			itemMap,
-			collectionRef: ref,
-			children
-		});
-	};
-	CollectionProvider.displayName = PROVIDER_NAME;
-	const COLLECTION_SLOT_NAME = name + "CollectionSlot";
-	const CollectionSlotImpl = /* @__PURE__ */ createSlot$1(COLLECTION_SLOT_NAME);
-	const CollectionSlot = import_react.forwardRef((props, forwardedRef) => {
-		const { scope, children } = props;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionSlotImpl, {
-			ref: useComposedRefs(forwardedRef, useCollectionContext(COLLECTION_SLOT_NAME, scope).collectionRef),
-			children
-		});
-	});
-	CollectionSlot.displayName = COLLECTION_SLOT_NAME;
-	const ITEM_SLOT_NAME = name + "CollectionItemSlot";
-	const ITEM_DATA_ATTR = "data-radix-collection-item";
-	const CollectionItemSlotImpl = /* @__PURE__ */ createSlot$1(ITEM_SLOT_NAME);
-	const CollectionItemSlot = import_react.forwardRef((props, forwardedRef) => {
-		const { scope, children, ...itemData } = props;
-		const ref = import_react.useRef(null);
-		const composedRefs = useComposedRefs(forwardedRef, ref);
-		const context = useCollectionContext(ITEM_SLOT_NAME, scope);
-		import_react.useEffect(() => {
-			context.itemMap.set(ref, {
-				ref,
-				...itemData
-			});
-			return () => void context.itemMap.delete(ref);
-		});
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionItemSlotImpl, {
-			[ITEM_DATA_ATTR]: "",
-			ref: composedRefs,
-			children
-		});
-	});
-	CollectionItemSlot.displayName = ITEM_SLOT_NAME;
-	function useCollection(scope) {
-		const context = useCollectionContext(name + "CollectionConsumer", scope);
-		return import_react.useCallback(() => {
-			const collectionNode = context.collectionRef.current;
-			if (!collectionNode) return [];
-			const orderedNodes = Array.from(collectionNode.querySelectorAll(`[${ITEM_DATA_ATTR}]`));
-			return Array.from(context.itemMap.values()).sort((a, b) => orderedNodes.indexOf(a.ref.current) - orderedNodes.indexOf(b.ref.current));
-		}, [context.collectionRef, context.itemMap]);
-	}
-	return [
-		{
-			Provider: CollectionProvider,
-			Slot: CollectionSlot,
-			ItemSlot: CollectionItemSlot
-		},
-		useCollection,
-		createCollectionScope
-	];
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-primitive@2.1.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_1181ea5061ec9212248424669240e4ec/node_modules/@radix-ui/react-primitive/dist/index.mjs
-var Primitive$1 = [
-	"a",
-	"button",
-	"div",
-	"form",
-	"h2",
-	"h3",
-	"img",
-	"input",
-	"label",
-	"li",
-	"nav",
-	"ol",
-	"p",
-	"select",
-	"span",
-	"svg",
-	"ul"
-].reduce((primitive, node) => {
-	const Slot = /* @__PURE__ */ createSlot$1(`Primitive.${node}`);
-	const Node = import_react.forwardRef((props, forwardedRef) => {
-		const { asChild, ...primitiveProps } = props;
-		const Comp = asChild ? Slot : node;
-		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
-			...primitiveProps,
-			ref: forwardedRef
-		});
-	});
-	Node.displayName = `Primitive.${node}`;
-	return {
-		...primitive,
-		[node]: Node
-	};
-}, {});
-function dispatchDiscreteCustomEvent(target, event) {
-	if (target) import_react_dom.flushSync(() => target.dispatchEvent(event));
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-callback-ref@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs
-function useCallbackRef$1(callback) {
-	const callbackRef = import_react.useRef(callback);
-	import_react.useEffect(() => {
-		callbackRef.current = callback;
-	});
-	return import_react.useMemo(() => (...args) => callbackRef.current?.(...args), []);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-escape-keydown@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
-function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis?.document) {
-	const onEscapeKeyDown = useCallbackRef$1(onEscapeKeyDownProp);
-	import_react.useEffect(() => {
-		const handleKeyDown = (event) => {
-			if (event.key === "Escape") onEscapeKeyDown(event);
-		};
-		ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
-		return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
-	}, [onEscapeKeyDown, ownerDocument]);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-dismissable-layer@1.1.11_@types+react-dom@19.2.3_@types+react@19.2.14___3d3960154a4c07d09bb90cb341135fc5/node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs
-var DISMISSABLE_LAYER_NAME = "DismissableLayer";
-var CONTEXT_UPDATE = "dismissableLayer.update";
-var POINTER_DOWN_OUTSIDE = "dismissableLayer.pointerDownOutside";
-var FOCUS_OUTSIDE = "dismissableLayer.focusOutside";
-var originalBodyPointerEvents;
-var DismissableLayerContext = import_react.createContext({
-	layers: /* @__PURE__ */ new Set(),
-	layersWithOutsidePointerEventsDisabled: /* @__PURE__ */ new Set(),
-	branches: /* @__PURE__ */ new Set()
-});
-var DismissableLayer = import_react.forwardRef((props, forwardedRef) => {
-	const { disableOutsidePointerEvents = false, onEscapeKeyDown, onPointerDownOutside, onFocusOutside, onInteractOutside, onDismiss, ...layerProps } = props;
-	const context = import_react.useContext(DismissableLayerContext);
-	const [node, setNode] = import_react.useState(null);
-	const ownerDocument = node?.ownerDocument ?? globalThis?.document;
-	const [, force] = import_react.useState({});
-	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
-	const layers = Array.from(context.layers);
-	const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1);
-	const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled);
-	const index = node ? layers.indexOf(node) : -1;
-	const isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0;
-	const isPointerEventsEnabled = index >= highestLayerWithOutsidePointerEventsDisabledIndex;
-	const pointerDownOutside = usePointerDownOutside((event) => {
-		const target = event.target;
-		const isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
-		if (!isPointerEventsEnabled || isPointerDownOnBranch) return;
-		onPointerDownOutside?.(event);
-		onInteractOutside?.(event);
-		if (!event.defaultPrevented) onDismiss?.();
-	}, ownerDocument);
-	const focusOutside = useFocusOutside((event) => {
-		const target = event.target;
-		if ([...context.branches].some((branch) => branch.contains(target))) return;
-		onFocusOutside?.(event);
-		onInteractOutside?.(event);
-		if (!event.defaultPrevented) onDismiss?.();
-	}, ownerDocument);
-	useEscapeKeydown((event) => {
-		if (!(index === context.layers.size - 1)) return;
-		onEscapeKeyDown?.(event);
-		if (!event.defaultPrevented && onDismiss) {
-			event.preventDefault();
-			onDismiss();
-		}
-	}, ownerDocument);
-	import_react.useEffect(() => {
-		if (!node) return;
-		if (disableOutsidePointerEvents) {
-			if (context.layersWithOutsidePointerEventsDisabled.size === 0) {
-				originalBodyPointerEvents = ownerDocument.body.style.pointerEvents;
-				ownerDocument.body.style.pointerEvents = "none";
-			}
-			context.layersWithOutsidePointerEventsDisabled.add(node);
-		}
-		context.layers.add(node);
-		dispatchUpdate();
-		return () => {
-			if (disableOutsidePointerEvents && context.layersWithOutsidePointerEventsDisabled.size === 1) ownerDocument.body.style.pointerEvents = originalBodyPointerEvents;
-		};
-	}, [
-		node,
-		ownerDocument,
-		disableOutsidePointerEvents,
-		context
-	]);
-	import_react.useEffect(() => {
-		return () => {
-			if (!node) return;
-			context.layers.delete(node);
-			context.layersWithOutsidePointerEventsDisabled.delete(node);
-			dispatchUpdate();
-		};
-	}, [node, context]);
-	import_react.useEffect(() => {
-		const handleUpdate = () => force({});
-		document.addEventListener(CONTEXT_UPDATE, handleUpdate);
-		return () => document.removeEventListener(CONTEXT_UPDATE, handleUpdate);
-	}, []);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		...layerProps,
-		ref: composedRefs,
-		style: {
-			pointerEvents: isBodyPointerEventsDisabled ? isPointerEventsEnabled ? "auto" : "none" : void 0,
-			...props.style
-		},
-		onFocusCapture: composeEventHandlers(props.onFocusCapture, focusOutside.onFocusCapture),
-		onBlurCapture: composeEventHandlers(props.onBlurCapture, focusOutside.onBlurCapture),
-		onPointerDownCapture: composeEventHandlers(props.onPointerDownCapture, pointerDownOutside.onPointerDownCapture)
-	});
-});
-DismissableLayer.displayName = DISMISSABLE_LAYER_NAME;
-var BRANCH_NAME = "DismissableLayerBranch";
-var DismissableLayerBranch = import_react.forwardRef((props, forwardedRef) => {
-	const context = import_react.useContext(DismissableLayerContext);
-	const ref = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, ref);
-	import_react.useEffect(() => {
-		const node = ref.current;
-		if (node) {
-			context.branches.add(node);
-			return () => {
-				context.branches.delete(node);
-			};
-		}
-	}, [context.branches]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		...props,
-		ref: composedRefs
-	});
-});
-DismissableLayerBranch.displayName = BRANCH_NAME;
-function usePointerDownOutside(onPointerDownOutside, ownerDocument = globalThis?.document) {
-	const handlePointerDownOutside = useCallbackRef$1(onPointerDownOutside);
-	const isPointerInsideReactTreeRef = import_react.useRef(false);
-	const handleClickRef = import_react.useRef(() => {});
-	import_react.useEffect(() => {
-		const handlePointerDown = (event) => {
-			if (event.target && !isPointerInsideReactTreeRef.current) {
-				let handleAndDispatchPointerDownOutsideEvent2 = function() {
-					handleAndDispatchCustomEvent$1(POINTER_DOWN_OUTSIDE, handlePointerDownOutside, eventDetail, { discrete: true });
-				};
-				const eventDetail = { originalEvent: event };
-				if (event.pointerType === "touch") {
-					ownerDocument.removeEventListener("click", handleClickRef.current);
-					handleClickRef.current = handleAndDispatchPointerDownOutsideEvent2;
-					ownerDocument.addEventListener("click", handleClickRef.current, { once: true });
-				} else handleAndDispatchPointerDownOutsideEvent2();
-			} else ownerDocument.removeEventListener("click", handleClickRef.current);
-			isPointerInsideReactTreeRef.current = false;
-		};
-		const timerId = window.setTimeout(() => {
-			ownerDocument.addEventListener("pointerdown", handlePointerDown);
-		}, 0);
-		return () => {
-			window.clearTimeout(timerId);
-			ownerDocument.removeEventListener("pointerdown", handlePointerDown);
-			ownerDocument.removeEventListener("click", handleClickRef.current);
-		};
-	}, [ownerDocument, handlePointerDownOutside]);
-	return { onPointerDownCapture: () => isPointerInsideReactTreeRef.current = true };
-}
-function useFocusOutside(onFocusOutside, ownerDocument = globalThis?.document) {
-	const handleFocusOutside = useCallbackRef$1(onFocusOutside);
-	const isFocusInsideReactTreeRef = import_react.useRef(false);
-	import_react.useEffect(() => {
-		const handleFocus = (event) => {
-			if (event.target && !isFocusInsideReactTreeRef.current) handleAndDispatchCustomEvent$1(FOCUS_OUTSIDE, handleFocusOutside, { originalEvent: event }, { discrete: false });
-		};
-		ownerDocument.addEventListener("focusin", handleFocus);
-		return () => ownerDocument.removeEventListener("focusin", handleFocus);
-	}, [ownerDocument, handleFocusOutside]);
-	return {
-		onFocusCapture: () => isFocusInsideReactTreeRef.current = true,
-		onBlurCapture: () => isFocusInsideReactTreeRef.current = false
-	};
-}
-function dispatchUpdate() {
-	const event = new CustomEvent(CONTEXT_UPDATE);
-	document.dispatchEvent(event);
-}
-function handleAndDispatchCustomEvent$1(name, handler, detail, { discrete }) {
-	const target = detail.originalEvent.target;
-	const event = new CustomEvent(name, {
-		bubbles: false,
-		cancelable: true,
-		detail
-	});
-	if (handler) target.addEventListener(name, handler, { once: true });
-	if (discrete) dispatchDiscreteCustomEvent(target, event);
-	else target.dispatchEvent(event);
-}
-var Root$5 = DismissableLayer;
-var Branch = DismissableLayerBranch;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-layout-effect@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
-var useLayoutEffect2 = globalThis?.document ? import_react.useLayoutEffect : () => {};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-portal@1.1.9_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_7668895bec2444446faa4e0f4eb5244b/node_modules/@radix-ui/react-portal/dist/index.mjs
-var PORTAL_NAME$2 = "Portal";
-var Portal$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { container: containerProp, ...portalProps } = props;
-	const [mounted, setMounted] = import_react.useState(false);
-	useLayoutEffect2(() => setMounted(true), []);
-	const container = containerProp || mounted && globalThis?.document?.body;
-	return container ? import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		...portalProps,
-		ref: forwardedRef
-	}), container) : null;
-});
-Portal$1.displayName = PORTAL_NAME$2;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-presence@1.1.5_@types+react-dom@19.2.3_@types+react@19.2.14__@types+rea_c01c26c80b5ab5e3ecefbda6eca51ad1/node_modules/@radix-ui/react-presence/dist/index.mjs
-function useStateMachine(initialState, machine) {
-	return import_react.useReducer((state, event) => {
-		return machine[state][event] ?? state;
-	}, initialState);
-}
-var Presence = (props) => {
-	const { present, children } = props;
-	const presence = usePresence(present);
-	const child = typeof children === "function" ? children({ present: presence.isPresent }) : import_react.Children.only(children);
-	const ref = useComposedRefs(presence.ref, getElementRef$1(child));
-	return typeof children === "function" || presence.isPresent ? import_react.cloneElement(child, { ref }) : null;
-};
-Presence.displayName = "Presence";
-function usePresence(present) {
-	const [node, setNode] = import_react.useState();
-	const stylesRef = import_react.useRef(null);
-	const prevPresentRef = import_react.useRef(present);
-	const prevAnimationNameRef = import_react.useRef("none");
-	const [state, send] = useStateMachine(present ? "mounted" : "unmounted", {
-		mounted: {
-			UNMOUNT: "unmounted",
-			ANIMATION_OUT: "unmountSuspended"
-		},
-		unmountSuspended: {
-			MOUNT: "mounted",
-			ANIMATION_END: "unmounted"
-		},
-		unmounted: { MOUNT: "mounted" }
-	});
-	import_react.useEffect(() => {
-		const currentAnimationName = getAnimationName(stylesRef.current);
-		prevAnimationNameRef.current = state === "mounted" ? currentAnimationName : "none";
-	}, [state]);
-	useLayoutEffect2(() => {
-		const styles = stylesRef.current;
-		const wasPresent = prevPresentRef.current;
-		if (wasPresent !== present) {
-			const prevAnimationName = prevAnimationNameRef.current;
-			const currentAnimationName = getAnimationName(styles);
-			if (present) send("MOUNT");
-			else if (currentAnimationName === "none" || styles?.display === "none") send("UNMOUNT");
-			else if (wasPresent && prevAnimationName !== currentAnimationName) send("ANIMATION_OUT");
-			else send("UNMOUNT");
-			prevPresentRef.current = present;
-		}
-	}, [present, send]);
-	useLayoutEffect2(() => {
-		if (node) {
-			let timeoutId;
-			const ownerWindow = node.ownerDocument.defaultView ?? window;
-			const handleAnimationEnd = (event) => {
-				const isCurrentAnimation = getAnimationName(stylesRef.current).includes(CSS.escape(event.animationName));
-				if (event.target === node && isCurrentAnimation) {
-					send("ANIMATION_END");
-					if (!prevPresentRef.current) {
-						const currentFillMode = node.style.animationFillMode;
-						node.style.animationFillMode = "forwards";
-						timeoutId = ownerWindow.setTimeout(() => {
-							if (node.style.animationFillMode === "forwards") node.style.animationFillMode = currentFillMode;
-						});
-					}
-				}
-			};
-			const handleAnimationStart = (event) => {
-				if (event.target === node) prevAnimationNameRef.current = getAnimationName(stylesRef.current);
-			};
-			node.addEventListener("animationstart", handleAnimationStart);
-			node.addEventListener("animationcancel", handleAnimationEnd);
-			node.addEventListener("animationend", handleAnimationEnd);
-			return () => {
-				ownerWindow.clearTimeout(timeoutId);
-				node.removeEventListener("animationstart", handleAnimationStart);
-				node.removeEventListener("animationcancel", handleAnimationEnd);
-				node.removeEventListener("animationend", handleAnimationEnd);
-			};
-		} else send("ANIMATION_END");
-	}, [node, send]);
-	return {
-		isPresent: ["mounted", "unmountSuspended"].includes(state),
-		ref: import_react.useCallback((node2) => {
-			stylesRef.current = node2 ? getComputedStyle(node2) : null;
-			setNode(node2);
-		}, [])
-	};
-}
-function getAnimationName(styles) {
-	return styles?.animationName || "none";
-}
-function getElementRef$1(element) {
-	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
-	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.ref;
-	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
-	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.props.ref;
-	return element.props.ref || element.ref;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-controllable-state@1.2.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs
-var useInsertionEffect = import_react[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
-function useControllableState({ prop, defaultProp, onChange = () => {}, caller }) {
-	const [uncontrolledProp, setUncontrolledProp, onChangeRef] = useUncontrolledState({
-		defaultProp,
-		onChange
-	});
-	const isControlled = prop !== void 0;
-	const value = isControlled ? prop : uncontrolledProp;
-	{
-		const isControlledRef = import_react.useRef(prop !== void 0);
-		import_react.useEffect(() => {
-			const wasControlled = isControlledRef.current;
-			if (wasControlled !== isControlled) {
-				const from = wasControlled ? "controlled" : "uncontrolled";
-				const to = isControlled ? "controlled" : "uncontrolled";
-				console.warn(`${caller} is changing from ${from} to ${to}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`);
-			}
-			isControlledRef.current = isControlled;
-		}, [isControlled, caller]);
-	}
-	return [value, import_react.useCallback((nextValue) => {
-		if (isControlled) {
-			const value2 = isFunction$1(nextValue) ? nextValue(prop) : nextValue;
-			if (value2 !== prop) onChangeRef.current?.(value2);
-		} else setUncontrolledProp(nextValue);
-	}, [
-		isControlled,
-		prop,
-		setUncontrolledProp,
-		onChangeRef
-	])];
-}
-function useUncontrolledState({ defaultProp, onChange }) {
-	const [value, setValue] = import_react.useState(defaultProp);
-	const prevValueRef = import_react.useRef(value);
-	const onChangeRef = import_react.useRef(onChange);
-	useInsertionEffect(() => {
-		onChangeRef.current = onChange;
-	}, [onChange]);
-	import_react.useEffect(() => {
-		if (prevValueRef.current !== value) {
-			onChangeRef.current?.(value);
-			prevValueRef.current = value;
-		}
-	}, [value, prevValueRef]);
-	return [
-		value,
-		setValue,
-		onChangeRef
-	];
-}
-function isFunction$1(value) {
-	return typeof value === "function";
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-visually-hidden@1.2.3_@types+react-dom@19.2.3_@types+react@19.2.14__@ty_fa89646d7248b32d1762bf88948f6339/node_modules/@radix-ui/react-visually-hidden/dist/index.mjs
-var VISUALLY_HIDDEN_STYLES = Object.freeze({
-	position: "absolute",
-	border: 0,
-	width: 1,
-	height: 1,
-	padding: 0,
-	margin: -1,
-	overflow: "hidden",
-	clip: "rect(0, 0, 0, 0)",
-	whiteSpace: "nowrap",
-	wordWrap: "normal"
-});
-var NAME$3 = "VisuallyHidden";
-var VisuallyHidden = import_react.forwardRef((props, forwardedRef) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.span, {
-		...props,
-		ref: forwardedRef,
-		style: {
-			...VISUALLY_HIDDEN_STYLES,
-			...props.style
-		}
-	});
-});
-VisuallyHidden.displayName = NAME$3;
-var Root$4 = VisuallyHidden;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-toast@1.2.15_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_4581e89c6ba13e4159ce65546c8b2a16/node_modules/@radix-ui/react-toast/dist/index.mjs
-var PROVIDER_NAME$1 = "ToastProvider";
-var [Collection, useCollection, createCollectionScope] = createCollection("Toast");
-var [createToastContext, createToastScope] = createContextScope("Toast", [createCollectionScope]);
-var [ToastProviderProvider, useToastProviderContext] = createToastContext(PROVIDER_NAME$1);
-var ToastProvider$1 = (props) => {
-	const { __scopeToast, label = "Notification", duration = 5e3, swipeDirection = "right", swipeThreshold = 50, children } = props;
-	const [viewport, setViewport] = import_react.useState(null);
-	const [toastCount, setToastCount] = import_react.useState(0);
-	const isFocusedToastEscapeKeyDownRef = import_react.useRef(false);
-	const isClosePausedRef = import_react.useRef(false);
-	if (!label.trim()) console.error(`Invalid prop \`label\` supplied to \`${PROVIDER_NAME$1}\`. Expected non-empty \`string\`.`);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.Provider, {
-		scope: __scopeToast,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastProviderProvider, {
-			scope: __scopeToast,
-			label,
-			duration,
-			swipeDirection,
-			swipeThreshold,
-			toastCount,
-			viewport,
-			onViewportChange: setViewport,
-			onToastAdd: import_react.useCallback(() => setToastCount((prevCount) => prevCount + 1), []),
-			onToastRemove: import_react.useCallback(() => setToastCount((prevCount) => prevCount - 1), []),
-			isFocusedToastEscapeKeyDownRef,
-			isClosePausedRef,
-			children
-		})
-	});
-};
-ToastProvider$1.displayName = PROVIDER_NAME$1;
-var VIEWPORT_NAME = "ToastViewport";
-var VIEWPORT_DEFAULT_HOTKEY = ["F8"];
-var VIEWPORT_PAUSE = "toast.viewportPause";
-var VIEWPORT_RESUME = "toast.viewportResume";
-var ToastViewport$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, hotkey = VIEWPORT_DEFAULT_HOTKEY, label = "Notifications ({hotkey})", ...viewportProps } = props;
-	const context = useToastProviderContext(VIEWPORT_NAME, __scopeToast);
-	const getItems = useCollection(__scopeToast);
-	const wrapperRef = import_react.useRef(null);
-	const headFocusProxyRef = import_react.useRef(null);
-	const tailFocusProxyRef = import_react.useRef(null);
-	const ref = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, ref, context.onViewportChange);
-	const hotkeyLabel = hotkey.join("+").replace(/Key/g, "").replace(/Digit/g, "");
-	const hasToasts = context.toastCount > 0;
-	import_react.useEffect(() => {
-		const handleKeyDown = (event) => {
-			if (hotkey.length !== 0 && hotkey.every((key) => event[key] || event.code === key)) ref.current?.focus();
-		};
-		document.addEventListener("keydown", handleKeyDown);
-		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, [hotkey]);
-	import_react.useEffect(() => {
-		const wrapper = wrapperRef.current;
-		const viewport = ref.current;
-		if (hasToasts && wrapper && viewport) {
-			const handlePause = () => {
-				if (!context.isClosePausedRef.current) {
-					const pauseEvent = new CustomEvent(VIEWPORT_PAUSE);
-					viewport.dispatchEvent(pauseEvent);
-					context.isClosePausedRef.current = true;
-				}
-			};
-			const handleResume = () => {
-				if (context.isClosePausedRef.current) {
-					const resumeEvent = new CustomEvent(VIEWPORT_RESUME);
-					viewport.dispatchEvent(resumeEvent);
-					context.isClosePausedRef.current = false;
-				}
-			};
-			const handleFocusOutResume = (event) => {
-				if (!wrapper.contains(event.relatedTarget)) handleResume();
-			};
-			const handlePointerLeaveResume = () => {
-				if (!wrapper.contains(document.activeElement)) handleResume();
-			};
-			wrapper.addEventListener("focusin", handlePause);
-			wrapper.addEventListener("focusout", handleFocusOutResume);
-			wrapper.addEventListener("pointermove", handlePause);
-			wrapper.addEventListener("pointerleave", handlePointerLeaveResume);
-			window.addEventListener("blur", handlePause);
-			window.addEventListener("focus", handleResume);
-			return () => {
-				wrapper.removeEventListener("focusin", handlePause);
-				wrapper.removeEventListener("focusout", handleFocusOutResume);
-				wrapper.removeEventListener("pointermove", handlePause);
-				wrapper.removeEventListener("pointerleave", handlePointerLeaveResume);
-				window.removeEventListener("blur", handlePause);
-				window.removeEventListener("focus", handleResume);
-			};
-		}
-	}, [hasToasts, context.isClosePausedRef]);
-	const getSortedTabbableCandidates = import_react.useCallback(({ tabbingDirection }) => {
-		const tabbableCandidates = getItems().map((toastItem) => {
-			const toastNode = toastItem.ref.current;
-			const toastTabbableCandidates = [toastNode, ...getTabbableCandidates$1(toastNode)];
-			return tabbingDirection === "forwards" ? toastTabbableCandidates : toastTabbableCandidates.reverse();
-		});
-		return (tabbingDirection === "forwards" ? tabbableCandidates.reverse() : tabbableCandidates).flat();
-	}, [getItems]);
-	import_react.useEffect(() => {
-		const viewport = ref.current;
-		if (viewport) {
-			const handleKeyDown = (event) => {
-				const isMetaKey = event.altKey || event.ctrlKey || event.metaKey;
-				if (event.key === "Tab" && !isMetaKey) {
-					const focusedElement = document.activeElement;
-					const isTabbingBackwards = event.shiftKey;
-					if (event.target === viewport && isTabbingBackwards) {
-						headFocusProxyRef.current?.focus();
-						return;
-					}
-					const sortedCandidates = getSortedTabbableCandidates({ tabbingDirection: isTabbingBackwards ? "backwards" : "forwards" });
-					const index = sortedCandidates.findIndex((candidate) => candidate === focusedElement);
-					if (focusFirst$1(sortedCandidates.slice(index + 1))) event.preventDefault();
-					else isTabbingBackwards ? headFocusProxyRef.current?.focus() : tailFocusProxyRef.current?.focus();
-				}
-			};
-			viewport.addEventListener("keydown", handleKeyDown);
-			return () => viewport.removeEventListener("keydown", handleKeyDown);
-		}
-	}, [getItems, getSortedTabbableCandidates]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Branch, {
-		ref: wrapperRef,
-		role: "region",
-		"aria-label": label.replace("{hotkey}", hotkeyLabel),
-		tabIndex: -1,
-		style: { pointerEvents: hasToasts ? void 0 : "none" },
-		children: [
-			hasToasts && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusProxy, {
-				ref: headFocusProxyRef,
-				onFocusFromOutsideViewport: () => {
-					focusFirst$1(getSortedTabbableCandidates({ tabbingDirection: "forwards" }));
-				}
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.Slot, {
-				scope: __scopeToast,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.ol, {
-					tabIndex: -1,
-					...viewportProps,
-					ref: composedRefs
-				})
-			}),
-			hasToasts && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusProxy, {
-				ref: tailFocusProxyRef,
-				onFocusFromOutsideViewport: () => {
-					focusFirst$1(getSortedTabbableCandidates({ tabbingDirection: "backwards" }));
-				}
-			})
-		]
-	});
-});
-ToastViewport$1.displayName = VIEWPORT_NAME;
-var FOCUS_PROXY_NAME = "ToastFocusProxy";
-var FocusProxy = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, onFocusFromOutsideViewport, ...proxyProps } = props;
-	const context = useToastProviderContext(FOCUS_PROXY_NAME, __scopeToast);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHidden, {
-		tabIndex: 0,
-		...proxyProps,
-		ref: forwardedRef,
-		style: { position: "fixed" },
-		onFocus: (event) => {
-			const prevFocusedElement = event.relatedTarget;
-			if (!context.viewport?.contains(prevFocusedElement)) onFocusFromOutsideViewport();
-		}
-	});
-});
-FocusProxy.displayName = FOCUS_PROXY_NAME;
-var TOAST_NAME = "Toast";
-var TOAST_SWIPE_START = "toast.swipeStart";
-var TOAST_SWIPE_MOVE = "toast.swipeMove";
-var TOAST_SWIPE_CANCEL = "toast.swipeCancel";
-var TOAST_SWIPE_END = "toast.swipeEnd";
-var Toast$2 = import_react.forwardRef((props, forwardedRef) => {
-	const { forceMount, open: openProp, defaultOpen, onOpenChange, ...toastProps } = props;
-	const [open, setOpen] = useControllableState({
-		prop: openProp,
-		defaultProp: defaultOpen ?? true,
-		onChange: onOpenChange,
-		caller: TOAST_NAME
-	});
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-		present: forceMount || open,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastImpl, {
-			open,
-			...toastProps,
-			ref: forwardedRef,
-			onClose: () => setOpen(false),
-			onPause: useCallbackRef$1(props.onPause),
-			onResume: useCallbackRef$1(props.onResume),
-			onSwipeStart: composeEventHandlers(props.onSwipeStart, (event) => {
-				event.currentTarget.setAttribute("data-swipe", "start");
-			}),
-			onSwipeMove: composeEventHandlers(props.onSwipeMove, (event) => {
-				const { x, y } = event.detail.delta;
-				event.currentTarget.setAttribute("data-swipe", "move");
-				event.currentTarget.style.setProperty("--radix-toast-swipe-move-x", `${x}px`);
-				event.currentTarget.style.setProperty("--radix-toast-swipe-move-y", `${y}px`);
-			}),
-			onSwipeCancel: composeEventHandlers(props.onSwipeCancel, (event) => {
-				event.currentTarget.setAttribute("data-swipe", "cancel");
-				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-x");
-				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-y");
-				event.currentTarget.style.removeProperty("--radix-toast-swipe-end-x");
-				event.currentTarget.style.removeProperty("--radix-toast-swipe-end-y");
-			}),
-			onSwipeEnd: composeEventHandlers(props.onSwipeEnd, (event) => {
-				const { x, y } = event.detail.delta;
-				event.currentTarget.setAttribute("data-swipe", "end");
-				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-x");
-				event.currentTarget.style.removeProperty("--radix-toast-swipe-move-y");
-				event.currentTarget.style.setProperty("--radix-toast-swipe-end-x", `${x}px`);
-				event.currentTarget.style.setProperty("--radix-toast-swipe-end-y", `${y}px`);
-				setOpen(false);
-			})
-		})
-	});
-});
-Toast$2.displayName = TOAST_NAME;
-var [ToastInteractiveProvider, useToastInteractiveContext] = createToastContext(TOAST_NAME, { onClose() {} });
-var ToastImpl = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, type = "foreground", duration: durationProp, open, onClose, onEscapeKeyDown, onPause, onResume, onSwipeStart, onSwipeMove, onSwipeCancel, onSwipeEnd, ...toastProps } = props;
-	const context = useToastProviderContext(TOAST_NAME, __scopeToast);
-	const [node, setNode] = import_react.useState(null);
-	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
-	const pointerStartRef = import_react.useRef(null);
-	const swipeDeltaRef = import_react.useRef(null);
-	const duration = durationProp || context.duration;
-	const closeTimerStartTimeRef = import_react.useRef(0);
-	const closeTimerRemainingTimeRef = import_react.useRef(duration);
-	const closeTimerRef = import_react.useRef(0);
-	const { onToastAdd, onToastRemove } = context;
-	const handleClose = useCallbackRef$1(() => {
-		if (node?.contains(document.activeElement)) context.viewport?.focus();
-		onClose();
-	});
-	const startTimer = import_react.useCallback((duration2) => {
-		if (!duration2 || duration2 === Infinity) return;
-		window.clearTimeout(closeTimerRef.current);
-		closeTimerStartTimeRef.current = (/* @__PURE__ */ new Date()).getTime();
-		closeTimerRef.current = window.setTimeout(handleClose, duration2);
-	}, [handleClose]);
-	import_react.useEffect(() => {
-		const viewport = context.viewport;
-		if (viewport) {
-			const handleResume = () => {
-				startTimer(closeTimerRemainingTimeRef.current);
-				onResume?.();
-			};
-			const handlePause = () => {
-				const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - closeTimerStartTimeRef.current;
-				closeTimerRemainingTimeRef.current = closeTimerRemainingTimeRef.current - elapsedTime;
-				window.clearTimeout(closeTimerRef.current);
-				onPause?.();
-			};
-			viewport.addEventListener(VIEWPORT_PAUSE, handlePause);
-			viewport.addEventListener(VIEWPORT_RESUME, handleResume);
-			return () => {
-				viewport.removeEventListener(VIEWPORT_PAUSE, handlePause);
-				viewport.removeEventListener(VIEWPORT_RESUME, handleResume);
-			};
-		}
-	}, [
-		context.viewport,
-		duration,
-		onPause,
-		onResume,
-		startTimer
-	]);
-	import_react.useEffect(() => {
-		if (open && !context.isClosePausedRef.current) startTimer(duration);
-	}, [
-		open,
-		duration,
-		context.isClosePausedRef,
-		startTimer
-	]);
-	import_react.useEffect(() => {
-		onToastAdd();
-		return () => onToastRemove();
-	}, [onToastAdd, onToastRemove]);
-	const announceTextContent = import_react.useMemo(() => {
-		return node ? getAnnounceTextContent(node) : null;
-	}, [node]);
-	if (!context.viewport) return null;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [announceTextContent && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounce, {
-		__scopeToast,
-		role: "status",
-		"aria-live": type === "foreground" ? "assertive" : "polite",
-		children: announceTextContent
-	}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastInteractiveProvider, {
-		scope: __scopeToast,
-		onClose: handleClose,
-		children: import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.ItemSlot, {
-			scope: __scopeToast,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$5, {
-				asChild: true,
-				onEscapeKeyDown: composeEventHandlers(onEscapeKeyDown, () => {
-					if (!context.isFocusedToastEscapeKeyDownRef.current) handleClose();
-					context.isFocusedToastEscapeKeyDownRef.current = false;
-				}),
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.li, {
-					tabIndex: 0,
-					"data-state": open ? "open" : "closed",
-					"data-swipe-direction": context.swipeDirection,
-					...toastProps,
-					ref: composedRefs,
-					style: {
-						userSelect: "none",
-						touchAction: "none",
-						...props.style
-					},
-					onKeyDown: composeEventHandlers(props.onKeyDown, (event) => {
-						if (event.key !== "Escape") return;
-						onEscapeKeyDown?.(event.nativeEvent);
-						if (!event.nativeEvent.defaultPrevented) {
-							context.isFocusedToastEscapeKeyDownRef.current = true;
-							handleClose();
-						}
-					}),
-					onPointerDown: composeEventHandlers(props.onPointerDown, (event) => {
-						if (event.button !== 0) return;
-						pointerStartRef.current = {
-							x: event.clientX,
-							y: event.clientY
-						};
-					}),
-					onPointerMove: composeEventHandlers(props.onPointerMove, (event) => {
-						if (!pointerStartRef.current) return;
-						const x = event.clientX - pointerStartRef.current.x;
-						const y = event.clientY - pointerStartRef.current.y;
-						const hasSwipeMoveStarted = Boolean(swipeDeltaRef.current);
-						const isHorizontalSwipe = ["left", "right"].includes(context.swipeDirection);
-						const clamp = ["left", "up"].includes(context.swipeDirection) ? Math.min : Math.max;
-						const clampedX = isHorizontalSwipe ? clamp(0, x) : 0;
-						const clampedY = !isHorizontalSwipe ? clamp(0, y) : 0;
-						const moveStartBuffer = event.pointerType === "touch" ? 10 : 2;
-						const delta = {
-							x: clampedX,
-							y: clampedY
-						};
-						const eventDetail = {
-							originalEvent: event,
-							delta
-						};
-						if (hasSwipeMoveStarted) {
-							swipeDeltaRef.current = delta;
-							handleAndDispatchCustomEvent(TOAST_SWIPE_MOVE, onSwipeMove, eventDetail, { discrete: false });
-						} else if (isDeltaInDirection(delta, context.swipeDirection, moveStartBuffer)) {
-							swipeDeltaRef.current = delta;
-							handleAndDispatchCustomEvent(TOAST_SWIPE_START, onSwipeStart, eventDetail, { discrete: false });
-							event.target.setPointerCapture(event.pointerId);
-						} else if (Math.abs(x) > moveStartBuffer || Math.abs(y) > moveStartBuffer) pointerStartRef.current = null;
-					}),
-					onPointerUp: composeEventHandlers(props.onPointerUp, (event) => {
-						const delta = swipeDeltaRef.current;
-						const target = event.target;
-						if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId);
-						swipeDeltaRef.current = null;
-						pointerStartRef.current = null;
-						if (delta) {
-							const toast = event.currentTarget;
-							const eventDetail = {
-								originalEvent: event,
-								delta
-							};
-							if (isDeltaInDirection(delta, context.swipeDirection, context.swipeThreshold)) handleAndDispatchCustomEvent(TOAST_SWIPE_END, onSwipeEnd, eventDetail, { discrete: true });
-							else handleAndDispatchCustomEvent(TOAST_SWIPE_CANCEL, onSwipeCancel, eventDetail, { discrete: true });
-							toast.addEventListener("click", (event2) => event2.preventDefault(), { once: true });
-						}
-					})
-				})
-			})
-		}), context.viewport)
-	})] });
-});
-var ToastAnnounce = (props) => {
-	const { __scopeToast, children, ...announceProps } = props;
-	const context = useToastProviderContext(TOAST_NAME, __scopeToast);
-	const [renderAnnounceText, setRenderAnnounceText] = import_react.useState(false);
-	const [isAnnounced, setIsAnnounced] = import_react.useState(false);
-	useNextFrame(() => setRenderAnnounceText(true));
-	import_react.useEffect(() => {
-		const timer = window.setTimeout(() => setIsAnnounced(true), 1e3);
-		return () => window.clearTimeout(timer);
-	}, []);
-	return isAnnounced ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal$1, {
-		asChild: true,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHidden, {
-			...announceProps,
-			children: renderAnnounceText && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-				context.label,
-				" ",
-				children
-			] })
-		})
-	});
-};
-var TITLE_NAME$1 = "ToastTitle";
-var ToastTitle$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, ...titleProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		...titleProps,
-		ref: forwardedRef
-	});
-});
-ToastTitle$1.displayName = TITLE_NAME$1;
-var DESCRIPTION_NAME$1 = "ToastDescription";
-var ToastDescription$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, ...descriptionProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		...descriptionProps,
-		ref: forwardedRef
-	});
-});
-ToastDescription$1.displayName = DESCRIPTION_NAME$1;
-var ACTION_NAME = "ToastAction";
-var ToastAction$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { altText, ...actionProps } = props;
-	if (!altText.trim()) {
-		console.error(`Invalid prop \`altText\` supplied to \`${ACTION_NAME}\`. Expected non-empty \`string\`.`);
-		return null;
-	}
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounceExclude, {
-		altText,
-		asChild: true,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastClose$1, {
-			...actionProps,
-			ref: forwardedRef
-		})
-	});
-});
-ToastAction$1.displayName = ACTION_NAME;
-var CLOSE_NAME$1 = "ToastClose";
-var ToastClose$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, ...closeProps } = props;
-	const interactiveContext = useToastInteractiveContext(CLOSE_NAME$1, __scopeToast);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounceExclude, {
-		asChild: true,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
-			type: "button",
-			...closeProps,
-			ref: forwardedRef,
-			onClick: composeEventHandlers(props.onClick, interactiveContext.onClose)
-		})
-	});
-});
-ToastClose$1.displayName = CLOSE_NAME$1;
-var ToastAnnounceExclude = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeToast, altText, ...announceExcludeProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		"data-radix-toast-announce-exclude": "",
-		"data-radix-toast-announce-alt": altText || void 0,
-		...announceExcludeProps,
-		ref: forwardedRef
-	});
-});
-function getAnnounceTextContent(container) {
-	const textContent = [];
-	Array.from(container.childNodes).forEach((node) => {
-		if (node.nodeType === node.TEXT_NODE && node.textContent) textContent.push(node.textContent);
-		if (isHTMLElement$1(node)) {
-			const isHidden = node.ariaHidden || node.hidden || node.style.display === "none";
-			const isExcluded = node.dataset.radixToastAnnounceExclude === "";
-			if (!isHidden) if (isExcluded) {
-				const altText = node.dataset.radixToastAnnounceAlt;
-				if (altText) textContent.push(altText);
-			} else textContent.push(...getAnnounceTextContent(node));
-		}
-	});
-	return textContent;
-}
-function handleAndDispatchCustomEvent(name, handler, detail, { discrete }) {
-	const currentTarget = detail.originalEvent.currentTarget;
-	const event = new CustomEvent(name, {
-		bubbles: true,
-		cancelable: true,
-		detail
-	});
-	if (handler) currentTarget.addEventListener(name, handler, { once: true });
-	if (discrete) dispatchDiscreteCustomEvent(currentTarget, event);
-	else currentTarget.dispatchEvent(event);
-}
-var isDeltaInDirection = (delta, direction, threshold = 0) => {
-	const deltaX = Math.abs(delta.x);
-	const deltaY = Math.abs(delta.y);
-	const isDeltaX = deltaX > deltaY;
-	if (direction === "left" || direction === "right") return isDeltaX && deltaX > threshold;
-	else return !isDeltaX && deltaY > threshold;
-};
-function useNextFrame(callback = () => {}) {
-	const fn = useCallbackRef$1(callback);
-	useLayoutEffect2(() => {
-		let raf1 = 0;
-		let raf2 = 0;
-		raf1 = window.requestAnimationFrame(() => raf2 = window.requestAnimationFrame(fn));
-		return () => {
-			window.cancelAnimationFrame(raf1);
-			window.cancelAnimationFrame(raf2);
-		};
-	}, [fn]);
-}
-function isHTMLElement$1(node) {
-	return node.nodeType === node.ELEMENT_NODE;
-}
-function getTabbableCandidates$1(container) {
-	const nodes = [];
-	const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, { acceptNode: (node) => {
-		const isHiddenInput = node.tagName === "INPUT" && node.type === "hidden";
-		if (node.disabled || node.hidden || isHiddenInput) return NodeFilter.FILTER_SKIP;
-		return node.tabIndex >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-	} });
-	while (walker.nextNode()) nodes.push(walker.currentNode);
-	return nodes;
-}
-function focusFirst$1(candidates) {
-	const previouslyFocusedElement = document.activeElement;
-	return candidates.some((candidate) => {
-		if (candidate === previouslyFocusedElement) return true;
-		candidate.focus();
-		return document.activeElement !== previouslyFocusedElement;
-	});
-}
-var Provider$1 = ToastProvider$1;
-var Viewport = ToastViewport$1;
-var Root2$1 = Toast$2;
-var Title$1 = ToastTitle$1;
-var Description$1 = ToastDescription$1;
-var Action = ToastAction$1;
-var Close$1 = ToastClose$1;
-//#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs
+var import_client = require_client();
 function r(e) {
 	var t, f, n = "";
 	if ("string" == typeof e || "number" == typeof e) n += e;
@@ -21821,409 +20230,6 @@ function clsx() {
 	for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
 	return n;
 }
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority/dist/index.mjs
-/**
-* Copyright 2022 Joe Bell. All rights reserved.
-*
-* This file is licensed to you under the Apache License, Version 2.0
-* (the "License"); you may not use this file except in compliance with the
-* License. You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-* WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the
-* License for the specific language governing permissions and limitations under
-* the License.
-*/ var falsyToString = (value) => typeof value === "boolean" ? `${value}` : value === 0 ? "0" : value;
-var cx = clsx;
-var cva = (base, config) => (props) => {
-	var _config_compoundVariants;
-	if ((config === null || config === void 0 ? void 0 : config.variants) == null) return cx(base, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
-	const { variants, defaultVariants } = config;
-	const getVariantClassNames = Object.keys(variants).map((variant) => {
-		const variantProp = props === null || props === void 0 ? void 0 : props[variant];
-		const defaultVariantProp = defaultVariants === null || defaultVariants === void 0 ? void 0 : defaultVariants[variant];
-		if (variantProp === null) return null;
-		const variantKey = falsyToString(variantProp) || falsyToString(defaultVariantProp);
-		return variants[variant][variantKey];
-	});
-	const propsWithoutUndefined = props && Object.entries(props).reduce((acc, param) => {
-		let [key, value] = param;
-		if (value === void 0) return acc;
-		acc[key] = value;
-		return acc;
-	}, {});
-	return cx(base, getVariantClassNames, config === null || config === void 0 ? void 0 : (_config_compoundVariants = config.compoundVariants) === null || _config_compoundVariants === void 0 ? void 0 : _config_compoundVariants.reduce((acc, param) => {
-		let { class: cvClass, className: cvClassName, ...compoundVariantOptions } = param;
-		return Object.entries(compoundVariantOptions).every((param) => {
-			let [key, value] = param;
-			return Array.isArray(value) ? value.includes({
-				...defaultVariants,
-				...propsWithoutUndefined
-			}[key]) : {
-				...defaultVariants,
-				...propsWithoutUndefined
-			}[key] === value;
-		}) ? [
-			...acc,
-			cvClass,
-			cvClassName
-		] : acc;
-	}, []), props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var mergeClasses = (...classes) => classes.filter((className, index, array) => {
-	return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
-}).join(" ").trim();
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var toCamelCase = (string) => string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase());
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var toPascalCase = (string) => {
-	const camelCase = toCamelCase(string);
-	return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/defaultAttributes.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var defaultAttributes = {
-	xmlns: "http://www.w3.org/2000/svg",
-	width: 24,
-	height: 24,
-	viewBox: "0 0 24 24",
-	fill: "none",
-	stroke: "currentColor",
-	strokeWidth: 2,
-	strokeLinecap: "round",
-	strokeLinejoin: "round"
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var hasA11yProp = (props) => {
-	for (const prop in props) if (prop.startsWith("aria-") || prop === "role" || prop === "title") return true;
-	return false;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/Icon.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var Icon = (0, import_react.forwardRef)(({ color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, iconNode, ...rest }, ref) => (0, import_react.createElement)("svg", {
-	ref,
-	...defaultAttributes,
-	width: size,
-	height: size,
-	stroke: color,
-	strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-	className: mergeClasses("lucide", className),
-	...!children && !hasA11yProp(rest) && { "aria-hidden": "true" },
-	...rest
-}, [...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)), ...Array.isArray(children) ? children : [children]]));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/createLucideIcon.js
-/**
-* @license lucide-react v0.577.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var createLucideIcon = (iconName, iconNode) => {
-	const Component = (0, import_react.forwardRef)(({ className, ...props }, ref) => (0, import_react.createElement)(Icon, {
-		ref,
-		iconNode,
-		className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className),
-		...props
-	}));
-	Component.displayName = toPascalCase(iconName);
-	return Component;
-};
-var Activity = createLucideIcon("activity", [["path", {
-	d: "M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2",
-	key: "169zse"
-}]]);
-var ArrowLeft = createLucideIcon("arrow-left", [["path", {
-	d: "m12 19-7-7 7-7",
-	key: "1l729n"
-}], ["path", {
-	d: "M19 12H5",
-	key: "x3x0zl"
-}]]);
-var ArrowRight$1 = createLucideIcon("arrow-right", [["path", {
-	d: "M5 12h14",
-	key: "1ays0h"
-}], ["path", {
-	d: "m12 5 7 7-7 7",
-	key: "xquz4c"
-}]]);
-var BookOpen = createLucideIcon("book-open", [["path", {
-	d: "M12 7v14",
-	key: "1akyts"
-}], ["path", {
-	d: "M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
-	key: "ruj8y"
-}]]);
-var Calendar = createLucideIcon("calendar", [
-	["path", {
-		d: "M8 2v4",
-		key: "1cmpym"
-	}],
-	["path", {
-		d: "M16 2v4",
-		key: "4m81vk"
-	}],
-	["rect", {
-		width: "18",
-		height: "18",
-		x: "3",
-		y: "4",
-		rx: "2",
-		key: "1hopcy"
-	}],
-	["path", {
-		d: "M3 10h18",
-		key: "8toen8"
-	}]
-]);
-var Check = createLucideIcon("check", [["path", {
-	d: "M20 6 9 17l-5-5",
-	key: "1gmf2c"
-}]]);
-var ChevronRight = createLucideIcon("chevron-right", [["path", {
-	d: "m9 18 6-6-6-6",
-	key: "mthhwq"
-}]]);
-var CircleAlert = createLucideIcon("circle-alert", [
-	["circle", {
-		cx: "12",
-		cy: "12",
-		r: "10",
-		key: "1mglay"
-	}],
-	["line", {
-		x1: "12",
-		x2: "12",
-		y1: "8",
-		y2: "12",
-		key: "1pkeuh"
-	}],
-	["line", {
-		x1: "12",
-		x2: "12.01",
-		y1: "16",
-		y2: "16",
-		key: "4dfq90"
-	}]
-]);
-var CircleCheck = createLucideIcon("circle-check", [["circle", {
-	cx: "12",
-	cy: "12",
-	r: "10",
-	key: "1mglay"
-}], ["path", {
-	d: "m9 12 2 2 4-4",
-	key: "dzmm74"
-}]]);
-var FunnelX = createLucideIcon("funnel-x", [
-	["path", {
-		d: "M12.531 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l.427-.473",
-		key: "ol2ft2"
-	}],
-	["path", {
-		d: "m16.5 3.5 5 5",
-		key: "15e6fa"
-	}],
-	["path", {
-		d: "m21.5 3.5-5 5",
-		key: "m0lwru"
-	}]
-]);
-var HeartPulse = createLucideIcon("heart-pulse", [["path", {
-	d: "M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5",
-	key: "mvr1a0"
-}], ["path", {
-	d: "M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27",
-	key: "auskq0"
-}]]);
-var List = createLucideIcon("list", [
-	["path", {
-		d: "M3 5h.01",
-		key: "18ugdj"
-	}],
-	["path", {
-		d: "M3 12h.01",
-		key: "nlz23k"
-	}],
-	["path", {
-		d: "M3 19h.01",
-		key: "noohij"
-	}],
-	["path", {
-		d: "M8 5h13",
-		key: "1pao27"
-	}],
-	["path", {
-		d: "M8 12h13",
-		key: "1za7za"
-	}],
-	["path", {
-		d: "M8 19h13",
-		key: "m83p4d"
-	}]
-]);
-var Menu = createLucideIcon("menu", [
-	["path", {
-		d: "M4 5h16",
-		key: "1tepv9"
-	}],
-	["path", {
-		d: "M4 12h16",
-		key: "1lakjw"
-	}],
-	["path", {
-		d: "M4 19h16",
-		key: "1djgab"
-	}]
-]);
-var Search = createLucideIcon("search", [["path", {
-	d: "m21 21-4.34-4.34",
-	key: "14j7rj"
-}], ["circle", {
-	cx: "11",
-	cy: "11",
-	r: "8",
-	key: "4ej97u"
-}]]);
-var Share2 = createLucideIcon("share-2", [
-	["circle", {
-		cx: "18",
-		cy: "5",
-		r: "3",
-		key: "gq8acd"
-	}],
-	["circle", {
-		cx: "6",
-		cy: "12",
-		r: "3",
-		key: "w7nqdw"
-	}],
-	["circle", {
-		cx: "18",
-		cy: "19",
-		r: "3",
-		key: "1xt0gg"
-	}],
-	["line", {
-		x1: "8.59",
-		x2: "15.42",
-		y1: "13.51",
-		y2: "17.49",
-		key: "47mynk"
-	}],
-	["line", {
-		x1: "15.41",
-		x2: "8.59",
-		y1: "6.51",
-		y2: "10.49",
-		key: "1n3mei"
-	}]
-]);
-var Stethoscope = createLucideIcon("stethoscope", [
-	["path", {
-		d: "M11 2v2",
-		key: "1539x4"
-	}],
-	["path", {
-		d: "M5 2v2",
-		key: "1yf1q8"
-	}],
-	["path", {
-		d: "M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1",
-		key: "rb5t3r"
-	}],
-	["path", {
-		d: "M8 15a6 6 0 0 0 12 0v-3",
-		key: "x18d4x"
-	}],
-	["circle", {
-		cx: "20",
-		cy: "10",
-		r: "2",
-		key: "ts1r5v"
-	}]
-]);
-var Target = createLucideIcon("target", [
-	["circle", {
-		cx: "12",
-		cy: "12",
-		r: "10",
-		key: "1mglay"
-	}],
-	["circle", {
-		cx: "12",
-		cy: "12",
-		r: "6",
-		key: "1vlfrh"
-	}],
-	["circle", {
-		cx: "12",
-		cy: "12",
-		r: "2",
-		key: "1c9p78"
-	}]
-]);
-var X$1 = createLucideIcon("x", [["path", {
-	d: "M18 6 6 18",
-	key: "1bl5f8"
-}], ["path", {
-	d: "m6 6 12 12",
-	key: "d8bk6v"
-}]]);
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/tailwind-merge@2.6.1/node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
@@ -23642,1082 +21648,612 @@ var twMerge = /* @__PURE__ */ createTailwindMerge(getDefaultConfig);
 * @param inputs - Array of class names
 * @returns Merged class names
 */
-function cn$1(...inputs) {
+function cn(...inputs) {
 	return twMerge(clsx(inputs));
 }
 //#endregion
-//#region src/components/ui/toast.tsx
-var ToastProvider = Provider$1;
-var ToastViewport = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Viewport, {
-	"data-uid": "src/components/ui/toast.tsx:15:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]", className),
-	...props
-}));
-ToastViewport.displayName = Viewport.displayName;
-var toastVariants = cva("group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full", {
-	variants: { variant: {
-		default: "border bg-background text-foreground",
-		destructive: "destructive group border-destructive bg-destructive text-destructive-foreground"
-	} },
-	defaultVariants: { variant: "default" }
-});
-var Toast$1 = import_react.forwardRef(({ className, variant, ...props }, ref) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root2$1, {
-		"data-uid": "src/components/ui/toast.tsx:47:5",
-		"data-prohibitions": "[editContent]",
-		ref,
-		className: cn$1(toastVariants({ variant }), className),
-		...props
-	});
-});
-Toast$1.displayName = Root2$1.displayName;
-var ToastAction = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Action, {
-	"data-uid": "src/components/ui/toast.tsx:60:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive", className),
-	...props
-}));
-ToastAction.displayName = Action.displayName;
-var ToastClose = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Close$1, {
-	"data-uid": "src/components/ui/toast.tsx:75:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600", className),
-	"toast-close": "",
-	...props,
-	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X$1, {
-		"data-uid": "src/components/ui/toast.tsx:84:5",
-		"data-prohibitions": "[editContent]",
-		className: "h-4 w-4"
-	})
-}));
-ToastClose.displayName = Close$1.displayName;
-var ToastTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title$1, {
-	"data-uid": "src/components/ui/toast.tsx:93:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("text-sm font-semibold", className),
-	...props
-}));
-ToastTitle.displayName = Title$1.displayName;
-var ToastDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Description$1, {
-	"data-uid": "src/components/ui/toast.tsx:101:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("text-sm opacity-90", className),
-	...props
-}));
-ToastDescription.displayName = Description$1.displayName;
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var mergeClasses = (...classes) => classes.filter((className, index, array) => {
+	return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
+}).join(" ").trim();
 //#endregion
-//#region src/components/ui/toaster.tsx
-function Toaster$2() {
-	const { toasts } = useToast();
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(ToastProvider, {
-		"data-uid": "src/components/ui/toaster.tsx:16:5",
-		"data-prohibitions": "[editContent]",
-		children: [toasts.map(function({ id, title, description, action, ...props }) {
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Toast$1, {
-				"data-uid": "src/components/ui/toaster.tsx:19:11",
-				"data-prohibitions": "[editContent]",
-				...props,
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/ui/toaster.tsx:20:13",
-						"data-prohibitions": "[editContent]",
-						className: "grid gap-1",
-						children: [title && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastTitle, {
-							"data-uid": "src/components/ui/toaster.tsx:21:25",
-							"data-prohibitions": "[editContent]",
-							children: title
-						}), description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastDescription, {
-							"data-uid": "src/components/ui/toaster.tsx:22:31",
-							"data-prohibitions": "[editContent]",
-							children: description
-						})]
-					}),
-					action,
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastClose, {
-						"data-uid": "src/components/ui/toaster.tsx:25:13",
-						"data-prohibitions": "[editContent]"
-					})
-				]
-			}, id);
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastViewport, {
-			"data-uid": "src/components/ui/toaster.tsx:29:7",
-			"data-prohibitions": "[editContent]"
-		})]
-	});
-}
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/next-themes@0.4.6_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next-themes/dist/index.mjs
-var M = (e, i, s, u, m, a, l, h) => {
-	let d = document.documentElement, w = ["light", "dark"];
-	function p(n) {
-		(Array.isArray(e) ? e : [e]).forEach((y) => {
-			let k = y === "class", S = k && a ? m.map((f) => a[f] || f) : m;
-			k ? (d.classList.remove(...S), d.classList.add(a && a[n] ? a[n] : n)) : d.setAttribute(y, n);
-		}), R(n);
-	}
-	function R(n) {
-		h && w.includes(n) && (d.style.colorScheme = n);
-	}
-	function c() {
-		return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-	}
-	if (u) p(u);
-	else try {
-		let n = localStorage.getItem(i) || s;
-		p(l && n === "system" ? c() : n);
-	} catch (n) {}
-}, x = import_react.createContext(void 0), U$1 = {
-	setTheme: (e) => {},
-	themes: []
-}, z = () => {
-	var e;
-	return (e = import_react.useContext(x)) != null ? e : U$1;
-};
-import_react.memo(({ forcedTheme: e, storageKey: i, attribute: s, enableSystem: u, enableColorScheme: m, defaultTheme: a, value: l, themes: h, nonce: d, scriptProps: w }) => {
-	let p = JSON.stringify([
-		s,
-		i,
-		a,
-		e,
-		h,
-		l,
-		u,
-		m
-	]).slice(1, -1);
-	return import_react.createElement("script", {
-		...w,
-		suppressHydrationWarning: !0,
-		nonce: typeof window == "undefined" ? d : "",
-		dangerouslySetInnerHTML: { __html: `(${M.toString()})(${p})` }
-	});
-});
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var toCamelCase = (string) => string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase());
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/sonner@2.0.7_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/sonner/dist/index.mjs
-function __insertCSS(code) {
-	if (!code || typeof document == "undefined") return;
-	let head = document.head || document.getElementsByTagName("head")[0];
-	let style = document.createElement("style");
-	style.type = "text/css";
-	head.appendChild(style);
-	style.styleSheet ? style.styleSheet.cssText = code : style.appendChild(document.createTextNode(code));
-}
-var getAsset = (type) => {
-	switch (type) {
-		case "success": return SuccessIcon;
-		case "info": return InfoIcon;
-		case "warning": return WarningIcon;
-		case "error": return ErrorIcon;
-		default: return null;
-	}
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var toPascalCase = (string) => {
+	const camelCase = toCamelCase(string);
+	return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
-var bars = Array(12).fill(0);
-var Loader = ({ visible, className }) => {
-	return /* @__PURE__ */ import_react.createElement("div", {
-		className: ["sonner-loading-wrapper", className].filter(Boolean).join(" "),
-		"data-visible": visible
-	}, /* @__PURE__ */ import_react.createElement("div", { className: "sonner-spinner" }, bars.map((_, i) => /* @__PURE__ */ import_react.createElement("div", {
-		className: "sonner-loading-bar",
-		key: `spinner-bar-${i}`
-	}))));
-};
-var SuccessIcon = /* @__PURE__ */ import_react.createElement("svg", {
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/defaultAttributes.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var defaultAttributes = {
 	xmlns: "http://www.w3.org/2000/svg",
-	viewBox: "0 0 20 20",
-	fill: "currentColor",
-	height: "20",
-	width: "20"
-}, /* @__PURE__ */ import_react.createElement("path", {
-	fillRule: "evenodd",
-	d: "M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z",
-	clipRule: "evenodd"
-}));
-var WarningIcon = /* @__PURE__ */ import_react.createElement("svg", {
-	xmlns: "http://www.w3.org/2000/svg",
-	viewBox: "0 0 24 24",
-	fill: "currentColor",
-	height: "20",
-	width: "20"
-}, /* @__PURE__ */ import_react.createElement("path", {
-	fillRule: "evenodd",
-	d: "M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z",
-	clipRule: "evenodd"
-}));
-var InfoIcon = /* @__PURE__ */ import_react.createElement("svg", {
-	xmlns: "http://www.w3.org/2000/svg",
-	viewBox: "0 0 20 20",
-	fill: "currentColor",
-	height: "20",
-	width: "20"
-}, /* @__PURE__ */ import_react.createElement("path", {
-	fillRule: "evenodd",
-	d: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z",
-	clipRule: "evenodd"
-}));
-var ErrorIcon = /* @__PURE__ */ import_react.createElement("svg", {
-	xmlns: "http://www.w3.org/2000/svg",
-	viewBox: "0 0 20 20",
-	fill: "currentColor",
-	height: "20",
-	width: "20"
-}, /* @__PURE__ */ import_react.createElement("path", {
-	fillRule: "evenodd",
-	d: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z",
-	clipRule: "evenodd"
-}));
-var CloseIcon = /* @__PURE__ */ import_react.createElement("svg", {
-	xmlns: "http://www.w3.org/2000/svg",
-	width: "12",
-	height: "12",
+	width: 24,
+	height: 24,
 	viewBox: "0 0 24 24",
 	fill: "none",
 	stroke: "currentColor",
-	strokeWidth: "1.5",
+	strokeWidth: 2,
 	strokeLinecap: "round",
 	strokeLinejoin: "round"
-}, /* @__PURE__ */ import_react.createElement("line", {
-	x1: "18",
-	y1: "6",
-	x2: "6",
-	y2: "18"
-}), /* @__PURE__ */ import_react.createElement("line", {
-	x1: "6",
-	y1: "6",
-	x2: "18",
-	y2: "18"
-}));
-var useIsDocumentHidden = () => {
-	const [isDocumentHidden, setIsDocumentHidden] = import_react.useState(document.hidden);
-	import_react.useEffect(() => {
-		const callback = () => {
-			setIsDocumentHidden(document.hidden);
-		};
-		document.addEventListener("visibilitychange", callback);
-		return () => window.removeEventListener("visibilitychange", callback);
-	}, []);
-	return isDocumentHidden;
 };
-var toastsCounter = 1;
-var Observer = class {
-	constructor() {
-		this.subscribe = (subscriber) => {
-			this.subscribers.push(subscriber);
-			return () => {
-				const index = this.subscribers.indexOf(subscriber);
-				this.subscribers.splice(index, 1);
-			};
-		};
-		this.publish = (data) => {
-			this.subscribers.forEach((subscriber) => subscriber(data));
-		};
-		this.addToast = (data) => {
-			this.publish(data);
-			this.toasts = [...this.toasts, data];
-		};
-		this.create = (data) => {
-			var _data_id;
-			const { message, ...rest } = data;
-			const id = typeof (data == null ? void 0 : data.id) === "number" || ((_data_id = data.id) == null ? void 0 : _data_id.length) > 0 ? data.id : toastsCounter++;
-			const alreadyExists = this.toasts.find((toast) => {
-				return toast.id === id;
-			});
-			const dismissible = data.dismissible === void 0 ? true : data.dismissible;
-			if (this.dismissedToasts.has(id)) this.dismissedToasts.delete(id);
-			if (alreadyExists) this.toasts = this.toasts.map((toast) => {
-				if (toast.id === id) {
-					this.publish({
-						...toast,
-						...data,
-						id,
-						title: message
-					});
-					return {
-						...toast,
-						...data,
-						id,
-						dismissible,
-						title: message
-					};
-				}
-				return toast;
-			});
-			else this.addToast({
-				title: message,
-				...rest,
-				dismissible,
-				id
-			});
-			return id;
-		};
-		this.dismiss = (id) => {
-			if (id) {
-				this.dismissedToasts.add(id);
-				requestAnimationFrame(() => this.subscribers.forEach((subscriber) => subscriber({
-					id,
-					dismiss: true
-				})));
-			} else this.toasts.forEach((toast) => {
-				this.subscribers.forEach((subscriber) => subscriber({
-					id: toast.id,
-					dismiss: true
-				}));
-			});
-			return id;
-		};
-		this.message = (message, data) => {
-			return this.create({
-				...data,
-				message
-			});
-		};
-		this.error = (message, data) => {
-			return this.create({
-				...data,
-				message,
-				type: "error"
-			});
-		};
-		this.success = (message, data) => {
-			return this.create({
-				...data,
-				type: "success",
-				message
-			});
-		};
-		this.info = (message, data) => {
-			return this.create({
-				...data,
-				type: "info",
-				message
-			});
-		};
-		this.warning = (message, data) => {
-			return this.create({
-				...data,
-				type: "warning",
-				message
-			});
-		};
-		this.loading = (message, data) => {
-			return this.create({
-				...data,
-				type: "loading",
-				message
-			});
-		};
-		this.promise = (promise, data) => {
-			if (!data) return;
-			let id = void 0;
-			if (data.loading !== void 0) id = this.create({
-				...data,
-				promise,
-				type: "loading",
-				message: data.loading,
-				description: typeof data.description !== "function" ? data.description : void 0
-			});
-			const p = Promise.resolve(promise instanceof Function ? promise() : promise);
-			let shouldDismiss = id !== void 0;
-			let result;
-			const originalPromise = p.then(async (response) => {
-				result = ["resolve", response];
-				if (import_react.isValidElement(response)) {
-					shouldDismiss = false;
-					this.create({
-						id,
-						type: "default",
-						message: response
-					});
-				} else if (isHttpResponse(response) && !response.ok) {
-					shouldDismiss = false;
-					const promiseData = typeof data.error === "function" ? await data.error(`HTTP error! status: ${response.status}`) : data.error;
-					const description = typeof data.description === "function" ? await data.description(`HTTP error! status: ${response.status}`) : data.description;
-					const toastSettings = typeof promiseData === "object" && !import_react.isValidElement(promiseData) ? promiseData : { message: promiseData };
-					this.create({
-						id,
-						type: "error",
-						description,
-						...toastSettings
-					});
-				} else if (response instanceof Error) {
-					shouldDismiss = false;
-					const promiseData = typeof data.error === "function" ? await data.error(response) : data.error;
-					const description = typeof data.description === "function" ? await data.description(response) : data.description;
-					const toastSettings = typeof promiseData === "object" && !import_react.isValidElement(promiseData) ? promiseData : { message: promiseData };
-					this.create({
-						id,
-						type: "error",
-						description,
-						...toastSettings
-					});
-				} else if (data.success !== void 0) {
-					shouldDismiss = false;
-					const promiseData = typeof data.success === "function" ? await data.success(response) : data.success;
-					const description = typeof data.description === "function" ? await data.description(response) : data.description;
-					const toastSettings = typeof promiseData === "object" && !import_react.isValidElement(promiseData) ? promiseData : { message: promiseData };
-					this.create({
-						id,
-						type: "success",
-						description,
-						...toastSettings
-					});
-				}
-			}).catch(async (error) => {
-				result = ["reject", error];
-				if (data.error !== void 0) {
-					shouldDismiss = false;
-					const promiseData = typeof data.error === "function" ? await data.error(error) : data.error;
-					const description = typeof data.description === "function" ? await data.description(error) : data.description;
-					const toastSettings = typeof promiseData === "object" && !import_react.isValidElement(promiseData) ? promiseData : { message: promiseData };
-					this.create({
-						id,
-						type: "error",
-						description,
-						...toastSettings
-					});
-				}
-			}).finally(() => {
-				if (shouldDismiss) {
-					this.dismiss(id);
-					id = void 0;
-				}
-				data.finally == null || data.finally.call(data);
-			});
-			const unwrap = () => new Promise((resolve, reject) => originalPromise.then(() => result[0] === "reject" ? reject(result[1]) : resolve(result[1])).catch(reject));
-			if (typeof id !== "string" && typeof id !== "number") return { unwrap };
-			else return Object.assign(id, { unwrap });
-		};
-		this.custom = (jsx, data) => {
-			const id = (data == null ? void 0 : data.id) || toastsCounter++;
-			this.create({
-				jsx: jsx(id),
-				id,
-				...data
-			});
-			return id;
-		};
-		this.getActiveToasts = () => {
-			return this.toasts.filter((toast) => !this.dismissedToasts.has(toast.id));
-		};
-		this.subscribers = [];
-		this.toasts = [];
-		this.dismissedToasts = /* @__PURE__ */ new Set();
-	}
-};
-var ToastState = new Observer();
-var toastFunction = (message, data) => {
-	const id = (data == null ? void 0 : data.id) || toastsCounter++;
-	ToastState.addToast({
-		title: message,
-		...data,
-		id
-	});
-	return id;
-};
-var isHttpResponse = (data) => {
-	return data && typeof data === "object" && "ok" in data && typeof data.ok === "boolean" && "status" in data && typeof data.status === "number";
-};
-var basicToast = toastFunction;
-var getHistory = () => ToastState.toasts;
-var getToasts = () => ToastState.getActiveToasts();
-Object.assign(basicToast, {
-	success: ToastState.success,
-	info: ToastState.info,
-	warning: ToastState.warning,
-	error: ToastState.error,
-	custom: ToastState.custom,
-	message: ToastState.message,
-	promise: ToastState.promise,
-	dismiss: ToastState.dismiss,
-	loading: ToastState.loading
-}, {
-	getHistory,
-	getToasts
-});
-__insertCSS("[data-sonner-toaster][dir=ltr],html[dir=ltr]{--toast-icon-margin-start:-3px;--toast-icon-margin-end:4px;--toast-svg-margin-start:-1px;--toast-svg-margin-end:0px;--toast-button-margin-start:auto;--toast-button-margin-end:0;--toast-close-button-start:0;--toast-close-button-end:unset;--toast-close-button-transform:translate(-35%, -35%)}[data-sonner-toaster][dir=rtl],html[dir=rtl]{--toast-icon-margin-start:4px;--toast-icon-margin-end:-3px;--toast-svg-margin-start:0px;--toast-svg-margin-end:-1px;--toast-button-margin-start:0;--toast-button-margin-end:auto;--toast-close-button-start:unset;--toast-close-button-end:0;--toast-close-button-transform:translate(35%, -35%)}[data-sonner-toaster]{position:fixed;width:var(--width);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;--gray1:hsl(0, 0%, 99%);--gray2:hsl(0, 0%, 97.3%);--gray3:hsl(0, 0%, 95.1%);--gray4:hsl(0, 0%, 93%);--gray5:hsl(0, 0%, 90.9%);--gray6:hsl(0, 0%, 88.7%);--gray7:hsl(0, 0%, 85.8%);--gray8:hsl(0, 0%, 78%);--gray9:hsl(0, 0%, 56.1%);--gray10:hsl(0, 0%, 52.3%);--gray11:hsl(0, 0%, 43.5%);--gray12:hsl(0, 0%, 9%);--border-radius:8px;box-sizing:border-box;padding:0;margin:0;list-style:none;outline:0;z-index:999999999;transition:transform .4s ease}@media (hover:none) and (pointer:coarse){[data-sonner-toaster][data-lifted=true]{transform:none}}[data-sonner-toaster][data-x-position=right]{right:var(--offset-right)}[data-sonner-toaster][data-x-position=left]{left:var(--offset-left)}[data-sonner-toaster][data-x-position=center]{left:50%;transform:translateX(-50%)}[data-sonner-toaster][data-y-position=top]{top:var(--offset-top)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--offset-bottom)}[data-sonner-toast]{--y:translateY(100%);--lift-amount:calc(var(--lift) * var(--gap));z-index:var(--z-index);position:absolute;opacity:0;transform:var(--y);touch-action:none;transition:transform .4s,opacity .4s,height .4s,box-shadow .2s;box-sizing:border-box;outline:0;overflow-wrap:anywhere}[data-sonner-toast][data-styled=true]{padding:16px;background:var(--normal-bg);border:1px solid var(--normal-border);color:var(--normal-text);border-radius:var(--border-radius);box-shadow:0 4px 12px rgba(0,0,0,.1);width:var(--width);font-size:13px;display:flex;align-items:center;gap:6px}[data-sonner-toast]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-y-position=top]{top:0;--y:translateY(-100%);--lift:1;--lift-amount:calc(1 * var(--gap))}[data-sonner-toast][data-y-position=bottom]{bottom:0;--y:translateY(100%);--lift:-1;--lift-amount:calc(var(--lift) * var(--gap))}[data-sonner-toast][data-styled=true] [data-description]{font-weight:400;line-height:1.4;color:#3f3f3f}[data-rich-colors=true][data-sonner-toast][data-styled=true] [data-description]{color:inherit}[data-sonner-toaster][data-sonner-theme=dark] [data-description]{color:#e8e8e8}[data-sonner-toast][data-styled=true] [data-title]{font-weight:500;line-height:1.5;color:inherit}[data-sonner-toast][data-styled=true] [data-icon]{display:flex;height:16px;width:16px;position:relative;justify-content:flex-start;align-items:center;flex-shrink:0;margin-left:var(--toast-icon-margin-start);margin-right:var(--toast-icon-margin-end)}[data-sonner-toast][data-promise=true] [data-icon]>svg{opacity:0;transform:scale(.8);transform-origin:center;animation:sonner-fade-in .3s ease forwards}[data-sonner-toast][data-styled=true] [data-icon]>*{flex-shrink:0}[data-sonner-toast][data-styled=true] [data-icon] svg{margin-left:var(--toast-svg-margin-start);margin-right:var(--toast-svg-margin-end)}[data-sonner-toast][data-styled=true] [data-content]{display:flex;flex-direction:column;gap:2px}[data-sonner-toast][data-styled=true] [data-button]{border-radius:4px;padding-left:8px;padding-right:8px;height:24px;font-size:12px;color:var(--normal-bg);background:var(--normal-text);margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end);border:none;font-weight:500;cursor:pointer;outline:0;display:flex;align-items:center;flex-shrink:0;transition:opacity .4s,box-shadow .2s}[data-sonner-toast][data-styled=true] [data-button]:focus-visible{box-shadow:0 0 0 2px rgba(0,0,0,.4)}[data-sonner-toast][data-styled=true] [data-button]:first-of-type{margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end)}[data-sonner-toast][data-styled=true] [data-cancel]{color:var(--normal-text);background:rgba(0,0,0,.08)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-styled=true] [data-cancel]{background:rgba(255,255,255,.3)}[data-sonner-toast][data-styled=true] [data-close-button]{position:absolute;left:var(--toast-close-button-start);right:var(--toast-close-button-end);top:0;height:20px;width:20px;display:flex;justify-content:center;align-items:center;padding:0;color:var(--gray12);background:var(--normal-bg);border:1px solid var(--gray4);transform:var(--toast-close-button-transform);border-radius:50%;cursor:pointer;z-index:1;transition:opacity .1s,background .2s,border-color .2s}[data-sonner-toast][data-styled=true] [data-close-button]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-styled=true] [data-disabled=true]{cursor:not-allowed}[data-sonner-toast][data-styled=true]:hover [data-close-button]:hover{background:var(--gray2);border-color:var(--gray5)}[data-sonner-toast][data-swiping=true]::before{content:'';position:absolute;left:-100%;right:-100%;height:100%;z-index:-1}[data-sonner-toast][data-y-position=top][data-swiping=true]::before{bottom:50%;transform:scaleY(3) translateY(50%)}[data-sonner-toast][data-y-position=bottom][data-swiping=true]::before{top:50%;transform:scaleY(3) translateY(-50%)}[data-sonner-toast][data-swiping=false][data-removed=true]::before{content:'';position:absolute;inset:0;transform:scaleY(2)}[data-sonner-toast][data-expanded=true]::after{content:'';position:absolute;left:0;height:calc(var(--gap) + 1px);bottom:100%;width:100%}[data-sonner-toast][data-mounted=true]{--y:translateY(0);opacity:1}[data-sonner-toast][data-expanded=false][data-front=false]{--scale:var(--toasts-before) * 0.05 + 1;--y:translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));height:var(--front-toast-height)}[data-sonner-toast]>*{transition:opacity .4s}[data-sonner-toast][data-x-position=right]{right:0}[data-sonner-toast][data-x-position=left]{left:0}[data-sonner-toast][data-expanded=false][data-front=false][data-styled=true]>*{opacity:0}[data-sonner-toast][data-visible=false]{opacity:0;pointer-events:none}[data-sonner-toast][data-mounted=true][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset)));height:var(--initial-height)}[data-sonner-toast][data-removed=true][data-front=true][data-swipe-out=false]{--y:translateY(calc(var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=false]{--y:translateY(40%);opacity:0;transition:transform .5s,opacity .2s}[data-sonner-toast][data-removed=true][data-front=false]::before{height:calc(var(--initial-height) + 20%)}[data-sonner-toast][data-swiping=true]{transform:var(--y) translateY(var(--swipe-amount-y,0)) translateX(var(--swipe-amount-x,0));transition:none}[data-sonner-toast][data-swiped=true]{user-select:none}[data-sonner-toast][data-swipe-out=true][data-y-position=bottom],[data-sonner-toast][data-swipe-out=true][data-y-position=top]{animation-duration:.2s;animation-timing-function:ease-out;animation-fill-mode:forwards}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=left]{animation-name:swipe-out-left}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=right]{animation-name:swipe-out-right}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=up]{animation-name:swipe-out-up}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=down]{animation-name:swipe-out-down}@keyframes swipe-out-left{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) - 100%));opacity:0}}@keyframes swipe-out-right{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) + 100%));opacity:0}}@keyframes swipe-out-up{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) - 100%));opacity:0}}@keyframes swipe-out-down{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) + 100%));opacity:0}}@media (max-width:600px){[data-sonner-toaster]{position:fixed;right:var(--mobile-offset-right);left:var(--mobile-offset-left);width:100%}[data-sonner-toaster][dir=rtl]{left:calc(var(--mobile-offset-left) * -1)}[data-sonner-toaster] [data-sonner-toast]{left:0;right:0;width:calc(100% - var(--mobile-offset-left) * 2)}[data-sonner-toaster][data-x-position=left]{left:var(--mobile-offset-left)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--mobile-offset-bottom)}[data-sonner-toaster][data-y-position=top]{top:var(--mobile-offset-top)}[data-sonner-toaster][data-x-position=center]{left:var(--mobile-offset-left);right:var(--mobile-offset-right);transform:none}}[data-sonner-toaster][data-sonner-theme=light]{--normal-bg:#fff;--normal-border:var(--gray4);--normal-text:var(--gray12);--success-bg:hsl(143, 85%, 96%);--success-border:hsl(145, 92%, 87%);--success-text:hsl(140, 100%, 27%);--info-bg:hsl(208, 100%, 97%);--info-border:hsl(221, 91%, 93%);--info-text:hsl(210, 92%, 45%);--warning-bg:hsl(49, 100%, 97%);--warning-border:hsl(49, 91%, 84%);--warning-text:hsl(31, 92%, 45%);--error-bg:hsl(359, 100%, 97%);--error-border:hsl(359, 100%, 94%);--error-text:hsl(360, 100%, 45%)}[data-sonner-toaster][data-sonner-theme=light] [data-sonner-toast][data-invert=true]{--normal-bg:#000;--normal-border:hsl(0, 0%, 20%);--normal-text:var(--gray1)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-invert=true]{--normal-bg:#fff;--normal-border:var(--gray3);--normal-text:var(--gray12)}[data-sonner-toaster][data-sonner-theme=dark]{--normal-bg:#000;--normal-bg-hover:hsl(0, 0%, 12%);--normal-border:hsl(0, 0%, 20%);--normal-border-hover:hsl(0, 0%, 25%);--normal-text:var(--gray1);--success-bg:hsl(150, 100%, 6%);--success-border:hsl(147, 100%, 12%);--success-text:hsl(150, 86%, 65%);--info-bg:hsl(215, 100%, 6%);--info-border:hsl(223, 43%, 17%);--info-text:hsl(216, 87%, 65%);--warning-bg:hsl(64, 100%, 6%);--warning-border:hsl(60, 100%, 9%);--warning-text:hsl(46, 87%, 65%);--error-bg:hsl(358, 76%, 10%);--error-border:hsl(357, 89%, 16%);--error-text:hsl(358, 100%, 81%)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]{background:var(--normal-bg);border-color:var(--normal-border);color:var(--normal-text)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]:hover{background:var(--normal-bg-hover);border-color:var(--normal-border-hover)}[data-rich-colors=true][data-sonner-toast][data-type=success]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=success] [data-close-button]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=info]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=info] [data-close-button]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning] [data-close-button]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=error]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}[data-rich-colors=true][data-sonner-toast][data-type=error] [data-close-button]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}.sonner-loading-wrapper{--size:16px;height:var(--size);width:var(--size);position:absolute;inset:0;z-index:10}.sonner-loading-wrapper[data-visible=false]{transform-origin:center;animation:sonner-fade-out .2s ease forwards}.sonner-spinner{position:relative;top:50%;left:50%;height:var(--size);width:var(--size)}.sonner-loading-bar{animation:sonner-spin 1.2s linear infinite;background:var(--gray11);border-radius:6px;height:8%;left:-10%;position:absolute;top:-3.9%;width:24%}.sonner-loading-bar:first-child{animation-delay:-1.2s;transform:rotate(.0001deg) translate(146%)}.sonner-loading-bar:nth-child(2){animation-delay:-1.1s;transform:rotate(30deg) translate(146%)}.sonner-loading-bar:nth-child(3){animation-delay:-1s;transform:rotate(60deg) translate(146%)}.sonner-loading-bar:nth-child(4){animation-delay:-.9s;transform:rotate(90deg) translate(146%)}.sonner-loading-bar:nth-child(5){animation-delay:-.8s;transform:rotate(120deg) translate(146%)}.sonner-loading-bar:nth-child(6){animation-delay:-.7s;transform:rotate(150deg) translate(146%)}.sonner-loading-bar:nth-child(7){animation-delay:-.6s;transform:rotate(180deg) translate(146%)}.sonner-loading-bar:nth-child(8){animation-delay:-.5s;transform:rotate(210deg) translate(146%)}.sonner-loading-bar:nth-child(9){animation-delay:-.4s;transform:rotate(240deg) translate(146%)}.sonner-loading-bar:nth-child(10){animation-delay:-.3s;transform:rotate(270deg) translate(146%)}.sonner-loading-bar:nth-child(11){animation-delay:-.2s;transform:rotate(300deg) translate(146%)}.sonner-loading-bar:nth-child(12){animation-delay:-.1s;transform:rotate(330deg) translate(146%)}@keyframes sonner-fade-in{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}@keyframes sonner-fade-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}@keyframes sonner-spin{0%{opacity:1}100%{opacity:.15}}@media (prefers-reduced-motion){.sonner-loading-bar,[data-sonner-toast],[data-sonner-toast]>*{transition:none!important;animation:none!important}}.sonner-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .2s,transform .2s}.sonner-loader[data-visible=false]{opacity:0;transform:scale(.8) translate(-50%,-50%)}");
-function isAction(action) {
-	return action.label !== void 0;
-}
-var VISIBLE_TOASTS_AMOUNT = 3;
-var VIEWPORT_OFFSET = "24px";
-var MOBILE_VIEWPORT_OFFSET = "16px";
-var TOAST_LIFETIME = 4e3;
-var TOAST_WIDTH = 356;
-var GAP = 14;
-var SWIPE_THRESHOLD = 45;
-var TIME_BEFORE_UNMOUNT = 200;
-function cn(...classes) {
-	return classes.filter(Boolean).join(" ");
-}
-function getDefaultSwipeDirections(position) {
-	const [y, x] = position.split("-");
-	const directions = [];
-	if (y) directions.push(y);
-	if (x) directions.push(x);
-	return directions;
-}
-var Toast = (props) => {
-	var _toast_classNames, _toast_classNames1, _toast_classNames2, _toast_classNames3, _toast_classNames4, _toast_classNames5, _toast_classNames6, _toast_classNames7, _toast_classNames8;
-	const { invert: ToasterInvert, toast, unstyled, interacting, setHeights, visibleToasts, heights, index, toasts, expanded, removeToast, defaultRichColors, closeButton: closeButtonFromToaster, style, cancelButtonStyle, actionButtonStyle, className = "", descriptionClassName = "", duration: durationFromToaster, position, gap, expandByDefault, classNames, icons, closeButtonAriaLabel = "Close toast" } = props;
-	const [swipeDirection, setSwipeDirection] = import_react.useState(null);
-	const [swipeOutDirection, setSwipeOutDirection] = import_react.useState(null);
-	const [mounted, setMounted] = import_react.useState(false);
-	const [removed, setRemoved] = import_react.useState(false);
-	const [swiping, setSwiping] = import_react.useState(false);
-	const [swipeOut, setSwipeOut] = import_react.useState(false);
-	const [isSwiped, setIsSwiped] = import_react.useState(false);
-	const [offsetBeforeRemove, setOffsetBeforeRemove] = import_react.useState(0);
-	const [initialHeight, setInitialHeight] = import_react.useState(0);
-	const remainingTime = import_react.useRef(toast.duration || durationFromToaster || TOAST_LIFETIME);
-	const dragStartTime = import_react.useRef(null);
-	const toastRef = import_react.useRef(null);
-	const isFront = index === 0;
-	const isVisible = index + 1 <= visibleToasts;
-	const toastType = toast.type;
-	const dismissible = toast.dismissible !== false;
-	const toastClassname = toast.className || "";
-	const toastDescriptionClassname = toast.descriptionClassName || "";
-	const heightIndex = import_react.useMemo(() => heights.findIndex((height) => height.toastId === toast.id) || 0, [heights, toast.id]);
-	const closeButton = import_react.useMemo(() => {
-		var _toast_closeButton;
-		return (_toast_closeButton = toast.closeButton) != null ? _toast_closeButton : closeButtonFromToaster;
-	}, [toast.closeButton, closeButtonFromToaster]);
-	const duration = import_react.useMemo(() => toast.duration || durationFromToaster || TOAST_LIFETIME, [toast.duration, durationFromToaster]);
-	const closeTimerStartTimeRef = import_react.useRef(0);
-	const offset = import_react.useRef(0);
-	const lastCloseTimerStartTimeRef = import_react.useRef(0);
-	const pointerStartRef = import_react.useRef(null);
-	const [y, x] = position.split("-");
-	const toastsHeightBefore = import_react.useMemo(() => {
-		return heights.reduce((prev, curr, reducerIndex) => {
-			if (reducerIndex >= heightIndex) return prev;
-			return prev + curr.height;
-		}, 0);
-	}, [heights, heightIndex]);
-	const isDocumentHidden = useIsDocumentHidden();
-	const invert = toast.invert || ToasterInvert;
-	const disabled = toastType === "loading";
-	offset.current = import_react.useMemo(() => heightIndex * gap + toastsHeightBefore, [heightIndex, toastsHeightBefore]);
-	import_react.useEffect(() => {
-		remainingTime.current = duration;
-	}, [duration]);
-	import_react.useEffect(() => {
-		setMounted(true);
-	}, []);
-	import_react.useEffect(() => {
-		const toastNode = toastRef.current;
-		if (toastNode) {
-			const height = toastNode.getBoundingClientRect().height;
-			setInitialHeight(height);
-			setHeights((h) => [{
-				toastId: toast.id,
-				height,
-				position: toast.position
-			}, ...h]);
-			return () => setHeights((h) => h.filter((height) => height.toastId !== toast.id));
-		}
-	}, [setHeights, toast.id]);
-	import_react.useLayoutEffect(() => {
-		if (!mounted) return;
-		const toastNode = toastRef.current;
-		const originalHeight = toastNode.style.height;
-		toastNode.style.height = "auto";
-		const newHeight = toastNode.getBoundingClientRect().height;
-		toastNode.style.height = originalHeight;
-		setInitialHeight(newHeight);
-		setHeights((heights) => {
-			if (!heights.find((height) => height.toastId === toast.id)) return [{
-				toastId: toast.id,
-				height: newHeight,
-				position: toast.position
-			}, ...heights];
-			else return heights.map((height) => height.toastId === toast.id ? {
-				...height,
-				height: newHeight
-			} : height);
-		});
-	}, [
-		mounted,
-		toast.title,
-		toast.description,
-		setHeights,
-		toast.id,
-		toast.jsx,
-		toast.action,
-		toast.cancel
-	]);
-	const deleteToast = import_react.useCallback(() => {
-		setRemoved(true);
-		setOffsetBeforeRemove(offset.current);
-		setHeights((h) => h.filter((height) => height.toastId !== toast.id));
-		setTimeout(() => {
-			removeToast(toast);
-		}, TIME_BEFORE_UNMOUNT);
-	}, [
-		toast,
-		removeToast,
-		setHeights,
-		offset
-	]);
-	import_react.useEffect(() => {
-		if (toast.promise && toastType === "loading" || toast.duration === Infinity || toast.type === "loading") return;
-		let timeoutId;
-		const pauseTimer = () => {
-			if (lastCloseTimerStartTimeRef.current < closeTimerStartTimeRef.current) {
-				const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - closeTimerStartTimeRef.current;
-				remainingTime.current = remainingTime.current - elapsedTime;
-			}
-			lastCloseTimerStartTimeRef.current = (/* @__PURE__ */ new Date()).getTime();
-		};
-		const startTimer = () => {
-			if (remainingTime.current === Infinity) return;
-			closeTimerStartTimeRef.current = (/* @__PURE__ */ new Date()).getTime();
-			timeoutId = setTimeout(() => {
-				toast.onAutoClose == null || toast.onAutoClose.call(toast, toast);
-				deleteToast();
-			}, remainingTime.current);
-		};
-		if (expanded || interacting || isDocumentHidden) pauseTimer();
-		else startTimer();
-		return () => clearTimeout(timeoutId);
-	}, [
-		expanded,
-		interacting,
-		toast,
-		toastType,
-		isDocumentHidden,
-		deleteToast
-	]);
-	import_react.useEffect(() => {
-		if (toast.delete) {
-			deleteToast();
-			toast.onDismiss == null || toast.onDismiss.call(toast, toast);
-		}
-	}, [deleteToast, toast.delete]);
-	function getLoadingIcon() {
-		var _toast_classNames;
-		if (icons == null ? void 0 : icons.loading) {
-			var _toast_classNames1;
-			return /* @__PURE__ */ import_react.createElement("div", {
-				className: cn(classNames == null ? void 0 : classNames.loader, toast == null ? void 0 : (_toast_classNames1 = toast.classNames) == null ? void 0 : _toast_classNames1.loader, "sonner-loader"),
-				"data-visible": toastType === "loading"
-			}, icons.loading);
-		}
-		return /* @__PURE__ */ import_react.createElement(Loader, {
-			className: cn(classNames == null ? void 0 : classNames.loader, toast == null ? void 0 : (_toast_classNames = toast.classNames) == null ? void 0 : _toast_classNames.loader),
-			visible: toastType === "loading"
-		});
-	}
-	const icon = toast.icon || (icons == null ? void 0 : icons[toastType]) || getAsset(toastType);
-	var _toast_richColors, _icons_close;
-	return /* @__PURE__ */ import_react.createElement("li", {
-		tabIndex: 0,
-		ref: toastRef,
-		className: cn(className, toastClassname, classNames == null ? void 0 : classNames.toast, toast == null ? void 0 : (_toast_classNames = toast.classNames) == null ? void 0 : _toast_classNames.toast, classNames == null ? void 0 : classNames.default, classNames == null ? void 0 : classNames[toastType], toast == null ? void 0 : (_toast_classNames1 = toast.classNames) == null ? void 0 : _toast_classNames1[toastType]),
-		"data-sonner-toast": "",
-		"data-rich-colors": (_toast_richColors = toast.richColors) != null ? _toast_richColors : defaultRichColors,
-		"data-styled": !Boolean(toast.jsx || toast.unstyled || unstyled),
-		"data-mounted": mounted,
-		"data-promise": Boolean(toast.promise),
-		"data-swiped": isSwiped,
-		"data-removed": removed,
-		"data-visible": isVisible,
-		"data-y-position": y,
-		"data-x-position": x,
-		"data-index": index,
-		"data-front": isFront,
-		"data-swiping": swiping,
-		"data-dismissible": dismissible,
-		"data-type": toastType,
-		"data-invert": invert,
-		"data-swipe-out": swipeOut,
-		"data-swipe-direction": swipeOutDirection,
-		"data-expanded": Boolean(expanded || expandByDefault && mounted),
-		"data-testid": toast.testId,
-		style: {
-			"--index": index,
-			"--toasts-before": index,
-			"--z-index": toasts.length - index,
-			"--offset": `${removed ? offsetBeforeRemove : offset.current}px`,
-			"--initial-height": expandByDefault ? "auto" : `${initialHeight}px`,
-			...style,
-			...toast.style
-		},
-		onDragEnd: () => {
-			setSwiping(false);
-			setSwipeDirection(null);
-			pointerStartRef.current = null;
-		},
-		onPointerDown: (event) => {
-			if (event.button === 2) return;
-			if (disabled || !dismissible) return;
-			dragStartTime.current = /* @__PURE__ */ new Date();
-			setOffsetBeforeRemove(offset.current);
-			event.target.setPointerCapture(event.pointerId);
-			if (event.target.tagName === "BUTTON") return;
-			setSwiping(true);
-			pointerStartRef.current = {
-				x: event.clientX,
-				y: event.clientY
-			};
-		},
-		onPointerUp: () => {
-			var _toastRef_current, _toastRef_current1, _dragStartTime_current;
-			if (swipeOut || !dismissible) return;
-			pointerStartRef.current = null;
-			const swipeAmountX = Number(((_toastRef_current = toastRef.current) == null ? void 0 : _toastRef_current.style.getPropertyValue("--swipe-amount-x").replace("px", "")) || 0);
-			const swipeAmountY = Number(((_toastRef_current1 = toastRef.current) == null ? void 0 : _toastRef_current1.style.getPropertyValue("--swipe-amount-y").replace("px", "")) || 0);
-			const timeTaken = (/* @__PURE__ */ new Date()).getTime() - ((_dragStartTime_current = dragStartTime.current) == null ? void 0 : _dragStartTime_current.getTime());
-			const swipeAmount = swipeDirection === "x" ? swipeAmountX : swipeAmountY;
-			const velocity = Math.abs(swipeAmount) / timeTaken;
-			if (Math.abs(swipeAmount) >= SWIPE_THRESHOLD || velocity > .11) {
-				setOffsetBeforeRemove(offset.current);
-				toast.onDismiss == null || toast.onDismiss.call(toast, toast);
-				if (swipeDirection === "x") setSwipeOutDirection(swipeAmountX > 0 ? "right" : "left");
-				else setSwipeOutDirection(swipeAmountY > 0 ? "down" : "up");
-				deleteToast();
-				setSwipeOut(true);
-				return;
-			} else {
-				var _toastRef_current2, _toastRef_current3;
-				(_toastRef_current2 = toastRef.current) == null || _toastRef_current2.style.setProperty("--swipe-amount-x", `0px`);
-				(_toastRef_current3 = toastRef.current) == null || _toastRef_current3.style.setProperty("--swipe-amount-y", `0px`);
-			}
-			setIsSwiped(false);
-			setSwiping(false);
-			setSwipeDirection(null);
-		},
-		onPointerMove: (event) => {
-			var _window_getSelection, _toastRef_current, _toastRef_current1;
-			if (!pointerStartRef.current || !dismissible) return;
-			if (((_window_getSelection = window.getSelection()) == null ? void 0 : _window_getSelection.toString().length) > 0) return;
-			const yDelta = event.clientY - pointerStartRef.current.y;
-			const xDelta = event.clientX - pointerStartRef.current.x;
-			var _props_swipeDirections;
-			const swipeDirections = (_props_swipeDirections = props.swipeDirections) != null ? _props_swipeDirections : getDefaultSwipeDirections(position);
-			if (!swipeDirection && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) setSwipeDirection(Math.abs(xDelta) > Math.abs(yDelta) ? "x" : "y");
-			let swipeAmount = {
-				x: 0,
-				y: 0
-			};
-			const getDampening = (delta) => {
-				return 1 / (1.5 + Math.abs(delta) / 20);
-			};
-			if (swipeDirection === "y") {
-				if (swipeDirections.includes("top") || swipeDirections.includes("bottom")) if (swipeDirections.includes("top") && yDelta < 0 || swipeDirections.includes("bottom") && yDelta > 0) swipeAmount.y = yDelta;
-				else {
-					const dampenedDelta = yDelta * getDampening(yDelta);
-					swipeAmount.y = Math.abs(dampenedDelta) < Math.abs(yDelta) ? dampenedDelta : yDelta;
-				}
-			} else if (swipeDirection === "x") {
-				if (swipeDirections.includes("left") || swipeDirections.includes("right")) if (swipeDirections.includes("left") && xDelta < 0 || swipeDirections.includes("right") && xDelta > 0) swipeAmount.x = xDelta;
-				else {
-					const dampenedDelta = xDelta * getDampening(xDelta);
-					swipeAmount.x = Math.abs(dampenedDelta) < Math.abs(xDelta) ? dampenedDelta : xDelta;
-				}
-			}
-			if (Math.abs(swipeAmount.x) > 0 || Math.abs(swipeAmount.y) > 0) setIsSwiped(true);
-			(_toastRef_current = toastRef.current) == null || _toastRef_current.style.setProperty("--swipe-amount-x", `${swipeAmount.x}px`);
-			(_toastRef_current1 = toastRef.current) == null || _toastRef_current1.style.setProperty("--swipe-amount-y", `${swipeAmount.y}px`);
-		}
-	}, closeButton && !toast.jsx && toastType !== "loading" ? /* @__PURE__ */ import_react.createElement("button", {
-		"aria-label": closeButtonAriaLabel,
-		"data-disabled": disabled,
-		"data-close-button": true,
-		onClick: disabled || !dismissible ? () => {} : () => {
-			deleteToast();
-			toast.onDismiss == null || toast.onDismiss.call(toast, toast);
-		},
-		className: cn(classNames == null ? void 0 : classNames.closeButton, toast == null ? void 0 : (_toast_classNames2 = toast.classNames) == null ? void 0 : _toast_classNames2.closeButton)
-	}, (_icons_close = icons == null ? void 0 : icons.close) != null ? _icons_close : CloseIcon) : null, (toastType || toast.icon || toast.promise) && toast.icon !== null && ((icons == null ? void 0 : icons[toastType]) !== null || toast.icon) ? /* @__PURE__ */ import_react.createElement("div", {
-		"data-icon": "",
-		className: cn(classNames == null ? void 0 : classNames.icon, toast == null ? void 0 : (_toast_classNames3 = toast.classNames) == null ? void 0 : _toast_classNames3.icon)
-	}, toast.promise || toast.type === "loading" && !toast.icon ? toast.icon || getLoadingIcon() : null, toast.type !== "loading" ? icon : null) : null, /* @__PURE__ */ import_react.createElement("div", {
-		"data-content": "",
-		className: cn(classNames == null ? void 0 : classNames.content, toast == null ? void 0 : (_toast_classNames4 = toast.classNames) == null ? void 0 : _toast_classNames4.content)
-	}, /* @__PURE__ */ import_react.createElement("div", {
-		"data-title": "",
-		className: cn(classNames == null ? void 0 : classNames.title, toast == null ? void 0 : (_toast_classNames5 = toast.classNames) == null ? void 0 : _toast_classNames5.title)
-	}, toast.jsx ? toast.jsx : typeof toast.title === "function" ? toast.title() : toast.title), toast.description ? /* @__PURE__ */ import_react.createElement("div", {
-		"data-description": "",
-		className: cn(descriptionClassName, toastDescriptionClassname, classNames == null ? void 0 : classNames.description, toast == null ? void 0 : (_toast_classNames6 = toast.classNames) == null ? void 0 : _toast_classNames6.description)
-	}, typeof toast.description === "function" ? toast.description() : toast.description) : null), /* @__PURE__ */ import_react.isValidElement(toast.cancel) ? toast.cancel : toast.cancel && isAction(toast.cancel) ? /* @__PURE__ */ import_react.createElement("button", {
-		"data-button": true,
-		"data-cancel": true,
-		style: toast.cancelButtonStyle || cancelButtonStyle,
-		onClick: (event) => {
-			if (!isAction(toast.cancel)) return;
-			if (!dismissible) return;
-			toast.cancel.onClick == null || toast.cancel.onClick.call(toast.cancel, event);
-			deleteToast();
-		},
-		className: cn(classNames == null ? void 0 : classNames.cancelButton, toast == null ? void 0 : (_toast_classNames7 = toast.classNames) == null ? void 0 : _toast_classNames7.cancelButton)
-	}, toast.cancel.label) : null, /* @__PURE__ */ import_react.isValidElement(toast.action) ? toast.action : toast.action && isAction(toast.action) ? /* @__PURE__ */ import_react.createElement("button", {
-		"data-button": true,
-		"data-action": true,
-		style: toast.actionButtonStyle || actionButtonStyle,
-		onClick: (event) => {
-			if (!isAction(toast.action)) return;
-			toast.action.onClick == null || toast.action.onClick.call(toast.action, event);
-			if (event.defaultPrevented) return;
-			deleteToast();
-		},
-		className: cn(classNames == null ? void 0 : classNames.actionButton, toast == null ? void 0 : (_toast_classNames8 = toast.classNames) == null ? void 0 : _toast_classNames8.actionButton)
-	}, toast.action.label) : null);
-};
-function getDocumentDirection() {
-	if (typeof window === "undefined") return "ltr";
-	if (typeof document === "undefined") return "ltr";
-	const dirAttribute = document.documentElement.getAttribute("dir");
-	if (dirAttribute === "auto" || !dirAttribute) return window.getComputedStyle(document.documentElement).direction;
-	return dirAttribute;
-}
-function assignOffset(defaultOffset, mobileOffset) {
-	const styles = {};
-	[defaultOffset, mobileOffset].forEach((offset, index) => {
-		const isMobile = index === 1;
-		const prefix = isMobile ? "--mobile-offset" : "--offset";
-		const defaultValue = isMobile ? MOBILE_VIEWPORT_OFFSET : VIEWPORT_OFFSET;
-		function assignAll(offset) {
-			[
-				"top",
-				"right",
-				"bottom",
-				"left"
-			].forEach((key) => {
-				styles[`${prefix}-${key}`] = typeof offset === "number" ? `${offset}px` : offset;
-			});
-		}
-		if (typeof offset === "number" || typeof offset === "string") assignAll(offset);
-		else if (typeof offset === "object") [
-			"top",
-			"right",
-			"bottom",
-			"left"
-		].forEach((key) => {
-			if (offset[key] === void 0) styles[`${prefix}-${key}`] = defaultValue;
-			else styles[`${prefix}-${key}`] = typeof offset[key] === "number" ? `${offset[key]}px` : offset[key];
-		});
-		else assignAll(defaultValue);
-	});
-	return styles;
-}
-var Toaster$1 = /* @__PURE__ */ import_react.forwardRef(function Toaster(props, ref) {
-	const { id, invert, position = "bottom-right", hotkey = ["altKey", "KeyT"], expand, closeButton, className, offset, mobileOffset, theme = "light", richColors, duration, style, visibleToasts = VISIBLE_TOASTS_AMOUNT, toastOptions, dir = getDocumentDirection(), gap = GAP, icons, containerAriaLabel = "Notifications" } = props;
-	const [toasts, setToasts] = import_react.useState([]);
-	const filteredToasts = import_react.useMemo(() => {
-		if (id) return toasts.filter((toast) => toast.toasterId === id);
-		return toasts.filter((toast) => !toast.toasterId);
-	}, [toasts, id]);
-	const possiblePositions = import_react.useMemo(() => {
-		return Array.from(new Set([position].concat(filteredToasts.filter((toast) => toast.position).map((toast) => toast.position))));
-	}, [filteredToasts, position]);
-	const [heights, setHeights] = import_react.useState([]);
-	const [expanded, setExpanded] = import_react.useState(false);
-	const [interacting, setInteracting] = import_react.useState(false);
-	const [actualTheme, setActualTheme] = import_react.useState(theme !== "system" ? theme : typeof window !== "undefined" ? window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light" : "light");
-	const listRef = import_react.useRef(null);
-	const hotkeyLabel = hotkey.join("+").replace(/Key/g, "").replace(/Digit/g, "");
-	const lastFocusedElementRef = import_react.useRef(null);
-	const isFocusWithinRef = import_react.useRef(false);
-	const removeToast = import_react.useCallback((toastToRemove) => {
-		setToasts((toasts) => {
-			var _toasts_find;
-			if (!((_toasts_find = toasts.find((toast) => toast.id === toastToRemove.id)) == null ? void 0 : _toasts_find.delete)) ToastState.dismiss(toastToRemove.id);
-			return toasts.filter(({ id }) => id !== toastToRemove.id);
-		});
-	}, []);
-	import_react.useEffect(() => {
-		return ToastState.subscribe((toast) => {
-			if (toast.dismiss) {
-				requestAnimationFrame(() => {
-					setToasts((toasts) => toasts.map((t) => t.id === toast.id ? {
-						...t,
-						delete: true
-					} : t));
-				});
-				return;
-			}
-			setTimeout(() => {
-				import_react_dom.flushSync(() => {
-					setToasts((toasts) => {
-						const indexOfExistingToast = toasts.findIndex((t) => t.id === toast.id);
-						if (indexOfExistingToast !== -1) return [
-							...toasts.slice(0, indexOfExistingToast),
-							{
-								...toasts[indexOfExistingToast],
-								...toast
-							},
-							...toasts.slice(indexOfExistingToast + 1)
-						];
-						return [toast, ...toasts];
-					});
-				});
-			});
-		});
-	}, [toasts]);
-	import_react.useEffect(() => {
-		if (theme !== "system") {
-			setActualTheme(theme);
-			return;
-		}
-		if (theme === "system") if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) setActualTheme("dark");
-		else setActualTheme("light");
-		if (typeof window === "undefined") return;
-		const darkMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-		try {
-			darkMediaQuery.addEventListener("change", ({ matches }) => {
-				if (matches) setActualTheme("dark");
-				else setActualTheme("light");
-			});
-		} catch (error) {
-			darkMediaQuery.addListener(({ matches }) => {
-				try {
-					if (matches) setActualTheme("dark");
-					else setActualTheme("light");
-				} catch (e) {
-					console.error(e);
-				}
-			});
-		}
-	}, [theme]);
-	import_react.useEffect(() => {
-		if (toasts.length <= 1) setExpanded(false);
-	}, [toasts]);
-	import_react.useEffect(() => {
-		const handleKeyDown = (event) => {
-			var _listRef_current;
-			if (hotkey.every((key) => event[key] || event.code === key)) {
-				var _listRef_current1;
-				setExpanded(true);
-				(_listRef_current1 = listRef.current) == null || _listRef_current1.focus();
-			}
-			if (event.code === "Escape" && (document.activeElement === listRef.current || ((_listRef_current = listRef.current) == null ? void 0 : _listRef_current.contains(document.activeElement)))) setExpanded(false);
-		};
-		document.addEventListener("keydown", handleKeyDown);
-		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, [hotkey]);
-	import_react.useEffect(() => {
-		if (listRef.current) return () => {
-			if (lastFocusedElementRef.current) {
-				lastFocusedElementRef.current.focus({ preventScroll: true });
-				lastFocusedElementRef.current = null;
-				isFocusWithinRef.current = false;
-			}
-		};
-	}, [listRef.current]);
-	return /* @__PURE__ */ import_react.createElement("section", {
-		ref,
-		"aria-label": `${containerAriaLabel} ${hotkeyLabel}`,
-		tabIndex: -1,
-		"aria-live": "polite",
-		"aria-relevant": "additions text",
-		"aria-atomic": "false",
-		suppressHydrationWarning: true
-	}, possiblePositions.map((position, index) => {
-		var _heights_;
-		const [y, x] = position.split("-");
-		if (!filteredToasts.length) return null;
-		return /* @__PURE__ */ import_react.createElement("ol", {
-			key: position,
-			dir: dir === "auto" ? getDocumentDirection() : dir,
-			tabIndex: -1,
-			ref: listRef,
-			className,
-			"data-sonner-toaster": true,
-			"data-sonner-theme": actualTheme,
-			"data-y-position": y,
-			"data-x-position": x,
-			style: {
-				"--front-toast-height": `${((_heights_ = heights[0]) == null ? void 0 : _heights_.height) || 0}px`,
-				"--width": `${TOAST_WIDTH}px`,
-				"--gap": `${gap}px`,
-				...style,
-				...assignOffset(offset, mobileOffset)
-			},
-			onBlur: (event) => {
-				if (isFocusWithinRef.current && !event.currentTarget.contains(event.relatedTarget)) {
-					isFocusWithinRef.current = false;
-					if (lastFocusedElementRef.current) {
-						lastFocusedElementRef.current.focus({ preventScroll: true });
-						lastFocusedElementRef.current = null;
-					}
-				}
-			},
-			onFocus: (event) => {
-				if (event.target instanceof HTMLElement && event.target.dataset.dismissible === "false") return;
-				if (!isFocusWithinRef.current) {
-					isFocusWithinRef.current = true;
-					lastFocusedElementRef.current = event.relatedTarget;
-				}
-			},
-			onMouseEnter: () => setExpanded(true),
-			onMouseMove: () => setExpanded(true),
-			onMouseLeave: () => {
-				if (!interacting) setExpanded(false);
-			},
-			onDragEnd: () => setExpanded(false),
-			onPointerDown: (event) => {
-				if (event.target instanceof HTMLElement && event.target.dataset.dismissible === "false") return;
-				setInteracting(true);
-			},
-			onPointerUp: () => setInteracting(false)
-		}, filteredToasts.filter((toast) => !toast.position && index === 0 || toast.position === position).map((toast, index) => {
-			var _toastOptions_duration, _toastOptions_closeButton;
-			return /* @__PURE__ */ import_react.createElement(Toast, {
-				key: toast.id,
-				icons,
-				index,
-				toast,
-				defaultRichColors: richColors,
-				duration: (_toastOptions_duration = toastOptions == null ? void 0 : toastOptions.duration) != null ? _toastOptions_duration : duration,
-				className: toastOptions == null ? void 0 : toastOptions.className,
-				descriptionClassName: toastOptions == null ? void 0 : toastOptions.descriptionClassName,
-				invert,
-				visibleToasts,
-				closeButton: (_toastOptions_closeButton = toastOptions == null ? void 0 : toastOptions.closeButton) != null ? _toastOptions_closeButton : closeButton,
-				interacting,
-				position,
-				style: toastOptions == null ? void 0 : toastOptions.style,
-				unstyled: toastOptions == null ? void 0 : toastOptions.unstyled,
-				classNames: toastOptions == null ? void 0 : toastOptions.classNames,
-				cancelButtonStyle: toastOptions == null ? void 0 : toastOptions.cancelButtonStyle,
-				actionButtonStyle: toastOptions == null ? void 0 : toastOptions.actionButtonStyle,
-				closeButtonAriaLabel: toastOptions == null ? void 0 : toastOptions.closeButtonAriaLabel,
-				removeToast,
-				toasts: filteredToasts.filter((t) => t.position == toast.position),
-				heights: heights.filter((h) => h.position == toast.position),
-				setHeights,
-				expandByDefault: expand,
-				gap,
-				expanded,
-				swipeDirections: props.swipeDirections
-			});
-		}));
-	}));
-});
 //#endregion
-//#region src/components/ui/sonner.tsx
-var Toaster = ({ ...props }) => {
-	const { theme = "system" } = z();
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster$1, {
-		"data-uid": "src/components/ui/sonner.tsx:12:5",
-		"data-prohibitions": "[editContent]",
-		theme,
-		className: "toaster group",
-		toastOptions: { classNames: {
-			toast: "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-			description: "group-[.toast]:text-muted-foreground",
-			actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-			cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground"
-		} },
-		...props
-	});
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var hasA11yProp = (props) => {
+	for (const prop in props) if (prop.startsWith("aria-") || prop === "role" || prop === "title") return true;
+	return false;
 };
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/Icon.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var Icon = (0, import_react.forwardRef)(({ color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, iconNode, ...rest }, ref) => (0, import_react.createElement)("svg", {
+	ref,
+	...defaultAttributes,
+	width: size,
+	height: size,
+	stroke: color,
+	strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+	className: mergeClasses("lucide", className),
+	...!children && !hasA11yProp(rest) && { "aria-hidden": "true" },
+	...rest
+}, [...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)), ...Array.isArray(children) ? children : [children]]));
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/lucide-react@0.577.0_react@19.2.4/node_modules/lucide-react/dist/esm/createLucideIcon.js
+/**
+* @license lucide-react v0.577.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var createLucideIcon = (iconName, iconNode) => {
+	const Component = (0, import_react.forwardRef)(({ className, ...props }, ref) => (0, import_react.createElement)(Icon, {
+		ref,
+		iconNode,
+		className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className),
+		...props
+	}));
+	Component.displayName = toPascalCase(iconName);
+	return Component;
+};
+var ArrowLeft = createLucideIcon("arrow-left", [["path", {
+	d: "m12 19-7-7 7-7",
+	key: "1l729n"
+}], ["path", {
+	d: "M19 12H5",
+	key: "x3x0zl"
+}]]);
+var ArrowRight = createLucideIcon("arrow-right", [["path", {
+	d: "M5 12h14",
+	key: "1ays0h"
+}], ["path", {
+	d: "m12 5 7 7-7 7",
+	key: "xquz4c"
+}]]);
+var CalendarDays = createLucideIcon("calendar-days", [
+	["path", {
+		d: "M8 2v4",
+		key: "1cmpym"
+	}],
+	["path", {
+		d: "M16 2v4",
+		key: "4m81vk"
+	}],
+	["rect", {
+		width: "18",
+		height: "18",
+		x: "3",
+		y: "4",
+		rx: "2",
+		key: "1hopcy"
+	}],
+	["path", {
+		d: "M3 10h18",
+		key: "8toen8"
+	}],
+	["path", {
+		d: "M8 14h.01",
+		key: "6423bh"
+	}],
+	["path", {
+		d: "M12 14h.01",
+		key: "1etili"
+	}],
+	["path", {
+		d: "M16 14h.01",
+		key: "1gbofw"
+	}],
+	["path", {
+		d: "M8 18h.01",
+		key: "lrp35t"
+	}],
+	["path", {
+		d: "M12 18h.01",
+		key: "mhygvu"
+	}],
+	["path", {
+		d: "M16 18h.01",
+		key: "kzsmim"
+	}]
+]);
+var ChevronRight = createLucideIcon("chevron-right", [["path", {
+	d: "m9 18 6-6-6-6",
+	key: "mthhwq"
+}]]);
+var Clock = createLucideIcon("clock", [["circle", {
+	cx: "12",
+	cy: "12",
+	r: "10",
+	key: "1mglay"
+}], ["path", {
+	d: "M12 6v6l4 2",
+	key: "mmk7yg"
+}]]);
+var FileText = createLucideIcon("file-text", [
+	["path", {
+		d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z",
+		key: "1oefj6"
+	}],
+	["path", {
+		d: "M14 2v5a1 1 0 0 0 1 1h5",
+		key: "wfsgrz"
+	}],
+	["path", {
+		d: "M10 9H8",
+		key: "b1mrlr"
+	}],
+	["path", {
+		d: "M16 13H8",
+		key: "t4e002"
+	}],
+	["path", {
+		d: "M16 17H8",
+		key: "z1uh3a"
+	}]
+]);
+var Menu = createLucideIcon("menu", [
+	["path", {
+		d: "M4 5h16",
+		key: "1tepv9"
+	}],
+	["path", {
+		d: "M4 12h16",
+		key: "1lakjw"
+	}],
+	["path", {
+		d: "M4 19h16",
+		key: "1djgab"
+	}]
+]);
+var Search = createLucideIcon("search", [["path", {
+	d: "m21 21-4.34-4.34",
+	key: "14j7rj"
+}], ["circle", {
+	cx: "11",
+	cy: "11",
+	r: "8",
+	key: "4ej97u"
+}]]);
+var ShieldAlert = createLucideIcon("shield-alert", [
+	["path", {
+		d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+		key: "oel41y"
+	}],
+	["path", {
+		d: "M12 8v4",
+		key: "1got3b"
+	}],
+	["path", {
+		d: "M12 16h.01",
+		key: "1drbdi"
+	}]
+]);
+var Stethoscope = createLucideIcon("stethoscope", [
+	["path", {
+		d: "M11 2v2",
+		key: "1539x4"
+	}],
+	["path", {
+		d: "M5 2v2",
+		key: "1yf1q8"
+	}],
+	["path", {
+		d: "M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1",
+		key: "rb5t3r"
+	}],
+	["path", {
+		d: "M8 15a6 6 0 0 0 12 0v-3",
+		key: "x18d4x"
+	}],
+	["circle", {
+		cx: "20",
+		cy: "10",
+		r: "2",
+		key: "ts1r5v"
+	}]
+]);
+var Tag = createLucideIcon("tag", [["path", {
+	d: "M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z",
+	key: "vktsd0"
+}], ["circle", {
+	cx: "7.5",
+	cy: "7.5",
+	r: ".5",
+	fill: "currentColor",
+	key: "kqv944"
+}]]);
+var X = createLucideIcon("x", [["path", {
+	d: "M18 6 6 18",
+	key: "1bl5f8"
+}], ["path", {
+	d: "m6 6 12 12",
+	key: "d8bk6v"
+}]]);
+typeof window !== "undefined" && window.document && window.document.createElement;
+function composeEventHandlers(originalEventHandler, ourEventHandler, { checkForDefaultPrevented = true } = {}) {
+	return function handleEvent(event) {
+		originalEventHandler?.(event);
+		if (checkForDefaultPrevented === false || !event.defaultPrevented) return ourEventHandler?.(event);
+	};
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-compose-refs@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-compose-refs/dist/index.mjs
+function setRef(ref, value) {
+	if (typeof ref === "function") return ref(value);
+	else if (ref !== null && ref !== void 0) ref.current = value;
+}
+function composeRefs(...refs) {
+	return (node) => {
+		let hasCleanup = false;
+		const cleanups = refs.map((ref) => {
+			const cleanup = setRef(ref, node);
+			if (!hasCleanup && typeof cleanup == "function") hasCleanup = true;
+			return cleanup;
+		});
+		if (hasCleanup) return () => {
+			for (let i = 0; i < cleanups.length; i++) {
+				const cleanup = cleanups[i];
+				if (typeof cleanup == "function") cleanup();
+				else setRef(refs[i], null);
+			}
+		};
+	};
+}
+function useComposedRefs(...refs) {
+	return import_react.useCallback(composeRefs(...refs), refs);
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/react@19.2.4/node_modules/react/cjs/react-jsx-runtime.development.js
+/**
+* @license React
+* react-jsx-runtime.development.js
+*
+* Copyright (c) Meta Platforms, Inc. and affiliates.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
+var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
+	(function() {
+		function getComponentNameFromType(type) {
+			if (null == type) return null;
+			if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+			if ("string" === typeof type) return type;
+			switch (type) {
+				case REACT_FRAGMENT_TYPE: return "Fragment";
+				case REACT_PROFILER_TYPE: return "Profiler";
+				case REACT_STRICT_MODE_TYPE: return "StrictMode";
+				case REACT_SUSPENSE_TYPE: return "Suspense";
+				case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
+				case REACT_ACTIVITY_TYPE: return "Activity";
+			}
+			if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
+				case REACT_PORTAL_TYPE: return "Portal";
+				case REACT_CONTEXT_TYPE: return type.displayName || "Context";
+				case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
+				case REACT_FORWARD_REF_TYPE:
+					var innerType = type.render;
+					type = type.displayName;
+					type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
+					return type;
+				case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
+				case REACT_LAZY_TYPE:
+					innerType = type._payload;
+					type = type._init;
+					try {
+						return getComponentNameFromType(type(innerType));
+					} catch (x) {}
+			}
+			return null;
+		}
+		function testStringCoercion(value) {
+			return "" + value;
+		}
+		function checkKeyStringCoercion(value) {
+			try {
+				testStringCoercion(value);
+				var JSCompiler_inline_result = !1;
+			} catch (e) {
+				JSCompiler_inline_result = !0;
+			}
+			if (JSCompiler_inline_result) {
+				JSCompiler_inline_result = console;
+				var JSCompiler_temp_const = JSCompiler_inline_result.error;
+				var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+				JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
+				return testStringCoercion(value);
+			}
+		}
+		function getTaskName(type) {
+			if (type === REACT_FRAGMENT_TYPE) return "<>";
+			if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
+			try {
+				var name = getComponentNameFromType(type);
+				return name ? "<" + name + ">" : "<...>";
+			} catch (x) {
+				return "<...>";
+			}
+		}
+		function getOwner() {
+			var dispatcher = ReactSharedInternals.A;
+			return null === dispatcher ? null : dispatcher.getOwner();
+		}
+		function UnknownOwner() {
+			return Error("react-stack-top-frame");
+		}
+		function hasValidKey(config) {
+			if (hasOwnProperty.call(config, "key")) {
+				var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+				if (getter && getter.isReactWarning) return !1;
+			}
+			return void 0 !== config.key;
+		}
+		function defineKeyPropWarningGetter(props, displayName) {
+			function warnAboutAccessingKey() {
+				specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
+			}
+			warnAboutAccessingKey.isReactWarning = !0;
+			Object.defineProperty(props, "key", {
+				get: warnAboutAccessingKey,
+				configurable: !0
+			});
+		}
+		function elementRefGetterWithDeprecationWarning() {
+			var componentName = getComponentNameFromType(this.type);
+			didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
+			componentName = this.props.ref;
+			return void 0 !== componentName ? componentName : null;
+		}
+		function ReactElement(type, key, props, owner, debugStack, debugTask) {
+			var refProp = props.ref;
+			type = {
+				$$typeof: REACT_ELEMENT_TYPE,
+				type,
+				key,
+				props,
+				_owner: owner
+			};
+			null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
+				enumerable: !1,
+				get: elementRefGetterWithDeprecationWarning
+			}) : Object.defineProperty(type, "ref", {
+				enumerable: !1,
+				value: null
+			});
+			type._store = {};
+			Object.defineProperty(type._store, "validated", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: 0
+			});
+			Object.defineProperty(type, "_debugInfo", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: null
+			});
+			Object.defineProperty(type, "_debugStack", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: debugStack
+			});
+			Object.defineProperty(type, "_debugTask", {
+				configurable: !1,
+				enumerable: !1,
+				writable: !0,
+				value: debugTask
+			});
+			Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+			return type;
+		}
+		function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
+			var children = config.children;
+			if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
+				for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
+				Object.freeze && Object.freeze(children);
+			} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
+			else validateChildKeys(children);
+			if (hasOwnProperty.call(config, "key")) {
+				children = getComponentNameFromType(type);
+				var keys = Object.keys(config).filter(function(k) {
+					return "key" !== k;
+				});
+				isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
+				didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
+			}
+			children = null;
+			void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
+			hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
+			if ("key" in config) {
+				maybeKey = {};
+				for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
+			} else maybeKey = config;
+			children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
+			return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
+		}
+		function validateChildKeys(node) {
+			isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
+		}
+		function isValidElement(object) {
+			return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+		}
+		var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+			return null;
+		};
+		React = { react_stack_bottom_frame: function(callStackForError) {
+			return callStackForError();
+		} };
+		var specialPropKeyWarningShown;
+		var didWarnAboutElementRef = {};
+		var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
+		var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
+		var didWarnAboutKeySpread = {};
+		exports.Fragment = REACT_FRAGMENT_TYPE;
+		exports.jsx = function(type, config, maybeKey) {
+			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+			return jsxDEVImpl(type, config, maybeKey, !1, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+		};
+		exports.jsxs = function(type, config, maybeKey) {
+			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+			return jsxDEVImpl(type, config, maybeKey, !0, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+		};
+	})();
+}));
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-context@1.1.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-context/dist/index.mjs
+var import_jsx_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
+	module.exports = require_react_jsx_runtime_development();
+})))();
+function createContext2(rootComponentName, defaultContext) {
+	const Context = import_react.createContext(defaultContext);
+	const Provider = (props) => {
+		const { children, ...context } = props;
+		const value = import_react.useMemo(() => context, Object.values(context));
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
+			value,
+			children
+		});
+	};
+	Provider.displayName = rootComponentName + "Provider";
+	function useContext2(consumerName) {
+		const context = import_react.useContext(Context);
+		if (context) return context;
+		if (defaultContext !== void 0) return defaultContext;
+		throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
+	}
+	return [Provider, useContext2];
+}
+function createContextScope(scopeName, createContextScopeDeps = []) {
+	let defaultContexts = [];
+	function createContext3(rootComponentName, defaultContext) {
+		const BaseContext = import_react.createContext(defaultContext);
+		const index = defaultContexts.length;
+		defaultContexts = [...defaultContexts, defaultContext];
+		const Provider = (props) => {
+			const { scope, children, ...context } = props;
+			const Context = scope?.[scopeName]?.[index] || BaseContext;
+			const value = import_react.useMemo(() => context, Object.values(context));
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
+				value,
+				children
+			});
+		};
+		Provider.displayName = rootComponentName + "Provider";
+		function useContext2(consumerName, scope) {
+			const Context = scope?.[scopeName]?.[index] || BaseContext;
+			const context = import_react.useContext(Context);
+			if (context) return context;
+			if (defaultContext !== void 0) return defaultContext;
+			throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
+		}
+		return [Provider, useContext2];
+	}
+	const createScope = () => {
+		const scopeContexts = defaultContexts.map((defaultContext) => {
+			return import_react.createContext(defaultContext);
+		});
+		return function useScope(scope) {
+			const contexts = scope?.[scopeName] || scopeContexts;
+			return import_react.useMemo(() => ({ [`__scope${scopeName}`]: {
+				...scope,
+				[scopeName]: contexts
+			} }), [scope, contexts]);
+		};
+	};
+	createScope.scopeName = scopeName;
+	return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
+}
+function composeContextScopes(...scopes) {
+	const baseScope = scopes[0];
+	if (scopes.length === 1) return baseScope;
+	const createScope = () => {
+		const scopeHooks = scopes.map((createScope2) => ({
+			useScope: createScope2(),
+			scopeName: createScope2.scopeName
+		}));
+		return function useComposedScopes(overrideScopes) {
+			const nextScopes = scopeHooks.reduce((nextScopes2, { useScope, scopeName }) => {
+				const currentScope = useScope(overrideScopes)[`__scope${scopeName}`];
+				return {
+					...nextScopes2,
+					...currentScope
+				};
+			}, {});
+			return import_react.useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
+		};
+	};
+	createScope.scopeName = baseScope.scopeName;
+	return createScope;
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-layout-effect@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
+var useLayoutEffect2 = globalThis?.document ? import_react.useLayoutEffect : () => {};
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-id@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-id/dist/index.mjs
 var useReactId = import_react[" useId ".trim().toString()] || (() => void 0);
@@ -24730,2462 +22266,70 @@ function useId(deterministicId) {
 	return deterministicId || (id ? `radix-${id}` : "");
 }
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@floating-ui+utils@0.2.11/node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
-/**
-* Custom positioning reference element.
-* @see https://floating-ui.com/docs/virtual-elements
-*/
-var sides = [
-	"top",
-	"right",
-	"bottom",
-	"left"
-];
-var min = Math.min;
-var max = Math.max;
-var round = Math.round;
-var floor = Math.floor;
-var createCoords = (v) => ({
-	x: v,
-	y: v
-});
-var oppositeSideMap = {
-	left: "right",
-	right: "left",
-	bottom: "top",
-	top: "bottom"
-};
-function clamp(start, value, end) {
-	return max(start, min(value, end));
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-controllable-state@1.2.2_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs
+var useInsertionEffect = import_react[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
+function useControllableState({ prop, defaultProp, onChange = () => {}, caller }) {
+	const [uncontrolledProp, setUncontrolledProp, onChangeRef] = useUncontrolledState({
+		defaultProp,
+		onChange
+	});
+	const isControlled = prop !== void 0;
+	const value = isControlled ? prop : uncontrolledProp;
+	{
+		const isControlledRef = import_react.useRef(prop !== void 0);
+		import_react.useEffect(() => {
+			const wasControlled = isControlledRef.current;
+			if (wasControlled !== isControlled) {
+				const from = wasControlled ? "controlled" : "uncontrolled";
+				const to = isControlled ? "controlled" : "uncontrolled";
+				console.warn(`${caller} is changing from ${from} to ${to}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`);
+			}
+			isControlledRef.current = isControlled;
+		}, [isControlled, caller]);
+	}
+	return [value, import_react.useCallback((nextValue) => {
+		if (isControlled) {
+			const value2 = isFunction(nextValue) ? nextValue(prop) : nextValue;
+			if (value2 !== prop) onChangeRef.current?.(value2);
+		} else setUncontrolledProp(nextValue);
+	}, [
+		isControlled,
+		prop,
+		setUncontrolledProp,
+		onChangeRef
+	])];
 }
-function evaluate(value, param) {
-	return typeof value === "function" ? value(param) : value;
-}
-function getSide(placement) {
-	return placement.split("-")[0];
-}
-function getAlignment(placement) {
-	return placement.split("-")[1];
-}
-function getOppositeAxis(axis) {
-	return axis === "x" ? "y" : "x";
-}
-function getAxisLength(axis) {
-	return axis === "y" ? "height" : "width";
-}
-function getSideAxis(placement) {
-	const firstChar = placement[0];
-	return firstChar === "t" || firstChar === "b" ? "y" : "x";
-}
-function getAlignmentAxis(placement) {
-	return getOppositeAxis(getSideAxis(placement));
-}
-function getAlignmentSides(placement, rects, rtl) {
-	if (rtl === void 0) rtl = false;
-	const alignment = getAlignment(placement);
-	const alignmentAxis = getAlignmentAxis(placement);
-	const length = getAxisLength(alignmentAxis);
-	let mainAlignmentSide = alignmentAxis === "x" ? alignment === (rtl ? "end" : "start") ? "right" : "left" : alignment === "start" ? "bottom" : "top";
-	if (rects.reference[length] > rects.floating[length]) mainAlignmentSide = getOppositePlacement(mainAlignmentSide);
-	return [mainAlignmentSide, getOppositePlacement(mainAlignmentSide)];
-}
-function getExpandedPlacements(placement) {
-	const oppositePlacement = getOppositePlacement(placement);
+function useUncontrolledState({ defaultProp, onChange }) {
+	const [value, setValue] = import_react.useState(defaultProp);
+	const prevValueRef = import_react.useRef(value);
+	const onChangeRef = import_react.useRef(onChange);
+	useInsertionEffect(() => {
+		onChangeRef.current = onChange;
+	}, [onChange]);
+	import_react.useEffect(() => {
+		if (prevValueRef.current !== value) {
+			onChangeRef.current?.(value);
+			prevValueRef.current = value;
+		}
+	}, [value, prevValueRef]);
 	return [
-		getOppositeAlignmentPlacement(placement),
-		oppositePlacement,
-		getOppositeAlignmentPlacement(oppositePlacement)
+		value,
+		setValue,
+		onChangeRef
 	];
 }
-function getOppositeAlignmentPlacement(placement) {
-	return placement.includes("start") ? placement.replace("start", "end") : placement.replace("end", "start");
-}
-var lrPlacement = ["left", "right"];
-var rlPlacement = ["right", "left"];
-var tbPlacement = ["top", "bottom"];
-var btPlacement = ["bottom", "top"];
-function getSideList(side, isStart, rtl) {
-	switch (side) {
-		case "top":
-		case "bottom":
-			if (rtl) return isStart ? rlPlacement : lrPlacement;
-			return isStart ? lrPlacement : rlPlacement;
-		case "left":
-		case "right": return isStart ? tbPlacement : btPlacement;
-		default: return [];
-	}
-}
-function getOppositeAxisPlacements(placement, flipAlignment, direction, rtl) {
-	const alignment = getAlignment(placement);
-	let list = getSideList(getSide(placement), direction === "start", rtl);
-	if (alignment) {
-		list = list.map((side) => side + "-" + alignment);
-		if (flipAlignment) list = list.concat(list.map(getOppositeAlignmentPlacement));
-	}
-	return list;
-}
-function getOppositePlacement(placement) {
-	const side = getSide(placement);
-	return oppositeSideMap[side] + placement.slice(side.length);
-}
-function expandPaddingObject(padding) {
-	return {
-		top: 0,
-		right: 0,
-		bottom: 0,
-		left: 0,
-		...padding
-	};
-}
-function getPaddingObject(padding) {
-	return typeof padding !== "number" ? expandPaddingObject(padding) : {
-		top: padding,
-		right: padding,
-		bottom: padding,
-		left: padding
-	};
-}
-function rectToClientRect(rect) {
-	const { x, y, width, height } = rect;
-	return {
-		width,
-		height,
-		top: y,
-		left: x,
-		right: x + width,
-		bottom: y + height,
-		x,
-		y
-	};
+function isFunction(value) {
+	return typeof value === "function";
 }
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@floating-ui+core@1.7.5/node_modules/@floating-ui/core/dist/floating-ui.core.mjs
-function computeCoordsFromPlacement(_ref, placement, rtl) {
-	let { reference, floating } = _ref;
-	const sideAxis = getSideAxis(placement);
-	const alignmentAxis = getAlignmentAxis(placement);
-	const alignLength = getAxisLength(alignmentAxis);
-	const side = getSide(placement);
-	const isVertical = sideAxis === "y";
-	const commonX = reference.x + reference.width / 2 - floating.width / 2;
-	const commonY = reference.y + reference.height / 2 - floating.height / 2;
-	const commonAlign = reference[alignLength] / 2 - floating[alignLength] / 2;
-	let coords;
-	switch (side) {
-		case "top":
-			coords = {
-				x: commonX,
-				y: reference.y - floating.height
-			};
-			break;
-		case "bottom":
-			coords = {
-				x: commonX,
-				y: reference.y + reference.height
-			};
-			break;
-		case "right":
-			coords = {
-				x: reference.x + reference.width,
-				y: commonY
-			};
-			break;
-		case "left":
-			coords = {
-				x: reference.x - floating.width,
-				y: commonY
-			};
-			break;
-		default: coords = {
-			x: reference.x,
-			y: reference.y
-		};
-	}
-	switch (getAlignment(placement)) {
-		case "start":
-			coords[alignmentAxis] -= commonAlign * (rtl && isVertical ? -1 : 1);
-			break;
-		case "end":
-			coords[alignmentAxis] += commonAlign * (rtl && isVertical ? -1 : 1);
-			break;
-	}
-	return coords;
-}
-/**
-* Resolves with an object of overflow side offsets that determine how much the
-* element is overflowing a given clipping boundary on each side.
-* - positive = overflowing the boundary by that number of pixels
-* - negative = how many pixels left before it will overflow
-* - 0 = lies flush with the boundary
-* @see https://floating-ui.com/docs/detectOverflow
-*/
-async function detectOverflow(state, options) {
-	var _await$platform$isEle;
-	if (options === void 0) options = {};
-	const { x, y, platform, rects, elements, strategy } = state;
-	const { boundary = "clippingAncestors", rootBoundary = "viewport", elementContext = "floating", altBoundary = false, padding = 0 } = evaluate(options, state);
-	const paddingObject = getPaddingObject(padding);
-	const element = elements[altBoundary ? elementContext === "floating" ? "reference" : "floating" : elementContext];
-	const clippingClientRect = rectToClientRect(await platform.getClippingRect({
-		element: ((_await$platform$isEle = await (platform.isElement == null ? void 0 : platform.isElement(element))) != null ? _await$platform$isEle : true) ? element : element.contextElement || await (platform.getDocumentElement == null ? void 0 : platform.getDocumentElement(elements.floating)),
-		boundary,
-		rootBoundary,
-		strategy
-	}));
-	const rect = elementContext === "floating" ? {
-		x,
-		y,
-		width: rects.floating.width,
-		height: rects.floating.height
-	} : rects.reference;
-	const offsetParent = await (platform.getOffsetParent == null ? void 0 : platform.getOffsetParent(elements.floating));
-	const offsetScale = await (platform.isElement == null ? void 0 : platform.isElement(offsetParent)) ? await (platform.getScale == null ? void 0 : platform.getScale(offsetParent)) || {
-		x: 1,
-		y: 1
-	} : {
-		x: 1,
-		y: 1
-	};
-	const elementClientRect = rectToClientRect(platform.convertOffsetParentRelativeRectToViewportRelativeRect ? await platform.convertOffsetParentRelativeRectToViewportRelativeRect({
-		elements,
-		rect,
-		offsetParent,
-		strategy
-	}) : rect);
-	return {
-		top: (clippingClientRect.top - elementClientRect.top + paddingObject.top) / offsetScale.y,
-		bottom: (elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom) / offsetScale.y,
-		left: (clippingClientRect.left - elementClientRect.left + paddingObject.left) / offsetScale.x,
-		right: (elementClientRect.right - clippingClientRect.right + paddingObject.right) / offsetScale.x
-	};
-}
-var MAX_RESET_COUNT = 50;
-/**
-* Computes the `x` and `y` coordinates that will place the floating element
-* next to a given reference element.
-*
-* This export does not have any `platform` interface logic. You will need to
-* write one for the platform you are using Floating UI with.
-*/
-var computePosition$1 = async (reference, floating, config) => {
-	const { placement = "bottom", strategy = "absolute", middleware = [], platform } = config;
-	const platformWithDetectOverflow = platform.detectOverflow ? platform : {
-		...platform,
-		detectOverflow
-	};
-	const rtl = await (platform.isRTL == null ? void 0 : platform.isRTL(floating));
-	let rects = await platform.getElementRects({
-		reference,
-		floating,
-		strategy
-	});
-	let { x, y } = computeCoordsFromPlacement(rects, placement, rtl);
-	let statefulPlacement = placement;
-	let resetCount = 0;
-	const middlewareData = {};
-	for (let i = 0; i < middleware.length; i++) {
-		const currentMiddleware = middleware[i];
-		if (!currentMiddleware) continue;
-		const { name, fn } = currentMiddleware;
-		const { x: nextX, y: nextY, data, reset } = await fn({
-			x,
-			y,
-			initialPlacement: placement,
-			placement: statefulPlacement,
-			strategy,
-			middlewareData,
-			rects,
-			platform: platformWithDetectOverflow,
-			elements: {
-				reference,
-				floating
-			}
-		});
-		x = nextX != null ? nextX : x;
-		y = nextY != null ? nextY : y;
-		middlewareData[name] = {
-			...middlewareData[name],
-			...data
-		};
-		if (reset && resetCount < MAX_RESET_COUNT) {
-			resetCount++;
-			if (typeof reset === "object") {
-				if (reset.placement) statefulPlacement = reset.placement;
-				if (reset.rects) rects = reset.rects === true ? await platform.getElementRects({
-					reference,
-					floating,
-					strategy
-				}) : reset.rects;
-				({x, y} = computeCoordsFromPlacement(rects, statefulPlacement, rtl));
-			}
-			i = -1;
-		}
-	}
-	return {
-		x,
-		y,
-		placement: statefulPlacement,
-		strategy,
-		middlewareData
-	};
-};
-/**
-* Provides data to position an inner element of the floating element so that it
-* appears centered to the reference element.
-* @see https://floating-ui.com/docs/arrow
-*/
-var arrow$3 = (options) => ({
-	name: "arrow",
-	options,
-	async fn(state) {
-		const { x, y, placement, rects, platform, elements, middlewareData } = state;
-		const { element, padding = 0 } = evaluate(options, state) || {};
-		if (element == null) return {};
-		const paddingObject = getPaddingObject(padding);
-		const coords = {
-			x,
-			y
-		};
-		const axis = getAlignmentAxis(placement);
-		const length = getAxisLength(axis);
-		const arrowDimensions = await platform.getDimensions(element);
-		const isYAxis = axis === "y";
-		const minProp = isYAxis ? "top" : "left";
-		const maxProp = isYAxis ? "bottom" : "right";
-		const clientProp = isYAxis ? "clientHeight" : "clientWidth";
-		const endDiff = rects.reference[length] + rects.reference[axis] - coords[axis] - rects.floating[length];
-		const startDiff = coords[axis] - rects.reference[axis];
-		const arrowOffsetParent = await (platform.getOffsetParent == null ? void 0 : platform.getOffsetParent(element));
-		let clientSize = arrowOffsetParent ? arrowOffsetParent[clientProp] : 0;
-		if (!clientSize || !await (platform.isElement == null ? void 0 : platform.isElement(arrowOffsetParent))) clientSize = elements.floating[clientProp] || rects.floating[length];
-		const centerToReference = endDiff / 2 - startDiff / 2;
-		const largestPossiblePadding = clientSize / 2 - arrowDimensions[length] / 2 - 1;
-		const minPadding = min(paddingObject[minProp], largestPossiblePadding);
-		const maxPadding = min(paddingObject[maxProp], largestPossiblePadding);
-		const min$1 = minPadding;
-		const max = clientSize - arrowDimensions[length] - maxPadding;
-		const center = clientSize / 2 - arrowDimensions[length] / 2 + centerToReference;
-		const offset = clamp(min$1, center, max);
-		const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center !== offset && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
-		const alignmentOffset = shouldAddOffset ? center < min$1 ? center - min$1 : center - max : 0;
-		return {
-			[axis]: coords[axis] + alignmentOffset,
-			data: {
-				[axis]: offset,
-				centerOffset: center - offset - alignmentOffset,
-				...shouldAddOffset && { alignmentOffset }
-			},
-			reset: shouldAddOffset
-		};
-	}
-});
-/**
-* Optimizes the visibility of the floating element by flipping the `placement`
-* in order to keep it in view when the preferred placement(s) will overflow the
-* clipping boundary. Alternative to `autoPlacement`.
-* @see https://floating-ui.com/docs/flip
-*/
-var flip$2 = function(options) {
-	if (options === void 0) options = {};
-	return {
-		name: "flip",
-		options,
-		async fn(state) {
-			var _middlewareData$arrow, _middlewareData$flip;
-			const { placement, middlewareData, rects, initialPlacement, platform, elements } = state;
-			const { mainAxis: checkMainAxis = true, crossAxis: checkCrossAxis = true, fallbackPlacements: specifiedFallbackPlacements, fallbackStrategy = "bestFit", fallbackAxisSideDirection = "none", flipAlignment = true, ...detectOverflowOptions } = evaluate(options, state);
-			if ((_middlewareData$arrow = middlewareData.arrow) != null && _middlewareData$arrow.alignmentOffset) return {};
-			const side = getSide(placement);
-			const initialSideAxis = getSideAxis(initialPlacement);
-			const isBasePlacement = getSide(initialPlacement) === initialPlacement;
-			const rtl = await (platform.isRTL == null ? void 0 : platform.isRTL(elements.floating));
-			const fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipAlignment ? [getOppositePlacement(initialPlacement)] : getExpandedPlacements(initialPlacement));
-			const hasFallbackAxisSideDirection = fallbackAxisSideDirection !== "none";
-			if (!specifiedFallbackPlacements && hasFallbackAxisSideDirection) fallbackPlacements.push(...getOppositeAxisPlacements(initialPlacement, flipAlignment, fallbackAxisSideDirection, rtl));
-			const placements = [initialPlacement, ...fallbackPlacements];
-			const overflow = await platform.detectOverflow(state, detectOverflowOptions);
-			const overflows = [];
-			let overflowsData = ((_middlewareData$flip = middlewareData.flip) == null ? void 0 : _middlewareData$flip.overflows) || [];
-			if (checkMainAxis) overflows.push(overflow[side]);
-			if (checkCrossAxis) {
-				const sides = getAlignmentSides(placement, rects, rtl);
-				overflows.push(overflow[sides[0]], overflow[sides[1]]);
-			}
-			overflowsData = [...overflowsData, {
-				placement,
-				overflows
-			}];
-			if (!overflows.every((side) => side <= 0)) {
-				var _middlewareData$flip2, _overflowsData$filter;
-				const nextIndex = (((_middlewareData$flip2 = middlewareData.flip) == null ? void 0 : _middlewareData$flip2.index) || 0) + 1;
-				const nextPlacement = placements[nextIndex];
-				if (nextPlacement) {
-					if (!(checkCrossAxis === "alignment" ? initialSideAxis !== getSideAxis(nextPlacement) : false) || overflowsData.every((d) => getSideAxis(d.placement) === initialSideAxis ? d.overflows[0] > 0 : true)) return {
-						data: {
-							index: nextIndex,
-							overflows: overflowsData
-						},
-						reset: { placement: nextPlacement }
-					};
-				}
-				let resetPlacement = (_overflowsData$filter = overflowsData.filter((d) => d.overflows[0] <= 0).sort((a, b) => a.overflows[1] - b.overflows[1])[0]) == null ? void 0 : _overflowsData$filter.placement;
-				if (!resetPlacement) switch (fallbackStrategy) {
-					case "bestFit": {
-						var _overflowsData$filter2;
-						const placement = (_overflowsData$filter2 = overflowsData.filter((d) => {
-							if (hasFallbackAxisSideDirection) {
-								const currentSideAxis = getSideAxis(d.placement);
-								return currentSideAxis === initialSideAxis || currentSideAxis === "y";
-							}
-							return true;
-						}).map((d) => [d.placement, d.overflows.filter((overflow) => overflow > 0).reduce((acc, overflow) => acc + overflow, 0)]).sort((a, b) => a[1] - b[1])[0]) == null ? void 0 : _overflowsData$filter2[0];
-						if (placement) resetPlacement = placement;
-						break;
-					}
-					case "initialPlacement":
-						resetPlacement = initialPlacement;
-						break;
-				}
-				if (placement !== resetPlacement) return { reset: { placement: resetPlacement } };
-			}
-			return {};
-		}
-	};
-};
-function getSideOffsets(overflow, rect) {
-	return {
-		top: overflow.top - rect.height,
-		right: overflow.right - rect.width,
-		bottom: overflow.bottom - rect.height,
-		left: overflow.left - rect.width
-	};
-}
-function isAnySideFullyClipped(overflow) {
-	return sides.some((side) => overflow[side] >= 0);
-}
-/**
-* Provides data to hide the floating element in applicable situations, such as
-* when it is not in the same clipping context as the reference element.
-* @see https://floating-ui.com/docs/hide
-*/
-var hide$2 = function(options) {
-	if (options === void 0) options = {};
-	return {
-		name: "hide",
-		options,
-		async fn(state) {
-			const { rects, platform } = state;
-			const { strategy = "referenceHidden", ...detectOverflowOptions } = evaluate(options, state);
-			switch (strategy) {
-				case "referenceHidden": {
-					const offsets = getSideOffsets(await platform.detectOverflow(state, {
-						...detectOverflowOptions,
-						elementContext: "reference"
-					}), rects.reference);
-					return { data: {
-						referenceHiddenOffsets: offsets,
-						referenceHidden: isAnySideFullyClipped(offsets)
-					} };
-				}
-				case "escaped": {
-					const offsets = getSideOffsets(await platform.detectOverflow(state, {
-						...detectOverflowOptions,
-						altBoundary: true
-					}), rects.floating);
-					return { data: {
-						escapedOffsets: offsets,
-						escaped: isAnySideFullyClipped(offsets)
-					} };
-				}
-				default: return {};
-			}
-		}
-	};
-};
-var originSides = /* @__PURE__ */ new Set(["left", "top"]);
-async function convertValueToCoords(state, options) {
-	const { placement, platform, elements } = state;
-	const rtl = await (platform.isRTL == null ? void 0 : platform.isRTL(elements.floating));
-	const side = getSide(placement);
-	const alignment = getAlignment(placement);
-	const isVertical = getSideAxis(placement) === "y";
-	const mainAxisMulti = originSides.has(side) ? -1 : 1;
-	const crossAxisMulti = rtl && isVertical ? -1 : 1;
-	const rawValue = evaluate(options, state);
-	let { mainAxis, crossAxis, alignmentAxis } = typeof rawValue === "number" ? {
-		mainAxis: rawValue,
-		crossAxis: 0,
-		alignmentAxis: null
-	} : {
-		mainAxis: rawValue.mainAxis || 0,
-		crossAxis: rawValue.crossAxis || 0,
-		alignmentAxis: rawValue.alignmentAxis
-	};
-	if (alignment && typeof alignmentAxis === "number") crossAxis = alignment === "end" ? alignmentAxis * -1 : alignmentAxis;
-	return isVertical ? {
-		x: crossAxis * crossAxisMulti,
-		y: mainAxis * mainAxisMulti
-	} : {
-		x: mainAxis * mainAxisMulti,
-		y: crossAxis * crossAxisMulti
-	};
-}
-/**
-* Modifies the placement by translating the floating element along the
-* specified axes.
-* A number (shorthand for `mainAxis` or distance), or an axes configuration
-* object may be passed.
-* @see https://floating-ui.com/docs/offset
-*/
-var offset$2 = function(options) {
-	if (options === void 0) options = 0;
-	return {
-		name: "offset",
-		options,
-		async fn(state) {
-			var _middlewareData$offse, _middlewareData$arrow;
-			const { x, y, placement, middlewareData } = state;
-			const diffCoords = await convertValueToCoords(state, options);
-			if (placement === ((_middlewareData$offse = middlewareData.offset) == null ? void 0 : _middlewareData$offse.placement) && (_middlewareData$arrow = middlewareData.arrow) != null && _middlewareData$arrow.alignmentOffset) return {};
-			return {
-				x: x + diffCoords.x,
-				y: y + diffCoords.y,
-				data: {
-					...diffCoords,
-					placement
-				}
-			};
-		}
-	};
-};
-/**
-* Optimizes the visibility of the floating element by shifting it in order to
-* keep it in view when it will overflow the clipping boundary.
-* @see https://floating-ui.com/docs/shift
-*/
-var shift$2 = function(options) {
-	if (options === void 0) options = {};
-	return {
-		name: "shift",
-		options,
-		async fn(state) {
-			const { x, y, placement, platform } = state;
-			const { mainAxis: checkMainAxis = true, crossAxis: checkCrossAxis = false, limiter = { fn: (_ref) => {
-				let { x, y } = _ref;
-				return {
-					x,
-					y
-				};
-			} }, ...detectOverflowOptions } = evaluate(options, state);
-			const coords = {
-				x,
-				y
-			};
-			const overflow = await platform.detectOverflow(state, detectOverflowOptions);
-			const crossAxis = getSideAxis(getSide(placement));
-			const mainAxis = getOppositeAxis(crossAxis);
-			let mainAxisCoord = coords[mainAxis];
-			let crossAxisCoord = coords[crossAxis];
-			if (checkMainAxis) {
-				const minSide = mainAxis === "y" ? "top" : "left";
-				const maxSide = mainAxis === "y" ? "bottom" : "right";
-				const min = mainAxisCoord + overflow[minSide];
-				const max = mainAxisCoord - overflow[maxSide];
-				mainAxisCoord = clamp(min, mainAxisCoord, max);
-			}
-			if (checkCrossAxis) {
-				const minSide = crossAxis === "y" ? "top" : "left";
-				const maxSide = crossAxis === "y" ? "bottom" : "right";
-				const min = crossAxisCoord + overflow[minSide];
-				const max = crossAxisCoord - overflow[maxSide];
-				crossAxisCoord = clamp(min, crossAxisCoord, max);
-			}
-			const limitedCoords = limiter.fn({
-				...state,
-				[mainAxis]: mainAxisCoord,
-				[crossAxis]: crossAxisCoord
-			});
-			return {
-				...limitedCoords,
-				data: {
-					x: limitedCoords.x - x,
-					y: limitedCoords.y - y,
-					enabled: {
-						[mainAxis]: checkMainAxis,
-						[crossAxis]: checkCrossAxis
-					}
-				}
-			};
-		}
-	};
-};
-/**
-* Built-in `limiter` that will stop `shift()` at a certain point.
-*/
-var limitShift$2 = function(options) {
-	if (options === void 0) options = {};
-	return {
-		options,
-		fn(state) {
-			const { x, y, placement, rects, middlewareData } = state;
-			const { offset = 0, mainAxis: checkMainAxis = true, crossAxis: checkCrossAxis = true } = evaluate(options, state);
-			const coords = {
-				x,
-				y
-			};
-			const crossAxis = getSideAxis(placement);
-			const mainAxis = getOppositeAxis(crossAxis);
-			let mainAxisCoord = coords[mainAxis];
-			let crossAxisCoord = coords[crossAxis];
-			const rawOffset = evaluate(offset, state);
-			const computedOffset = typeof rawOffset === "number" ? {
-				mainAxis: rawOffset,
-				crossAxis: 0
-			} : {
-				mainAxis: 0,
-				crossAxis: 0,
-				...rawOffset
-			};
-			if (checkMainAxis) {
-				const len = mainAxis === "y" ? "height" : "width";
-				const limitMin = rects.reference[mainAxis] - rects.floating[len] + computedOffset.mainAxis;
-				const limitMax = rects.reference[mainAxis] + rects.reference[len] - computedOffset.mainAxis;
-				if (mainAxisCoord < limitMin) mainAxisCoord = limitMin;
-				else if (mainAxisCoord > limitMax) mainAxisCoord = limitMax;
-			}
-			if (checkCrossAxis) {
-				var _middlewareData$offse, _middlewareData$offse2;
-				const len = mainAxis === "y" ? "width" : "height";
-				const isOriginSide = originSides.has(getSide(placement));
-				const limitMin = rects.reference[crossAxis] - rects.floating[len] + (isOriginSide ? ((_middlewareData$offse = middlewareData.offset) == null ? void 0 : _middlewareData$offse[crossAxis]) || 0 : 0) + (isOriginSide ? 0 : computedOffset.crossAxis);
-				const limitMax = rects.reference[crossAxis] + rects.reference[len] + (isOriginSide ? 0 : ((_middlewareData$offse2 = middlewareData.offset) == null ? void 0 : _middlewareData$offse2[crossAxis]) || 0) - (isOriginSide ? computedOffset.crossAxis : 0);
-				if (crossAxisCoord < limitMin) crossAxisCoord = limitMin;
-				else if (crossAxisCoord > limitMax) crossAxisCoord = limitMax;
-			}
-			return {
-				[mainAxis]: mainAxisCoord,
-				[crossAxis]: crossAxisCoord
-			};
-		}
-	};
-};
-/**
-* Provides data that allows you to change the size of the floating element —
-* for instance, prevent it from overflowing the clipping boundary or match the
-* width of the reference element.
-* @see https://floating-ui.com/docs/size
-*/
-var size$2 = function(options) {
-	if (options === void 0) options = {};
-	return {
-		name: "size",
-		options,
-		async fn(state) {
-			var _state$middlewareData, _state$middlewareData2;
-			const { placement, rects, platform, elements } = state;
-			const { apply = () => {}, ...detectOverflowOptions } = evaluate(options, state);
-			const overflow = await platform.detectOverflow(state, detectOverflowOptions);
-			const side = getSide(placement);
-			const alignment = getAlignment(placement);
-			const isYAxis = getSideAxis(placement) === "y";
-			const { width, height } = rects.floating;
-			let heightSide;
-			let widthSide;
-			if (side === "top" || side === "bottom") {
-				heightSide = side;
-				widthSide = alignment === (await (platform.isRTL == null ? void 0 : platform.isRTL(elements.floating)) ? "start" : "end") ? "left" : "right";
-			} else {
-				widthSide = side;
-				heightSide = alignment === "end" ? "top" : "bottom";
-			}
-			const maximumClippingHeight = height - overflow.top - overflow.bottom;
-			const maximumClippingWidth = width - overflow.left - overflow.right;
-			const overflowAvailableHeight = min(height - overflow[heightSide], maximumClippingHeight);
-			const overflowAvailableWidth = min(width - overflow[widthSide], maximumClippingWidth);
-			const noShift = !state.middlewareData.shift;
-			let availableHeight = overflowAvailableHeight;
-			let availableWidth = overflowAvailableWidth;
-			if ((_state$middlewareData = state.middlewareData.shift) != null && _state$middlewareData.enabled.x) availableWidth = maximumClippingWidth;
-			if ((_state$middlewareData2 = state.middlewareData.shift) != null && _state$middlewareData2.enabled.y) availableHeight = maximumClippingHeight;
-			if (noShift && !alignment) {
-				const xMin = max(overflow.left, 0);
-				const xMax = max(overflow.right, 0);
-				const yMin = max(overflow.top, 0);
-				const yMax = max(overflow.bottom, 0);
-				if (isYAxis) availableWidth = width - 2 * (xMin !== 0 || xMax !== 0 ? xMin + xMax : max(overflow.left, overflow.right));
-				else availableHeight = height - 2 * (yMin !== 0 || yMax !== 0 ? yMin + yMax : max(overflow.top, overflow.bottom));
-			}
-			await apply({
-				...state,
-				availableWidth,
-				availableHeight
-			});
-			const nextDimensions = await platform.getDimensions(elements.floating);
-			if (width !== nextDimensions.width || height !== nextDimensions.height) return { reset: { rects: true } };
-			return {};
-		}
-	};
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@floating-ui+utils@0.2.11/node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
-function hasWindow() {
-	return typeof window !== "undefined";
-}
-function getNodeName(node) {
-	if (isNode(node)) return (node.nodeName || "").toLowerCase();
-	return "#document";
-}
-function getWindow(node) {
-	var _node$ownerDocument;
-	return (node == null || (_node$ownerDocument = node.ownerDocument) == null ? void 0 : _node$ownerDocument.defaultView) || window;
-}
-function getDocumentElement(node) {
-	var _ref;
-	return (_ref = (isNode(node) ? node.ownerDocument : node.document) || window.document) == null ? void 0 : _ref.documentElement;
-}
-function isNode(value) {
-	if (!hasWindow()) return false;
-	return value instanceof Node || value instanceof getWindow(value).Node;
-}
-function isElement(value) {
-	if (!hasWindow()) return false;
-	return value instanceof Element || value instanceof getWindow(value).Element;
-}
-function isHTMLElement(value) {
-	if (!hasWindow()) return false;
-	return value instanceof HTMLElement || value instanceof getWindow(value).HTMLElement;
-}
-function isShadowRoot(value) {
-	if (!hasWindow() || typeof ShadowRoot === "undefined") return false;
-	return value instanceof ShadowRoot || value instanceof getWindow(value).ShadowRoot;
-}
-function isOverflowElement(element) {
-	const { overflow, overflowX, overflowY, display } = getComputedStyle$1(element);
-	return /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX) && display !== "inline" && display !== "contents";
-}
-function isTableElement(element) {
-	return /^(table|td|th)$/.test(getNodeName(element));
-}
-function isTopLayer(element) {
-	try {
-		if (element.matches(":popover-open")) return true;
-	} catch (_e) {}
-	try {
-		return element.matches(":modal");
-	} catch (_e) {
-		return false;
-	}
-}
-var willChangeRe = /transform|translate|scale|rotate|perspective|filter/;
-var containRe = /paint|layout|strict|content/;
-var isNotNone = (value) => !!value && value !== "none";
-var isWebKitValue;
-function isContainingBlock(elementOrCss) {
-	const css = isElement(elementOrCss) ? getComputedStyle$1(elementOrCss) : elementOrCss;
-	return isNotNone(css.transform) || isNotNone(css.translate) || isNotNone(css.scale) || isNotNone(css.rotate) || isNotNone(css.perspective) || !isWebKit() && (isNotNone(css.backdropFilter) || isNotNone(css.filter)) || willChangeRe.test(css.willChange || "") || containRe.test(css.contain || "");
-}
-function getContainingBlock(element) {
-	let currentNode = getParentNode(element);
-	while (isHTMLElement(currentNode) && !isLastTraversableNode(currentNode)) {
-		if (isContainingBlock(currentNode)) return currentNode;
-		else if (isTopLayer(currentNode)) return null;
-		currentNode = getParentNode(currentNode);
-	}
-	return null;
-}
-function isWebKit() {
-	if (isWebKitValue == null) isWebKitValue = typeof CSS !== "undefined" && CSS.supports && CSS.supports("-webkit-backdrop-filter", "none");
-	return isWebKitValue;
-}
-function isLastTraversableNode(node) {
-	return /^(html|body|#document)$/.test(getNodeName(node));
-}
-function getComputedStyle$1(element) {
-	return getWindow(element).getComputedStyle(element);
-}
-function getNodeScroll(element) {
-	if (isElement(element)) return {
-		scrollLeft: element.scrollLeft,
-		scrollTop: element.scrollTop
-	};
-	return {
-		scrollLeft: element.scrollX,
-		scrollTop: element.scrollY
-	};
-}
-function getParentNode(node) {
-	if (getNodeName(node) === "html") return node;
-	const result = node.assignedSlot || node.parentNode || isShadowRoot(node) && node.host || getDocumentElement(node);
-	return isShadowRoot(result) ? result.host : result;
-}
-function getNearestOverflowAncestor(node) {
-	const parentNode = getParentNode(node);
-	if (isLastTraversableNode(parentNode)) return node.ownerDocument ? node.ownerDocument.body : node.body;
-	if (isHTMLElement(parentNode) && isOverflowElement(parentNode)) return parentNode;
-	return getNearestOverflowAncestor(parentNode);
-}
-function getOverflowAncestors(node, list, traverseIframes) {
-	var _node$ownerDocument2;
-	if (list === void 0) list = [];
-	if (traverseIframes === void 0) traverseIframes = true;
-	const scrollableAncestor = getNearestOverflowAncestor(node);
-	const isBody = scrollableAncestor === ((_node$ownerDocument2 = node.ownerDocument) == null ? void 0 : _node$ownerDocument2.body);
-	const win = getWindow(scrollableAncestor);
-	if (isBody) {
-		const frameElement = getFrameElement(win);
-		return list.concat(win, win.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], frameElement && traverseIframes ? getOverflowAncestors(frameElement) : []);
-	} else return list.concat(scrollableAncestor, getOverflowAncestors(scrollableAncestor, [], traverseIframes));
-}
-function getFrameElement(win) {
-	return win.parent && Object.getPrototypeOf(win.parent) ? win.frameElement : null;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@floating-ui+dom@1.7.6/node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
-function getCssDimensions(element) {
-	const css = getComputedStyle$1(element);
-	let width = parseFloat(css.width) || 0;
-	let height = parseFloat(css.height) || 0;
-	const hasOffset = isHTMLElement(element);
-	const offsetWidth = hasOffset ? element.offsetWidth : width;
-	const offsetHeight = hasOffset ? element.offsetHeight : height;
-	const shouldFallback = round(width) !== offsetWidth || round(height) !== offsetHeight;
-	if (shouldFallback) {
-		width = offsetWidth;
-		height = offsetHeight;
-	}
-	return {
-		width,
-		height,
-		$: shouldFallback
-	};
-}
-function unwrapElement(element) {
-	return !isElement(element) ? element.contextElement : element;
-}
-function getScale(element) {
-	const domElement = unwrapElement(element);
-	if (!isHTMLElement(domElement)) return createCoords(1);
-	const rect = domElement.getBoundingClientRect();
-	const { width, height, $ } = getCssDimensions(domElement);
-	let x = ($ ? round(rect.width) : rect.width) / width;
-	let y = ($ ? round(rect.height) : rect.height) / height;
-	if (!x || !Number.isFinite(x)) x = 1;
-	if (!y || !Number.isFinite(y)) y = 1;
-	return {
-		x,
-		y
-	};
-}
-var noOffsets = /* @__PURE__ */ createCoords(0);
-function getVisualOffsets(element) {
-	const win = getWindow(element);
-	if (!isWebKit() || !win.visualViewport) return noOffsets;
-	return {
-		x: win.visualViewport.offsetLeft,
-		y: win.visualViewport.offsetTop
-	};
-}
-function shouldAddVisualOffsets(element, isFixed, floatingOffsetParent) {
-	if (isFixed === void 0) isFixed = false;
-	if (!floatingOffsetParent || isFixed && floatingOffsetParent !== getWindow(element)) return false;
-	return isFixed;
-}
-function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetParent) {
-	if (includeScale === void 0) includeScale = false;
-	if (isFixedStrategy === void 0) isFixedStrategy = false;
-	const clientRect = element.getBoundingClientRect();
-	const domElement = unwrapElement(element);
-	let scale = createCoords(1);
-	if (includeScale) if (offsetParent) {
-		if (isElement(offsetParent)) scale = getScale(offsetParent);
-	} else scale = getScale(element);
-	const visualOffsets = shouldAddVisualOffsets(domElement, isFixedStrategy, offsetParent) ? getVisualOffsets(domElement) : createCoords(0);
-	let x = (clientRect.left + visualOffsets.x) / scale.x;
-	let y = (clientRect.top + visualOffsets.y) / scale.y;
-	let width = clientRect.width / scale.x;
-	let height = clientRect.height / scale.y;
-	if (domElement) {
-		const win = getWindow(domElement);
-		const offsetWin = offsetParent && isElement(offsetParent) ? getWindow(offsetParent) : offsetParent;
-		let currentWin = win;
-		let currentIFrame = getFrameElement(currentWin);
-		while (currentIFrame && offsetParent && offsetWin !== currentWin) {
-			const iframeScale = getScale(currentIFrame);
-			const iframeRect = currentIFrame.getBoundingClientRect();
-			const css = getComputedStyle$1(currentIFrame);
-			const left = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css.paddingLeft)) * iframeScale.x;
-			const top = iframeRect.top + (currentIFrame.clientTop + parseFloat(css.paddingTop)) * iframeScale.y;
-			x *= iframeScale.x;
-			y *= iframeScale.y;
-			width *= iframeScale.x;
-			height *= iframeScale.y;
-			x += left;
-			y += top;
-			currentWin = getWindow(currentIFrame);
-			currentIFrame = getFrameElement(currentWin);
-		}
-	}
-	return rectToClientRect({
-		width,
-		height,
-		x,
-		y
-	});
-}
-function getWindowScrollBarX(element, rect) {
-	const leftScroll = getNodeScroll(element).scrollLeft;
-	if (!rect) return getBoundingClientRect(getDocumentElement(element)).left + leftScroll;
-	return rect.left + leftScroll;
-}
-function getHTMLOffset(documentElement, scroll) {
-	const htmlRect = documentElement.getBoundingClientRect();
-	return {
-		x: htmlRect.left + scroll.scrollLeft - getWindowScrollBarX(documentElement, htmlRect),
-		y: htmlRect.top + scroll.scrollTop
-	};
-}
-function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
-	let { elements, rect, offsetParent, strategy } = _ref;
-	const isFixed = strategy === "fixed";
-	const documentElement = getDocumentElement(offsetParent);
-	const topLayer = elements ? isTopLayer(elements.floating) : false;
-	if (offsetParent === documentElement || topLayer && isFixed) return rect;
-	let scroll = {
-		scrollLeft: 0,
-		scrollTop: 0
-	};
-	let scale = createCoords(1);
-	const offsets = createCoords(0);
-	const isOffsetParentAnElement = isHTMLElement(offsetParent);
-	if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
-		if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) scroll = getNodeScroll(offsetParent);
-		if (isOffsetParentAnElement) {
-			const offsetRect = getBoundingClientRect(offsetParent);
-			scale = getScale(offsetParent);
-			offsets.x = offsetRect.x + offsetParent.clientLeft;
-			offsets.y = offsetRect.y + offsetParent.clientTop;
-		}
-	}
-	const htmlOffset = documentElement && !isOffsetParentAnElement && !isFixed ? getHTMLOffset(documentElement, scroll) : createCoords(0);
-	return {
-		width: rect.width * scale.x,
-		height: rect.height * scale.y,
-		x: rect.x * scale.x - scroll.scrollLeft * scale.x + offsets.x + htmlOffset.x,
-		y: rect.y * scale.y - scroll.scrollTop * scale.y + offsets.y + htmlOffset.y
-	};
-}
-function getClientRects(element) {
-	return Array.from(element.getClientRects());
-}
-function getDocumentRect(element) {
-	const html = getDocumentElement(element);
-	const scroll = getNodeScroll(element);
-	const body = element.ownerDocument.body;
-	const width = max(html.scrollWidth, html.clientWidth, body.scrollWidth, body.clientWidth);
-	const height = max(html.scrollHeight, html.clientHeight, body.scrollHeight, body.clientHeight);
-	let x = -scroll.scrollLeft + getWindowScrollBarX(element);
-	const y = -scroll.scrollTop;
-	if (getComputedStyle$1(body).direction === "rtl") x += max(html.clientWidth, body.clientWidth) - width;
-	return {
-		width,
-		height,
-		x,
-		y
-	};
-}
-var SCROLLBAR_MAX = 25;
-function getViewportRect(element, strategy) {
-	const win = getWindow(element);
-	const html = getDocumentElement(element);
-	const visualViewport = win.visualViewport;
-	let width = html.clientWidth;
-	let height = html.clientHeight;
-	let x = 0;
-	let y = 0;
-	if (visualViewport) {
-		width = visualViewport.width;
-		height = visualViewport.height;
-		const visualViewportBased = isWebKit();
-		if (!visualViewportBased || visualViewportBased && strategy === "fixed") {
-			x = visualViewport.offsetLeft;
-			y = visualViewport.offsetTop;
-		}
-	}
-	const windowScrollbarX = getWindowScrollBarX(html);
-	if (windowScrollbarX <= 0) {
-		const doc = html.ownerDocument;
-		const body = doc.body;
-		const bodyStyles = getComputedStyle(body);
-		const bodyMarginInline = doc.compatMode === "CSS1Compat" ? parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight) || 0 : 0;
-		const clippingStableScrollbarWidth = Math.abs(html.clientWidth - body.clientWidth - bodyMarginInline);
-		if (clippingStableScrollbarWidth <= SCROLLBAR_MAX) width -= clippingStableScrollbarWidth;
-	} else if (windowScrollbarX <= SCROLLBAR_MAX) width += windowScrollbarX;
-	return {
-		width,
-		height,
-		x,
-		y
-	};
-}
-function getInnerBoundingClientRect(element, strategy) {
-	const clientRect = getBoundingClientRect(element, true, strategy === "fixed");
-	const top = clientRect.top + element.clientTop;
-	const left = clientRect.left + element.clientLeft;
-	const scale = isHTMLElement(element) ? getScale(element) : createCoords(1);
-	return {
-		width: element.clientWidth * scale.x,
-		height: element.clientHeight * scale.y,
-		x: left * scale.x,
-		y: top * scale.y
-	};
-}
-function getClientRectFromClippingAncestor(element, clippingAncestor, strategy) {
-	let rect;
-	if (clippingAncestor === "viewport") rect = getViewportRect(element, strategy);
-	else if (clippingAncestor === "document") rect = getDocumentRect(getDocumentElement(element));
-	else if (isElement(clippingAncestor)) rect = getInnerBoundingClientRect(clippingAncestor, strategy);
-	else {
-		const visualOffsets = getVisualOffsets(element);
-		rect = {
-			x: clippingAncestor.x - visualOffsets.x,
-			y: clippingAncestor.y - visualOffsets.y,
-			width: clippingAncestor.width,
-			height: clippingAncestor.height
-		};
-	}
-	return rectToClientRect(rect);
-}
-function hasFixedPositionAncestor(element, stopNode) {
-	const parentNode = getParentNode(element);
-	if (parentNode === stopNode || !isElement(parentNode) || isLastTraversableNode(parentNode)) return false;
-	return getComputedStyle$1(parentNode).position === "fixed" || hasFixedPositionAncestor(parentNode, stopNode);
-}
-function getClippingElementAncestors(element, cache) {
-	const cachedResult = cache.get(element);
-	if (cachedResult) return cachedResult;
-	let result = getOverflowAncestors(element, [], false).filter((el) => isElement(el) && getNodeName(el) !== "body");
-	let currentContainingBlockComputedStyle = null;
-	const elementIsFixed = getComputedStyle$1(element).position === "fixed";
-	let currentNode = elementIsFixed ? getParentNode(element) : element;
-	while (isElement(currentNode) && !isLastTraversableNode(currentNode)) {
-		const computedStyle = getComputedStyle$1(currentNode);
-		const currentNodeIsContaining = isContainingBlock(currentNode);
-		if (!currentNodeIsContaining && computedStyle.position === "fixed") currentContainingBlockComputedStyle = null;
-		if (elementIsFixed ? !currentNodeIsContaining && !currentContainingBlockComputedStyle : !currentNodeIsContaining && computedStyle.position === "static" && !!currentContainingBlockComputedStyle && (currentContainingBlockComputedStyle.position === "absolute" || currentContainingBlockComputedStyle.position === "fixed") || isOverflowElement(currentNode) && !currentNodeIsContaining && hasFixedPositionAncestor(element, currentNode)) result = result.filter((ancestor) => ancestor !== currentNode);
-		else currentContainingBlockComputedStyle = computedStyle;
-		currentNode = getParentNode(currentNode);
-	}
-	cache.set(element, result);
-	return result;
-}
-function getClippingRect(_ref) {
-	let { element, boundary, rootBoundary, strategy } = _ref;
-	const clippingAncestors = [...boundary === "clippingAncestors" ? isTopLayer(element) ? [] : getClippingElementAncestors(element, this._c) : [].concat(boundary), rootBoundary];
-	const firstRect = getClientRectFromClippingAncestor(element, clippingAncestors[0], strategy);
-	let top = firstRect.top;
-	let right = firstRect.right;
-	let bottom = firstRect.bottom;
-	let left = firstRect.left;
-	for (let i = 1; i < clippingAncestors.length; i++) {
-		const rect = getClientRectFromClippingAncestor(element, clippingAncestors[i], strategy);
-		top = max(rect.top, top);
-		right = min(rect.right, right);
-		bottom = min(rect.bottom, bottom);
-		left = max(rect.left, left);
-	}
-	return {
-		width: right - left,
-		height: bottom - top,
-		x: left,
-		y: top
-	};
-}
-function getDimensions(element) {
-	const { width, height } = getCssDimensions(element);
-	return {
-		width,
-		height
-	};
-}
-function getRectRelativeToOffsetParent(element, offsetParent, strategy) {
-	const isOffsetParentAnElement = isHTMLElement(offsetParent);
-	const documentElement = getDocumentElement(offsetParent);
-	const isFixed = strategy === "fixed";
-	const rect = getBoundingClientRect(element, true, isFixed, offsetParent);
-	let scroll = {
-		scrollLeft: 0,
-		scrollTop: 0
-	};
-	const offsets = createCoords(0);
-	function setLeftRTLScrollbarOffset() {
-		offsets.x = getWindowScrollBarX(documentElement);
-	}
-	if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
-		if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) scroll = getNodeScroll(offsetParent);
-		if (isOffsetParentAnElement) {
-			const offsetRect = getBoundingClientRect(offsetParent, true, isFixed, offsetParent);
-			offsets.x = offsetRect.x + offsetParent.clientLeft;
-			offsets.y = offsetRect.y + offsetParent.clientTop;
-		} else if (documentElement) setLeftRTLScrollbarOffset();
-	}
-	if (isFixed && !isOffsetParentAnElement && documentElement) setLeftRTLScrollbarOffset();
-	const htmlOffset = documentElement && !isOffsetParentAnElement && !isFixed ? getHTMLOffset(documentElement, scroll) : createCoords(0);
-	return {
-		x: rect.left + scroll.scrollLeft - offsets.x - htmlOffset.x,
-		y: rect.top + scroll.scrollTop - offsets.y - htmlOffset.y,
-		width: rect.width,
-		height: rect.height
-	};
-}
-function isStaticPositioned(element) {
-	return getComputedStyle$1(element).position === "static";
-}
-function getTrueOffsetParent(element, polyfill) {
-	if (!isHTMLElement(element) || getComputedStyle$1(element).position === "fixed") return null;
-	if (polyfill) return polyfill(element);
-	let rawOffsetParent = element.offsetParent;
-	if (getDocumentElement(element) === rawOffsetParent) rawOffsetParent = rawOffsetParent.ownerDocument.body;
-	return rawOffsetParent;
-}
-function getOffsetParent(element, polyfill) {
-	const win = getWindow(element);
-	if (isTopLayer(element)) return win;
-	if (!isHTMLElement(element)) {
-		let svgOffsetParent = getParentNode(element);
-		while (svgOffsetParent && !isLastTraversableNode(svgOffsetParent)) {
-			if (isElement(svgOffsetParent) && !isStaticPositioned(svgOffsetParent)) return svgOffsetParent;
-			svgOffsetParent = getParentNode(svgOffsetParent);
-		}
-		return win;
-	}
-	let offsetParent = getTrueOffsetParent(element, polyfill);
-	while (offsetParent && isTableElement(offsetParent) && isStaticPositioned(offsetParent)) offsetParent = getTrueOffsetParent(offsetParent, polyfill);
-	if (offsetParent && isLastTraversableNode(offsetParent) && isStaticPositioned(offsetParent) && !isContainingBlock(offsetParent)) return win;
-	return offsetParent || getContainingBlock(element) || win;
-}
-var getElementRects = async function(data) {
-	const getOffsetParentFn = this.getOffsetParent || getOffsetParent;
-	const getDimensionsFn = this.getDimensions;
-	const floatingDimensions = await getDimensionsFn(data.floating);
-	return {
-		reference: getRectRelativeToOffsetParent(data.reference, await getOffsetParentFn(data.floating), data.strategy),
-		floating: {
-			x: 0,
-			y: 0,
-			width: floatingDimensions.width,
-			height: floatingDimensions.height
-		}
-	};
-};
-function isRTL(element) {
-	return getComputedStyle$1(element).direction === "rtl";
-}
-var platform = {
-	convertOffsetParentRelativeRectToViewportRelativeRect,
-	getDocumentElement,
-	getClippingRect,
-	getOffsetParent,
-	getElementRects,
-	getClientRects,
-	getDimensions,
-	getScale,
-	isElement,
-	isRTL
-};
-function rectsAreEqual(a, b) {
-	return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
-}
-function observeMove(element, onMove) {
-	let io = null;
-	let timeoutId;
-	const root = getDocumentElement(element);
-	function cleanup() {
-		var _io;
-		clearTimeout(timeoutId);
-		(_io = io) == null || _io.disconnect();
-		io = null;
-	}
-	function refresh(skip, threshold) {
-		if (skip === void 0) skip = false;
-		if (threshold === void 0) threshold = 1;
-		cleanup();
-		const elementRectForRootMargin = element.getBoundingClientRect();
-		const { left, top, width, height } = elementRectForRootMargin;
-		if (!skip) onMove();
-		if (!width || !height) return;
-		const insetTop = floor(top);
-		const insetRight = floor(root.clientWidth - (left + width));
-		const insetBottom = floor(root.clientHeight - (top + height));
-		const insetLeft = floor(left);
-		const options = {
-			rootMargin: -insetTop + "px " + -insetRight + "px " + -insetBottom + "px " + -insetLeft + "px",
-			threshold: max(0, min(1, threshold)) || 1
-		};
-		let isFirstUpdate = true;
-		function handleObserve(entries) {
-			const ratio = entries[0].intersectionRatio;
-			if (ratio !== threshold) {
-				if (!isFirstUpdate) return refresh();
-				if (!ratio) timeoutId = setTimeout(() => {
-					refresh(false, 1e-7);
-				}, 1e3);
-				else refresh(false, ratio);
-			}
-			if (ratio === 1 && !rectsAreEqual(elementRectForRootMargin, element.getBoundingClientRect())) refresh();
-			isFirstUpdate = false;
-		}
-		try {
-			io = new IntersectionObserver(handleObserve, {
-				...options,
-				root: root.ownerDocument
-			});
-		} catch (_e) {
-			io = new IntersectionObserver(handleObserve, options);
-		}
-		io.observe(element);
-	}
-	refresh(true);
-	return cleanup;
-}
-/**
-* Automatically updates the position of the floating element when necessary.
-* Should only be called when the floating element is mounted on the DOM or
-* visible on the screen.
-* @returns cleanup function that should be invoked when the floating element is
-* removed from the DOM or hidden from the screen.
-* @see https://floating-ui.com/docs/autoUpdate
-*/
-function autoUpdate(reference, floating, update, options) {
-	if (options === void 0) options = {};
-	const { ancestorScroll = true, ancestorResize = true, elementResize = typeof ResizeObserver === "function", layoutShift = typeof IntersectionObserver === "function", animationFrame = false } = options;
-	const referenceEl = unwrapElement(reference);
-	const ancestors = ancestorScroll || ancestorResize ? [...referenceEl ? getOverflowAncestors(referenceEl) : [], ...floating ? getOverflowAncestors(floating) : []] : [];
-	ancestors.forEach((ancestor) => {
-		ancestorScroll && ancestor.addEventListener("scroll", update, { passive: true });
-		ancestorResize && ancestor.addEventListener("resize", update);
-	});
-	const cleanupIo = referenceEl && layoutShift ? observeMove(referenceEl, update) : null;
-	let reobserveFrame = -1;
-	let resizeObserver = null;
-	if (elementResize) {
-		resizeObserver = new ResizeObserver((_ref) => {
-			let [firstEntry] = _ref;
-			if (firstEntry && firstEntry.target === referenceEl && resizeObserver && floating) {
-				resizeObserver.unobserve(floating);
-				cancelAnimationFrame(reobserveFrame);
-				reobserveFrame = requestAnimationFrame(() => {
-					var _resizeObserver;
-					(_resizeObserver = resizeObserver) == null || _resizeObserver.observe(floating);
-				});
-			}
-			update();
-		});
-		if (referenceEl && !animationFrame) resizeObserver.observe(referenceEl);
-		if (floating) resizeObserver.observe(floating);
-	}
-	let frameId;
-	let prevRefRect = animationFrame ? getBoundingClientRect(reference) : null;
-	if (animationFrame) frameLoop();
-	function frameLoop() {
-		const nextRefRect = getBoundingClientRect(reference);
-		if (prevRefRect && !rectsAreEqual(prevRefRect, nextRefRect)) update();
-		prevRefRect = nextRefRect;
-		frameId = requestAnimationFrame(frameLoop);
-	}
-	update();
-	return () => {
-		var _resizeObserver2;
-		ancestors.forEach((ancestor) => {
-			ancestorScroll && ancestor.removeEventListener("scroll", update);
-			ancestorResize && ancestor.removeEventListener("resize", update);
-		});
-		cleanupIo?.();
-		(_resizeObserver2 = resizeObserver) == null || _resizeObserver2.disconnect();
-		resizeObserver = null;
-		if (animationFrame) cancelAnimationFrame(frameId);
-	};
-}
-/**
-* Modifies the placement by translating the floating element along the
-* specified axes.
-* A number (shorthand for `mainAxis` or distance), or an axes configuration
-* object may be passed.
-* @see https://floating-ui.com/docs/offset
-*/
-var offset$1 = offset$2;
-/**
-* Optimizes the visibility of the floating element by shifting it in order to
-* keep it in view when it will overflow the clipping boundary.
-* @see https://floating-ui.com/docs/shift
-*/
-var shift$1 = shift$2;
-/**
-* Optimizes the visibility of the floating element by flipping the `placement`
-* in order to keep it in view when the preferred placement(s) will overflow the
-* clipping boundary. Alternative to `autoPlacement`.
-* @see https://floating-ui.com/docs/flip
-*/
-var flip$1 = flip$2;
-/**
-* Provides data that allows you to change the size of the floating element —
-* for instance, prevent it from overflowing the clipping boundary or match the
-* width of the reference element.
-* @see https://floating-ui.com/docs/size
-*/
-var size$1 = size$2;
-/**
-* Provides data to hide the floating element in applicable situations, such as
-* when it is not in the same clipping context as the reference element.
-* @see https://floating-ui.com/docs/hide
-*/
-var hide$1 = hide$2;
-/**
-* Provides data to position an inner element of the floating element so that it
-* appears centered to the reference element.
-* @see https://floating-ui.com/docs/arrow
-*/
-var arrow$2 = arrow$3;
-/**
-* Built-in `limiter` that will stop `shift()` at a certain point.
-*/
-var limitShift$1 = limitShift$2;
-/**
-* Computes the `x` and `y` coordinates that will place the floating element
-* next to a given reference element.
-*/
-var computePosition = (reference, floating, options) => {
-	const cache = /* @__PURE__ */ new Map();
-	const mergedOptions = {
-		platform,
-		...options
-	};
-	const platformWithCache = {
-		...mergedOptions.platform,
-		_c: cache
-	};
-	return computePosition$1(reference, floating, {
-		...mergedOptions,
-		platform: platformWithCache
-	});
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@floating-ui+react-dom@2.1.8_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
-var index = typeof document !== "undefined" ? import_react.useLayoutEffect : function noop() {};
-function deepEqual(a, b) {
-	if (a === b) return true;
-	if (typeof a !== typeof b) return false;
-	if (typeof a === "function" && a.toString() === b.toString()) return true;
-	let length;
-	let i;
-	let keys;
-	if (a && b && typeof a === "object") {
-		if (Array.isArray(a)) {
-			length = a.length;
-			if (length !== b.length) return false;
-			for (i = length; i-- !== 0;) if (!deepEqual(a[i], b[i])) return false;
-			return true;
-		}
-		keys = Object.keys(a);
-		length = keys.length;
-		if (length !== Object.keys(b).length) return false;
-		for (i = length; i-- !== 0;) if (!{}.hasOwnProperty.call(b, keys[i])) return false;
-		for (i = length; i-- !== 0;) {
-			const key = keys[i];
-			if (key === "_owner" && a.$$typeof) continue;
-			if (!deepEqual(a[key], b[key])) return false;
-		}
-		return true;
-	}
-	return a !== a && b !== b;
-}
-function getDPR(element) {
-	if (typeof window === "undefined") return 1;
-	return (element.ownerDocument.defaultView || window).devicePixelRatio || 1;
-}
-function roundByDPR(element, value) {
-	const dpr = getDPR(element);
-	return Math.round(value * dpr) / dpr;
-}
-function useLatestRef(value) {
-	const ref = import_react.useRef(value);
-	index(() => {
-		ref.current = value;
-	});
-	return ref;
-}
-/**
-* Provides data to position a floating element.
-* @see https://floating-ui.com/docs/useFloating
-*/
-function useFloating(options) {
-	if (options === void 0) options = {};
-	const { placement = "bottom", strategy = "absolute", middleware = [], platform, elements: { reference: externalReference, floating: externalFloating } = {}, transform = true, whileElementsMounted, open } = options;
-	const [data, setData] = import_react.useState({
-		x: 0,
-		y: 0,
-		strategy,
-		placement,
-		middlewareData: {},
-		isPositioned: false
-	});
-	const [latestMiddleware, setLatestMiddleware] = import_react.useState(middleware);
-	if (!deepEqual(latestMiddleware, middleware)) setLatestMiddleware(middleware);
-	const [_reference, _setReference] = import_react.useState(null);
-	const [_floating, _setFloating] = import_react.useState(null);
-	const setReference = import_react.useCallback((node) => {
-		if (node !== referenceRef.current) {
-			referenceRef.current = node;
-			_setReference(node);
-		}
-	}, []);
-	const setFloating = import_react.useCallback((node) => {
-		if (node !== floatingRef.current) {
-			floatingRef.current = node;
-			_setFloating(node);
-		}
-	}, []);
-	const referenceEl = externalReference || _reference;
-	const floatingEl = externalFloating || _floating;
-	const referenceRef = import_react.useRef(null);
-	const floatingRef = import_react.useRef(null);
-	const dataRef = import_react.useRef(data);
-	const hasWhileElementsMounted = whileElementsMounted != null;
-	const whileElementsMountedRef = useLatestRef(whileElementsMounted);
-	const platformRef = useLatestRef(platform);
-	const openRef = useLatestRef(open);
-	const update = import_react.useCallback(() => {
-		if (!referenceRef.current || !floatingRef.current) return;
-		const config = {
-			placement,
-			strategy,
-			middleware: latestMiddleware
-		};
-		if (platformRef.current) config.platform = platformRef.current;
-		computePosition(referenceRef.current, floatingRef.current, config).then((data) => {
-			const fullData = {
-				...data,
-				isPositioned: openRef.current !== false
-			};
-			if (isMountedRef.current && !deepEqual(dataRef.current, fullData)) {
-				dataRef.current = fullData;
-				import_react_dom.flushSync(() => {
-					setData(fullData);
-				});
-			}
-		});
-	}, [
-		latestMiddleware,
-		placement,
-		strategy,
-		platformRef,
-		openRef
-	]);
-	index(() => {
-		if (open === false && dataRef.current.isPositioned) {
-			dataRef.current.isPositioned = false;
-			setData((data) => ({
-				...data,
-				isPositioned: false
-			}));
-		}
-	}, [open]);
-	const isMountedRef = import_react.useRef(false);
-	index(() => {
-		isMountedRef.current = true;
-		return () => {
-			isMountedRef.current = false;
-		};
-	}, []);
-	index(() => {
-		if (referenceEl) referenceRef.current = referenceEl;
-		if (floatingEl) floatingRef.current = floatingEl;
-		if (referenceEl && floatingEl) {
-			if (whileElementsMountedRef.current) return whileElementsMountedRef.current(referenceEl, floatingEl, update);
-			update();
-		}
-	}, [
-		referenceEl,
-		floatingEl,
-		update,
-		whileElementsMountedRef,
-		hasWhileElementsMounted
-	]);
-	const refs = import_react.useMemo(() => ({
-		reference: referenceRef,
-		floating: floatingRef,
-		setReference,
-		setFloating
-	}), [setReference, setFloating]);
-	const elements = import_react.useMemo(() => ({
-		reference: referenceEl,
-		floating: floatingEl
-	}), [referenceEl, floatingEl]);
-	const floatingStyles = import_react.useMemo(() => {
-		const initialStyles = {
-			position: strategy,
-			left: 0,
-			top: 0
-		};
-		if (!elements.floating) return initialStyles;
-		const x = roundByDPR(elements.floating, data.x);
-		const y = roundByDPR(elements.floating, data.y);
-		if (transform) return {
-			...initialStyles,
-			transform: "translate(" + x + "px, " + y + "px)",
-			...getDPR(elements.floating) >= 1.5 && { willChange: "transform" }
-		};
-		return {
-			position: strategy,
-			left: x,
-			top: y
-		};
-	}, [
-		strategy,
-		transform,
-		elements.floating,
-		data.x,
-		data.y
-	]);
-	return import_react.useMemo(() => ({
-		...data,
-		update,
-		refs,
-		elements,
-		floatingStyles
-	}), [
-		data,
-		update,
-		refs,
-		elements,
-		floatingStyles
-	]);
-}
-/**
-* Provides data to position an inner element of the floating element so that it
-* appears centered to the reference element.
-* This wraps the core `arrow` middleware to allow React refs as the element.
-* @see https://floating-ui.com/docs/arrow
-*/
-var arrow$1 = (options) => {
-	function isRef(value) {
-		return {}.hasOwnProperty.call(value, "current");
-	}
-	return {
-		name: "arrow",
-		options,
-		fn(state) {
-			const { element, padding } = typeof options === "function" ? options(state) : options;
-			if (element && isRef(element)) {
-				if (element.current != null) return arrow$2({
-					element: element.current,
-					padding
-				}).fn(state);
-				return {};
-			}
-			if (element) return arrow$2({
-				element,
-				padding
-			}).fn(state);
-			return {};
-		}
-	};
-};
-/**
-* Modifies the placement by translating the floating element along the
-* specified axes.
-* A number (shorthand for `mainAxis` or distance), or an axes configuration
-* object may be passed.
-* @see https://floating-ui.com/docs/offset
-*/
-var offset = (options, deps) => {
-	const result = offset$1(options);
-	return {
-		name: result.name,
-		fn: result.fn,
-		options: [options, deps]
-	};
-};
-/**
-* Optimizes the visibility of the floating element by shifting it in order to
-* keep it in view when it will overflow the clipping boundary.
-* @see https://floating-ui.com/docs/shift
-*/
-var shift = (options, deps) => {
-	const result = shift$1(options);
-	return {
-		name: result.name,
-		fn: result.fn,
-		options: [options, deps]
-	};
-};
-/**
-* Built-in `limiter` that will stop `shift()` at a certain point.
-*/
-var limitShift = (options, deps) => {
-	return {
-		fn: limitShift$1(options).fn,
-		options: [options, deps]
-	};
-};
-/**
-* Optimizes the visibility of the floating element by flipping the `placement`
-* in order to keep it in view when the preferred placement(s) will overflow the
-* clipping boundary. Alternative to `autoPlacement`.
-* @see https://floating-ui.com/docs/flip
-*/
-var flip = (options, deps) => {
-	const result = flip$1(options);
-	return {
-		name: result.name,
-		fn: result.fn,
-		options: [options, deps]
-	};
-};
-/**
-* Provides data that allows you to change the size of the floating element —
-* for instance, prevent it from overflowing the clipping boundary or match the
-* width of the reference element.
-* @see https://floating-ui.com/docs/size
-*/
-var size = (options, deps) => {
-	const result = size$1(options);
-	return {
-		name: result.name,
-		fn: result.fn,
-		options: [options, deps]
-	};
-};
-/**
-* Provides data to hide the floating element in applicable situations, such as
-* when it is not in the same clipping context as the reference element.
-* @see https://floating-ui.com/docs/hide
-*/
-var hide = (options, deps) => {
-	const result = hide$1(options);
-	return {
-		name: result.name,
-		fn: result.fn,
-		options: [options, deps]
-	};
-};
-/**
-* Provides data to position an inner element of the floating element so that it
-* appears centered to the reference element.
-* This wraps the core `arrow` middleware to allow React refs as the element.
-* @see https://floating-ui.com/docs/arrow
-*/
-var arrow = (options, deps) => {
-	const result = arrow$1(options);
-	return {
-		name: result.name,
-		fn: result.fn,
-		options: [options, deps]
-	};
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-arrow@1.1.7_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@_e05f2c19a58a99fddf374207b5e3778c/node_modules/@radix-ui/react-arrow/dist/index.mjs
-var NAME$2 = "Arrow";
-var Arrow$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { children, width = 10, height = 5, ...arrowProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.svg, {
-		...arrowProps,
-		ref: forwardedRef,
-		width,
-		height,
-		viewBox: "0 0 30 10",
-		preserveAspectRatio: "none",
-		children: props.asChild ? children : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polygon", { points: "0,0 30,0 15,10" })
-	});
-});
-Arrow$1.displayName = NAME$2;
-var Root$3 = Arrow$1;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-size@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-size/dist/index.mjs
-function useSize(element) {
-	const [size, setSize] = import_react.useState(void 0);
-	useLayoutEffect2(() => {
-		if (element) {
-			setSize({
-				width: element.offsetWidth,
-				height: element.offsetHeight
-			});
-			const resizeObserver = new ResizeObserver((entries) => {
-				if (!Array.isArray(entries)) return;
-				if (!entries.length) return;
-				const entry = entries[0];
-				let width;
-				let height;
-				if ("borderBoxSize" in entry) {
-					const borderSizeEntry = entry["borderBoxSize"];
-					const borderSize = Array.isArray(borderSizeEntry) ? borderSizeEntry[0] : borderSizeEntry;
-					width = borderSize["inlineSize"];
-					height = borderSize["blockSize"];
-				} else {
-					width = element.offsetWidth;
-					height = element.offsetHeight;
-				}
-				setSize({
-					width,
-					height
-				});
-			});
-			resizeObserver.observe(element, { box: "border-box" });
-			return () => resizeObserver.unobserve(element);
-		} else setSize(void 0);
-	}, [element]);
-	return size;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-popper@1.2.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_13e0521d8aea7ebfbfb8bee1fb615c05/node_modules/@radix-ui/react-popper/dist/index.mjs
-var POPPER_NAME = "Popper";
-var [createPopperContext, createPopperScope] = createContextScope(POPPER_NAME);
-var [PopperProvider, usePopperContext] = createPopperContext(POPPER_NAME);
-var Popper = (props) => {
-	const { __scopePopper, children } = props;
-	const [anchor, setAnchor] = import_react.useState(null);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PopperProvider, {
-		scope: __scopePopper,
-		anchor,
-		onAnchorChange: setAnchor,
-		children
-	});
-};
-Popper.displayName = POPPER_NAME;
-var ANCHOR_NAME = "PopperAnchor";
-var PopperAnchor = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopePopper, virtualRef, ...anchorProps } = props;
-	const context = usePopperContext(ANCHOR_NAME, __scopePopper);
-	const ref = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, ref);
-	const anchorRef = import_react.useRef(null);
-	import_react.useEffect(() => {
-		const previousAnchor = anchorRef.current;
-		anchorRef.current = virtualRef?.current || ref.current;
-		if (previousAnchor !== anchorRef.current) context.onAnchorChange(anchorRef.current);
-	});
-	return virtualRef ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-		...anchorProps,
-		ref: composedRefs
-	});
-});
-PopperAnchor.displayName = ANCHOR_NAME;
-var CONTENT_NAME$2 = "PopperContent";
-var [PopperContentProvider, useContentContext] = createPopperContext(CONTENT_NAME$2);
-var PopperContent = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopePopper, side = "bottom", sideOffset = 0, align = "center", alignOffset = 0, arrowPadding = 0, avoidCollisions = true, collisionBoundary = [], collisionPadding: collisionPaddingProp = 0, sticky = "partial", hideWhenDetached = false, updatePositionStrategy = "optimized", onPlaced, ...contentProps } = props;
-	const context = usePopperContext(CONTENT_NAME$2, __scopePopper);
-	const [content, setContent] = import_react.useState(null);
-	const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
-	const [arrow$4, setArrow] = import_react.useState(null);
-	const arrowSize = useSize(arrow$4);
-	const arrowWidth = arrowSize?.width ?? 0;
-	const arrowHeight = arrowSize?.height ?? 0;
-	const desiredPlacement = side + (align !== "center" ? "-" + align : "");
-	const collisionPadding = typeof collisionPaddingProp === "number" ? collisionPaddingProp : {
-		top: 0,
-		right: 0,
-		bottom: 0,
-		left: 0,
-		...collisionPaddingProp
-	};
-	const boundary = Array.isArray(collisionBoundary) ? collisionBoundary : [collisionBoundary];
-	const hasExplicitBoundaries = boundary.length > 0;
-	const detectOverflowOptions = {
-		padding: collisionPadding,
-		boundary: boundary.filter(isNotNull),
-		altBoundary: hasExplicitBoundaries
-	};
-	const { refs, floatingStyles, placement, isPositioned, middlewareData } = useFloating({
-		strategy: "fixed",
-		placement: desiredPlacement,
-		whileElementsMounted: (...args) => {
-			return autoUpdate(...args, { animationFrame: updatePositionStrategy === "always" });
-		},
-		elements: { reference: context.anchor },
-		middleware: [
-			offset({
-				mainAxis: sideOffset + arrowHeight,
-				alignmentAxis: alignOffset
-			}),
-			avoidCollisions && shift({
-				mainAxis: true,
-				crossAxis: false,
-				limiter: sticky === "partial" ? limitShift() : void 0,
-				...detectOverflowOptions
-			}),
-			avoidCollisions && flip({ ...detectOverflowOptions }),
-			size({
-				...detectOverflowOptions,
-				apply: ({ elements, rects, availableWidth, availableHeight }) => {
-					const { width: anchorWidth, height: anchorHeight } = rects.reference;
-					const contentStyle = elements.floating.style;
-					contentStyle.setProperty("--radix-popper-available-width", `${availableWidth}px`);
-					contentStyle.setProperty("--radix-popper-available-height", `${availableHeight}px`);
-					contentStyle.setProperty("--radix-popper-anchor-width", `${anchorWidth}px`);
-					contentStyle.setProperty("--radix-popper-anchor-height", `${anchorHeight}px`);
-				}
-			}),
-			arrow$4 && arrow({
-				element: arrow$4,
-				padding: arrowPadding
-			}),
-			transformOrigin({
-				arrowWidth,
-				arrowHeight
-			}),
-			hideWhenDetached && hide({
-				strategy: "referenceHidden",
-				...detectOverflowOptions
-			})
-		]
-	});
-	const [placedSide, placedAlign] = getSideAndAlignFromPlacement(placement);
-	const handlePlaced = useCallbackRef$1(onPlaced);
-	useLayoutEffect2(() => {
-		if (isPositioned) handlePlaced?.();
-	}, [isPositioned, handlePlaced]);
-	const arrowX = middlewareData.arrow?.x;
-	const arrowY = middlewareData.arrow?.y;
-	const cannotCenterArrow = middlewareData.arrow?.centerOffset !== 0;
-	const [contentZIndex, setContentZIndex] = import_react.useState();
-	useLayoutEffect2(() => {
-		if (content) setContentZIndex(window.getComputedStyle(content).zIndex);
-	}, [content]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		ref: refs.setFloating,
-		"data-radix-popper-content-wrapper": "",
-		style: {
-			...floatingStyles,
-			transform: isPositioned ? floatingStyles.transform : "translate(0, -200%)",
-			minWidth: "max-content",
-			zIndex: contentZIndex,
-			["--radix-popper-transform-origin"]: [middlewareData.transformOrigin?.x, middlewareData.transformOrigin?.y].join(" "),
-			...middlewareData.hide?.referenceHidden && {
-				visibility: "hidden",
-				pointerEvents: "none"
-			}
-		},
-		dir: props.dir,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PopperContentProvider, {
-			scope: __scopePopper,
-			placedSide,
-			onArrowChange: setArrow,
-			arrowX,
-			arrowY,
-			shouldHideArrow: cannotCenterArrow,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-				"data-side": placedSide,
-				"data-align": placedAlign,
-				...contentProps,
-				ref: composedRefs,
-				style: {
-					...contentProps.style,
-					animation: !isPositioned ? "none" : void 0
-				}
-			})
-		})
-	});
-});
-PopperContent.displayName = CONTENT_NAME$2;
-var ARROW_NAME$1 = "PopperArrow";
-var OPPOSITE_SIDE = {
-	top: "bottom",
-	right: "left",
-	bottom: "top",
-	left: "right"
-};
-var PopperArrow = import_react.forwardRef(function PopperArrow2(props, forwardedRef) {
-	const { __scopePopper, ...arrowProps } = props;
-	const contentContext = useContentContext(ARROW_NAME$1, __scopePopper);
-	const baseSide = OPPOSITE_SIDE[contentContext.placedSide];
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-		ref: contentContext.onArrowChange,
-		style: {
-			position: "absolute",
-			left: contentContext.arrowX,
-			top: contentContext.arrowY,
-			[baseSide]: 0,
-			transformOrigin: {
-				top: "",
-				right: "0 0",
-				bottom: "center 0",
-				left: "100% 0"
-			}[contentContext.placedSide],
-			transform: {
-				top: "translateY(100%)",
-				right: "translateY(50%) rotate(90deg) translateX(-50%)",
-				bottom: `rotate(180deg)`,
-				left: "translateY(50%) rotate(-90deg) translateX(50%)"
-			}[contentContext.placedSide],
-			visibility: contentContext.shouldHideArrow ? "hidden" : void 0
-		},
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$3, {
-			...arrowProps,
-			ref: forwardedRef,
-			style: {
-				...arrowProps.style,
-				display: "block"
-			}
-		})
-	});
-});
-PopperArrow.displayName = ARROW_NAME$1;
-function isNotNull(value) {
-	return value !== null;
-}
-var transformOrigin = (options) => ({
-	name: "transformOrigin",
-	options,
-	fn(data) {
-		const { placement, rects, middlewareData } = data;
-		const isArrowHidden = middlewareData.arrow?.centerOffset !== 0;
-		const arrowWidth = isArrowHidden ? 0 : options.arrowWidth;
-		const arrowHeight = isArrowHidden ? 0 : options.arrowHeight;
-		const [placedSide, placedAlign] = getSideAndAlignFromPlacement(placement);
-		const noArrowAlign = {
-			start: "0%",
-			center: "50%",
-			end: "100%"
-		}[placedAlign];
-		const arrowXCenter = (middlewareData.arrow?.x ?? 0) + arrowWidth / 2;
-		const arrowYCenter = (middlewareData.arrow?.y ?? 0) + arrowHeight / 2;
-		let x = "";
-		let y = "";
-		if (placedSide === "bottom") {
-			x = isArrowHidden ? noArrowAlign : `${arrowXCenter}px`;
-			y = `${-arrowHeight}px`;
-		} else if (placedSide === "top") {
-			x = isArrowHidden ? noArrowAlign : `${arrowXCenter}px`;
-			y = `${rects.floating.height + arrowHeight}px`;
-		} else if (placedSide === "right") {
-			x = `${-arrowHeight}px`;
-			y = isArrowHidden ? noArrowAlign : `${arrowYCenter}px`;
-		} else if (placedSide === "left") {
-			x = `${rects.floating.width + arrowHeight}px`;
-			y = isArrowHidden ? noArrowAlign : `${arrowYCenter}px`;
-		}
-		return { data: {
-			x,
-			y
-		} };
-	}
-});
-function getSideAndAlignFromPlacement(placement) {
-	const [side, align = "center"] = placement.split("-");
-	return [side, align];
-}
-var Root2 = Popper;
-var Anchor = PopperAnchor;
-var Content$1 = PopperContent;
-var Arrow = PopperArrow;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-tooltip@1.2.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+reac_9074d9fb06315b089b2bee17c4c65951/node_modules/@radix-ui/react-tooltip/dist/index.mjs
-var [createTooltipContext, createTooltipScope] = createContextScope("Tooltip", [createPopperScope]);
-var usePopperScope = createPopperScope();
-var PROVIDER_NAME = "TooltipProvider";
-var DEFAULT_DELAY_DURATION = 700;
-var TOOLTIP_OPEN = "tooltip.open";
-var [TooltipProviderContextProvider, useTooltipProviderContext] = createTooltipContext(PROVIDER_NAME);
-var TooltipProvider$1 = (props) => {
-	const { __scopeTooltip, delayDuration = DEFAULT_DELAY_DURATION, skipDelayDuration = 300, disableHoverableContent = false, children } = props;
-	const isOpenDelayedRef = import_react.useRef(true);
-	const isPointerInTransitRef = import_react.useRef(false);
-	const skipDelayTimerRef = import_react.useRef(0);
-	import_react.useEffect(() => {
-		const skipDelayTimer = skipDelayTimerRef.current;
-		return () => window.clearTimeout(skipDelayTimer);
-	}, []);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipProviderContextProvider, {
-		scope: __scopeTooltip,
-		isOpenDelayedRef,
-		delayDuration,
-		onOpen: import_react.useCallback(() => {
-			window.clearTimeout(skipDelayTimerRef.current);
-			isOpenDelayedRef.current = false;
-		}, []),
-		onClose: import_react.useCallback(() => {
-			window.clearTimeout(skipDelayTimerRef.current);
-			skipDelayTimerRef.current = window.setTimeout(() => isOpenDelayedRef.current = true, skipDelayDuration);
-		}, [skipDelayDuration]),
-		isPointerInTransitRef,
-		onPointerInTransitChange: import_react.useCallback((inTransit) => {
-			isPointerInTransitRef.current = inTransit;
-		}, []),
-		disableHoverableContent,
-		children
-	});
-};
-TooltipProvider$1.displayName = PROVIDER_NAME;
-var TOOLTIP_NAME = "Tooltip";
-var [TooltipContextProvider, useTooltipContext] = createTooltipContext(TOOLTIP_NAME);
-var Tooltip$1 = (props) => {
-	const { __scopeTooltip, children, open: openProp, defaultOpen, onOpenChange, disableHoverableContent: disableHoverableContentProp, delayDuration: delayDurationProp } = props;
-	const providerContext = useTooltipProviderContext(TOOLTIP_NAME, props.__scopeTooltip);
-	const popperScope = usePopperScope(__scopeTooltip);
-	const [trigger, setTrigger] = import_react.useState(null);
-	const contentId = useId();
-	const openTimerRef = import_react.useRef(0);
-	const disableHoverableContent = disableHoverableContentProp ?? providerContext.disableHoverableContent;
-	const delayDuration = delayDurationProp ?? providerContext.delayDuration;
-	const wasOpenDelayedRef = import_react.useRef(false);
-	const [open, setOpen] = useControllableState({
-		prop: openProp,
-		defaultProp: defaultOpen ?? false,
-		onChange: (open2) => {
-			if (open2) {
-				providerContext.onOpen();
-				document.dispatchEvent(new CustomEvent(TOOLTIP_OPEN));
-			} else providerContext.onClose();
-			onOpenChange?.(open2);
-		},
-		caller: TOOLTIP_NAME
-	});
-	const stateAttribute = import_react.useMemo(() => {
-		return open ? wasOpenDelayedRef.current ? "delayed-open" : "instant-open" : "closed";
-	}, [open]);
-	const handleOpen = import_react.useCallback(() => {
-		window.clearTimeout(openTimerRef.current);
-		openTimerRef.current = 0;
-		wasOpenDelayedRef.current = false;
-		setOpen(true);
-	}, [setOpen]);
-	const handleClose = import_react.useCallback(() => {
-		window.clearTimeout(openTimerRef.current);
-		openTimerRef.current = 0;
-		setOpen(false);
-	}, [setOpen]);
-	const handleDelayedOpen = import_react.useCallback(() => {
-		window.clearTimeout(openTimerRef.current);
-		openTimerRef.current = window.setTimeout(() => {
-			wasOpenDelayedRef.current = true;
-			setOpen(true);
-			openTimerRef.current = 0;
-		}, delayDuration);
-	}, [delayDuration, setOpen]);
-	import_react.useEffect(() => {
-		return () => {
-			if (openTimerRef.current) {
-				window.clearTimeout(openTimerRef.current);
-				openTimerRef.current = 0;
-			}
-		};
-	}, []);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root2, {
-		...popperScope,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipContextProvider, {
-			scope: __scopeTooltip,
-			contentId,
-			open,
-			stateAttribute,
-			trigger,
-			onTriggerChange: setTrigger,
-			onTriggerEnter: import_react.useCallback(() => {
-				if (providerContext.isOpenDelayedRef.current) handleDelayedOpen();
-				else handleOpen();
-			}, [
-				providerContext.isOpenDelayedRef,
-				handleDelayedOpen,
-				handleOpen
-			]),
-			onTriggerLeave: import_react.useCallback(() => {
-				if (disableHoverableContent) handleClose();
-				else {
-					window.clearTimeout(openTimerRef.current);
-					openTimerRef.current = 0;
-				}
-			}, [handleClose, disableHoverableContent]),
-			onOpen: handleOpen,
-			onClose: handleClose,
-			disableHoverableContent,
-			children
-		})
-	});
-};
-Tooltip$1.displayName = TOOLTIP_NAME;
-var TRIGGER_NAME$2 = "TooltipTrigger";
-var TooltipTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeTooltip, ...triggerProps } = props;
-	const context = useTooltipContext(TRIGGER_NAME$2, __scopeTooltip);
-	const providerContext = useTooltipProviderContext(TRIGGER_NAME$2, __scopeTooltip);
-	const popperScope = usePopperScope(__scopeTooltip);
-	const composedRefs = useComposedRefs(forwardedRef, import_react.useRef(null), context.onTriggerChange);
-	const isPointerDownRef = import_react.useRef(false);
-	const hasPointerMoveOpenedRef = import_react.useRef(false);
-	const handlePointerUp = import_react.useCallback(() => isPointerDownRef.current = false, []);
-	import_react.useEffect(() => {
-		return () => document.removeEventListener("pointerup", handlePointerUp);
-	}, [handlePointerUp]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Anchor, {
-		asChild: true,
-		...popperScope,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
-			"aria-describedby": context.open ? context.contentId : void 0,
-			"data-state": context.stateAttribute,
-			...triggerProps,
-			ref: composedRefs,
-			onPointerMove: composeEventHandlers(props.onPointerMove, (event) => {
-				if (event.pointerType === "touch") return;
-				if (!hasPointerMoveOpenedRef.current && !providerContext.isPointerInTransitRef.current) {
-					context.onTriggerEnter();
-					hasPointerMoveOpenedRef.current = true;
-				}
-			}),
-			onPointerLeave: composeEventHandlers(props.onPointerLeave, () => {
-				context.onTriggerLeave();
-				hasPointerMoveOpenedRef.current = false;
-			}),
-			onPointerDown: composeEventHandlers(props.onPointerDown, () => {
-				if (context.open) context.onClose();
-				isPointerDownRef.current = true;
-				document.addEventListener("pointerup", handlePointerUp, { once: true });
-			}),
-			onFocus: composeEventHandlers(props.onFocus, () => {
-				if (!isPointerDownRef.current) context.onOpen();
-			}),
-			onBlur: composeEventHandlers(props.onBlur, context.onClose),
-			onClick: composeEventHandlers(props.onClick, context.onClose)
-		})
-	});
-});
-TooltipTrigger$1.displayName = TRIGGER_NAME$2;
-var PORTAL_NAME$1 = "TooltipPortal";
-var [PortalProvider$1, usePortalContext$1] = createTooltipContext(PORTAL_NAME$1, { forceMount: void 0 });
-var TooltipPortal = (props) => {
-	const { __scopeTooltip, forceMount, children, container } = props;
-	const context = useTooltipContext(PORTAL_NAME$1, __scopeTooltip);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PortalProvider$1, {
-		scope: __scopeTooltip,
-		forceMount,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-			present: forceMount || context.open,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal$1, {
-				asChild: true,
-				container,
-				children
-			})
-		})
-	});
-};
-TooltipPortal.displayName = PORTAL_NAME$1;
-var CONTENT_NAME$1 = "TooltipContent";
-var TooltipContent$1 = import_react.forwardRef((props, forwardedRef) => {
-	const portalContext = usePortalContext$1(CONTENT_NAME$1, props.__scopeTooltip);
-	const { forceMount = portalContext.forceMount, side = "top", ...contentProps } = props;
-	const context = useTooltipContext(CONTENT_NAME$1, props.__scopeTooltip);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-		present: forceMount || context.open,
-		children: context.disableHoverableContent ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipContentImpl, {
-			side,
-			...contentProps,
-			ref: forwardedRef
-		}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipContentHoverable, {
-			side,
-			...contentProps,
-			ref: forwardedRef
-		})
-	});
-});
-var TooltipContentHoverable = import_react.forwardRef((props, forwardedRef) => {
-	const context = useTooltipContext(CONTENT_NAME$1, props.__scopeTooltip);
-	const providerContext = useTooltipProviderContext(CONTENT_NAME$1, props.__scopeTooltip);
-	const ref = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, ref);
-	const [pointerGraceArea, setPointerGraceArea] = import_react.useState(null);
-	const { trigger, onClose } = context;
-	const content = ref.current;
-	const { onPointerInTransitChange } = providerContext;
-	const handleRemoveGraceArea = import_react.useCallback(() => {
-		setPointerGraceArea(null);
-		onPointerInTransitChange(false);
-	}, [onPointerInTransitChange]);
-	const handleCreateGraceArea = import_react.useCallback((event, hoverTarget) => {
-		const currentTarget = event.currentTarget;
-		const exitPoint = {
-			x: event.clientX,
-			y: event.clientY
-		};
-		const paddedExitPoints = getPaddedExitPoints(exitPoint, getExitSideFromRect(exitPoint, currentTarget.getBoundingClientRect()));
-		const hoverTargetPoints = getPointsFromRect(hoverTarget.getBoundingClientRect());
-		setPointerGraceArea(getHull([...paddedExitPoints, ...hoverTargetPoints]));
-		onPointerInTransitChange(true);
-	}, [onPointerInTransitChange]);
-	import_react.useEffect(() => {
-		return () => handleRemoveGraceArea();
-	}, [handleRemoveGraceArea]);
-	import_react.useEffect(() => {
-		if (trigger && content) {
-			const handleTriggerLeave = (event) => handleCreateGraceArea(event, content);
-			const handleContentLeave = (event) => handleCreateGraceArea(event, trigger);
-			trigger.addEventListener("pointerleave", handleTriggerLeave);
-			content.addEventListener("pointerleave", handleContentLeave);
-			return () => {
-				trigger.removeEventListener("pointerleave", handleTriggerLeave);
-				content.removeEventListener("pointerleave", handleContentLeave);
-			};
-		}
-	}, [
-		trigger,
-		content,
-		handleCreateGraceArea,
-		handleRemoveGraceArea
-	]);
-	import_react.useEffect(() => {
-		if (pointerGraceArea) {
-			const handleTrackPointerGrace = (event) => {
-				const target = event.target;
-				const pointerPosition = {
-					x: event.clientX,
-					y: event.clientY
-				};
-				const hasEnteredTarget = trigger?.contains(target) || content?.contains(target);
-				const isPointerOutsideGraceArea = !isPointInPolygon(pointerPosition, pointerGraceArea);
-				if (hasEnteredTarget) handleRemoveGraceArea();
-				else if (isPointerOutsideGraceArea) {
-					handleRemoveGraceArea();
-					onClose();
-				}
-			};
-			document.addEventListener("pointermove", handleTrackPointerGrace);
-			return () => document.removeEventListener("pointermove", handleTrackPointerGrace);
-		}
-	}, [
-		trigger,
-		content,
-		pointerGraceArea,
-		onClose,
-		handleRemoveGraceArea
-	]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipContentImpl, {
-		...props,
-		ref: composedRefs
-	});
-});
-var [VisuallyHiddenContentContextProvider, useVisuallyHiddenContentContext] = createTooltipContext(TOOLTIP_NAME, { isInside: false });
-var Slottable = /* @__PURE__ */ createSlottable("TooltipContent");
-var TooltipContentImpl = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeTooltip, children, "aria-label": ariaLabel, onEscapeKeyDown, onPointerDownOutside, ...contentProps } = props;
-	const context = useTooltipContext(CONTENT_NAME$1, __scopeTooltip);
-	const popperScope = usePopperScope(__scopeTooltip);
-	const { onClose } = context;
-	import_react.useEffect(() => {
-		document.addEventListener(TOOLTIP_OPEN, onClose);
-		return () => document.removeEventListener(TOOLTIP_OPEN, onClose);
-	}, [onClose]);
-	import_react.useEffect(() => {
-		if (context.trigger) {
-			const handleScroll = (event) => {
-				if (event.target?.contains(context.trigger)) onClose();
-			};
-			window.addEventListener("scroll", handleScroll, { capture: true });
-			return () => window.removeEventListener("scroll", handleScroll, { capture: true });
-		}
-	}, [context.trigger, onClose]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DismissableLayer, {
-		asChild: true,
-		disableOutsidePointerEvents: false,
-		onEscapeKeyDown,
-		onPointerDownOutside,
-		onFocusOutside: (event) => event.preventDefault(),
-		onDismiss: onClose,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Content$1, {
-			"data-state": context.stateAttribute,
-			...popperScope,
-			...contentProps,
-			ref: forwardedRef,
-			style: {
-				...contentProps.style,
-				"--radix-tooltip-content-transform-origin": "var(--radix-popper-transform-origin)",
-				"--radix-tooltip-content-available-width": "var(--radix-popper-available-width)",
-				"--radix-tooltip-content-available-height": "var(--radix-popper-available-height)",
-				"--radix-tooltip-trigger-width": "var(--radix-popper-anchor-width)",
-				"--radix-tooltip-trigger-height": "var(--radix-popper-anchor-height)"
-			},
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slottable, { children }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHiddenContentContextProvider, {
-				scope: __scopeTooltip,
-				isInside: true,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$4, {
-					id: context.contentId,
-					role: "tooltip",
-					children: ariaLabel || children
-				})
-			})]
-		})
-	});
-});
-TooltipContent$1.displayName = CONTENT_NAME$1;
-var ARROW_NAME = "TooltipArrow";
-var TooltipArrow = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeTooltip, ...arrowProps } = props;
-	const popperScope = usePopperScope(__scopeTooltip);
-	return useVisuallyHiddenContentContext(ARROW_NAME, __scopeTooltip).isInside ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Arrow, {
-		...popperScope,
-		...arrowProps,
-		ref: forwardedRef
-	});
-});
-TooltipArrow.displayName = ARROW_NAME;
-function getExitSideFromRect(point, rect) {
-	const top = Math.abs(rect.top - point.y);
-	const bottom = Math.abs(rect.bottom - point.y);
-	const right = Math.abs(rect.right - point.x);
-	const left = Math.abs(rect.left - point.x);
-	switch (Math.min(top, bottom, right, left)) {
-		case left: return "left";
-		case right: return "right";
-		case top: return "top";
-		case bottom: return "bottom";
-		default: throw new Error("unreachable");
-	}
-}
-function getPaddedExitPoints(exitPoint, exitSide, padding = 5) {
-	const paddedExitPoints = [];
-	switch (exitSide) {
-		case "top":
-			paddedExitPoints.push({
-				x: exitPoint.x - padding,
-				y: exitPoint.y + padding
-			}, {
-				x: exitPoint.x + padding,
-				y: exitPoint.y + padding
-			});
-			break;
-		case "bottom":
-			paddedExitPoints.push({
-				x: exitPoint.x - padding,
-				y: exitPoint.y - padding
-			}, {
-				x: exitPoint.x + padding,
-				y: exitPoint.y - padding
-			});
-			break;
-		case "left":
-			paddedExitPoints.push({
-				x: exitPoint.x + padding,
-				y: exitPoint.y - padding
-			}, {
-				x: exitPoint.x + padding,
-				y: exitPoint.y + padding
-			});
-			break;
-		case "right":
-			paddedExitPoints.push({
-				x: exitPoint.x - padding,
-				y: exitPoint.y - padding
-			}, {
-				x: exitPoint.x - padding,
-				y: exitPoint.y + padding
-			});
-			break;
-	}
-	return paddedExitPoints;
-}
-function getPointsFromRect(rect) {
-	const { top, right, bottom, left } = rect;
-	return [
-		{
-			x: left,
-			y: top
-		},
-		{
-			x: right,
-			y: top
-		},
-		{
-			x: right,
-			y: bottom
-		},
-		{
-			x: left,
-			y: bottom
-		}
-	];
-}
-function isPointInPolygon(point, polygon) {
-	const { x, y } = point;
-	let inside = false;
-	for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-		const ii = polygon[i];
-		const jj = polygon[j];
-		const xi = ii.x;
-		const yi = ii.y;
-		const xj = jj.x;
-		const yj = jj.y;
-		if (yi > y !== yj > y && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
-	}
-	return inside;
-}
-function getHull(points) {
-	const newPoints = points.slice();
-	newPoints.sort((a, b) => {
-		if (a.x < b.x) return -1;
-		else if (a.x > b.x) return 1;
-		else if (a.y < b.y) return -1;
-		else if (a.y > b.y) return 1;
-		else return 0;
-	});
-	return getHullPresorted(newPoints);
-}
-function getHullPresorted(points) {
-	if (points.length <= 1) return points.slice();
-	const upperHull = [];
-	for (let i = 0; i < points.length; i++) {
-		const p = points[i];
-		while (upperHull.length >= 2) {
-			const q = upperHull[upperHull.length - 1];
-			const r = upperHull[upperHull.length - 2];
-			if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x)) upperHull.pop();
-			else break;
-		}
-		upperHull.push(p);
-	}
-	upperHull.pop();
-	const lowerHull = [];
-	for (let i = points.length - 1; i >= 0; i--) {
-		const p = points[i];
-		while (lowerHull.length >= 2) {
-			const q = lowerHull[lowerHull.length - 1];
-			const r = lowerHull[lowerHull.length - 2];
-			if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x)) lowerHull.pop();
-			else break;
-		}
-		lowerHull.push(p);
-	}
-	lowerHull.pop();
-	if (upperHull.length === 1 && lowerHull.length === 1 && upperHull[0].x === lowerHull[0].x && upperHull[0].y === lowerHull[0].y) return upperHull;
-	else return upperHull.concat(lowerHull);
-}
-var Provider = TooltipProvider$1;
-var Content2 = TooltipContent$1;
-//#endregion
-//#region src/components/ui/tooltip.tsx
-var TooltipProvider = Provider;
-var TooltipContent = import_react.forwardRef(({ className, sideOffset = 4, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Content2, {
-	"data-uid": "src/components/ui/tooltip.tsx:17:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	sideOffset,
-	className: cn$1("z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]", className),
-	...props
-}));
-TooltipContent.displayName = Content2.displayName;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-slot@1.2.4_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-slot/dist/index.mjs
-var REACT_LAZY_TYPE = Symbol.for("react.lazy");
-var use = import_react[" use ".trim().toString()];
-function isPromiseLike(value) {
-	return typeof value === "object" && value !== null && "then" in value;
-}
-function isLazyComponent(element) {
-	return element != null && typeof element === "object" && "$$typeof" in element && element.$$typeof === REACT_LAZY_TYPE && "_payload" in element && isPromiseLike(element._payload);
-}
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-slot@1.2.3_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-slot/dist/index.mjs
 /* @__NO_SIDE_EFFECTS__ */
-function createSlot(ownerName) {
-	const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
+function createSlot$1(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone$1(ownerName);
 	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
-		let { children, ...slotProps } = props;
-		if (isLazyComponent(children) && typeof use === "function") children = use(children._payload);
+		const { children, ...slotProps } = props;
 		const childrenArray = import_react.Children.toArray(children);
-		const slottable = childrenArray.find(isSlottable);
+		const slottable = childrenArray.find(isSlottable$1);
 		if (slottable) {
 			const newElement = slottable.props.children;
 			const newChildren = childrenArray.map((child) => {
@@ -27209,15 +22353,13 @@ function createSlot(ownerName) {
 	Slot2.displayName = `${ownerName}.Slot`;
 	return Slot2;
 }
-var Slot$1 = /* @__PURE__ */ createSlot("Slot");
 /* @__NO_SIDE_EFFECTS__ */
-function createSlotClone(ownerName) {
+function createSlotClone$1(ownerName) {
 	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
-		let { children, ...slotProps } = props;
-		if (isLazyComponent(children) && typeof use === "function") children = use(children._payload);
+		const { children, ...slotProps } = props;
 		if (import_react.isValidElement(children)) {
-			const childrenRef = getElementRef(children);
-			const props2 = mergeProps(slotProps, children.props);
+			const childrenRef = getElementRef$2(children);
+			const props2 = mergeProps$1(slotProps, children.props);
 			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
 			return import_react.cloneElement(children, props2);
 		}
@@ -27226,11 +22368,11 @@ function createSlotClone(ownerName) {
 	SlotClone.displayName = `${ownerName}.SlotClone`;
 	return SlotClone;
 }
-var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
-function isSlottable(child) {
-	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
+var SLOTTABLE_IDENTIFIER$1 = Symbol("radix.slottable");
+function isSlottable$1(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$1;
 }
-function mergeProps(slotProps, childProps) {
+function mergeProps$1(slotProps, childProps) {
 	const overrideProps = { ...childProps };
 	for (const propName in childProps) {
 		const slotPropValue = slotProps[propName];
@@ -27253,7 +22395,7 @@ function mergeProps(slotProps, childProps) {
 		...overrideProps
 	};
 }
-function getElementRef(element) {
+function getElementRef$2(element) {
 	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
 	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
 	if (mayWarn) return element.ref;
@@ -27263,249 +22405,240 @@ function getElementRef(element) {
 	return element.props.ref || element.ref;
 }
 //#endregion
-//#region src/components/ui/button.tsx
-var buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", {
-	variants: {
-		variant: {
-			default: "bg-primary text-primary-foreground hover:bg-primary/90",
-			destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-			outline: "border border-input bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground",
-			secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-			ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
-			link: "text-foreground underline-offset-4 hover:underline"
-		},
-		size: {
-			default: "h-10 px-4 py-2",
-			sm: "h-9 rounded-md px-3",
-			lg: "h-11 rounded-md px-8",
-			icon: "h-10 w-10"
-		}
-	},
-	defaultVariants: {
-		variant: "default",
-		size: "default"
-	}
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-primitive@2.1.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_1181ea5061ec9212248424669240e4ec/node_modules/@radix-ui/react-primitive/dist/index.mjs
+var Primitive = [
+	"a",
+	"button",
+	"div",
+	"form",
+	"h2",
+	"h3",
+	"img",
+	"input",
+	"label",
+	"li",
+	"nav",
+	"ol",
+	"p",
+	"select",
+	"span",
+	"svg",
+	"ul"
+].reduce((primitive, node) => {
+	const Slot = /* @__PURE__ */ createSlot$1(`Primitive.${node}`);
+	const Node = import_react.forwardRef((props, forwardedRef) => {
+		const { asChild, ...primitiveProps } = props;
+		const Comp = asChild ? Slot : node;
+		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
+			...primitiveProps,
+			ref: forwardedRef
+		});
+	});
+	Node.displayName = `Primitive.${node}`;
+	return {
+		...primitive,
+		[node]: Node
+	};
+}, {});
+function dispatchDiscreteCustomEvent(target, event) {
+	if (target) import_react_dom.flushSync(() => target.dispatchEvent(event));
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-callback-ref@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs
+function useCallbackRef$1(callback) {
+	const callbackRef = import_react.useRef(callback);
+	import_react.useEffect(() => {
+		callbackRef.current = callback;
+	});
+	return import_react.useMemo(() => (...args) => callbackRef.current?.(...args), []);
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-escape-keydown@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
+function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis?.document) {
+	const onEscapeKeyDown = useCallbackRef$1(onEscapeKeyDownProp);
+	import_react.useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === "Escape") onEscapeKeyDown(event);
+		};
+		ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [onEscapeKeyDown, ownerDocument]);
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-dismissable-layer@1.1.11_@types+react-dom@19.2.3_@types+react@19.2.14___3d3960154a4c07d09bb90cb341135fc5/node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs
+var DISMISSABLE_LAYER_NAME = "DismissableLayer";
+var CONTEXT_UPDATE = "dismissableLayer.update";
+var POINTER_DOWN_OUTSIDE = "dismissableLayer.pointerDownOutside";
+var FOCUS_OUTSIDE = "dismissableLayer.focusOutside";
+var originalBodyPointerEvents;
+var DismissableLayerContext = import_react.createContext({
+	layers: /* @__PURE__ */ new Set(),
+	layersWithOutsidePointerEventsDisabled: /* @__PURE__ */ new Set(),
+	branches: /* @__PURE__ */ new Set()
 });
-var Button = import_react.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(asChild ? Slot$1 : "button", {
-		"data-uid": "src/components/ui/button.tsx:44:7",
-		"data-prohibitions": "[editContent]",
-		className: cn$1(buttonVariants({
-			variant,
-			size,
-			className
-		})),
-		ref,
-		...props
+var DismissableLayer = import_react.forwardRef((props, forwardedRef) => {
+	const { disableOutsidePointerEvents = false, onEscapeKeyDown, onPointerDownOutside, onFocusOutside, onInteractOutside, onDismiss, ...layerProps } = props;
+	const context = import_react.useContext(DismissableLayerContext);
+	const [node, setNode] = import_react.useState(null);
+	const ownerDocument = node?.ownerDocument ?? globalThis?.document;
+	const [, force] = import_react.useState({});
+	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
+	const layers = Array.from(context.layers);
+	const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1);
+	const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled);
+	const index = node ? layers.indexOf(node) : -1;
+	const isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0;
+	const isPointerEventsEnabled = index >= highestLayerWithOutsidePointerEventsDisabledIndex;
+	const pointerDownOutside = usePointerDownOutside((event) => {
+		const target = event.target;
+		const isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
+		if (!isPointerEventsEnabled || isPointerDownOnBranch) return;
+		onPointerDownOutside?.(event);
+		onInteractOutside?.(event);
+		if (!event.defaultPrevented) onDismiss?.();
+	}, ownerDocument);
+	const focusOutside = useFocusOutside((event) => {
+		const target = event.target;
+		if ([...context.branches].some((branch) => branch.contains(target))) return;
+		onFocusOutside?.(event);
+		onInteractOutside?.(event);
+		if (!event.defaultPrevented) onDismiss?.();
+	}, ownerDocument);
+	useEscapeKeydown((event) => {
+		if (!(index === context.layers.size - 1)) return;
+		onEscapeKeyDown?.(event);
+		if (!event.defaultPrevented && onDismiss) {
+			event.preventDefault();
+			onDismiss();
+		}
+	}, ownerDocument);
+	import_react.useEffect(() => {
+		if (!node) return;
+		if (disableOutsidePointerEvents) {
+			if (context.layersWithOutsidePointerEventsDisabled.size === 0) {
+				originalBodyPointerEvents = ownerDocument.body.style.pointerEvents;
+				ownerDocument.body.style.pointerEvents = "none";
+			}
+			context.layersWithOutsidePointerEventsDisabled.add(node);
+		}
+		context.layers.add(node);
+		dispatchUpdate();
+		return () => {
+			if (disableOutsidePointerEvents && context.layersWithOutsidePointerEventsDisabled.size === 1) ownerDocument.body.style.pointerEvents = originalBodyPointerEvents;
+		};
+	}, [
+		node,
+		ownerDocument,
+		disableOutsidePointerEvents,
+		context
+	]);
+	import_react.useEffect(() => {
+		return () => {
+			if (!node) return;
+			context.layers.delete(node);
+			context.layersWithOutsidePointerEventsDisabled.delete(node);
+			dispatchUpdate();
+		};
+	}, [node, context]);
+	import_react.useEffect(() => {
+		const handleUpdate = () => force({});
+		document.addEventListener(CONTEXT_UPDATE, handleUpdate);
+		return () => document.removeEventListener(CONTEXT_UPDATE, handleUpdate);
+	}, []);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...layerProps,
+		ref: composedRefs,
+		style: {
+			pointerEvents: isBodyPointerEventsDisabled ? isPointerEventsEnabled ? "auto" : "none" : void 0,
+			...props.style
+		},
+		onFocusCapture: composeEventHandlers(props.onFocusCapture, focusOutside.onFocusCapture),
+		onBlurCapture: composeEventHandlers(props.onBlurCapture, focusOutside.onBlurCapture),
+		onPointerDownCapture: composeEventHandlers(props.onPointerDownCapture, pointerDownOutside.onPointerDownCapture)
 	});
 });
-Button.displayName = "Button";
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/zustand@4.5.7_@types+react@19.2.14_react@19.2.4/node_modules/zustand/esm/vanilla.mjs
-var createStoreImpl = (createState) => {
-	let state;
-	const listeners = /* @__PURE__ */ new Set();
-	const setState = (partial, replace) => {
-		const nextState = typeof partial === "function" ? partial(state) : partial;
-		if (!Object.is(nextState, state)) {
-			const previousState = state;
-			state = (replace != null ? replace : typeof nextState !== "object" || nextState === null) ? nextState : Object.assign({}, state, nextState);
-			listeners.forEach((listener) => listener(state, previousState));
+DismissableLayer.displayName = DISMISSABLE_LAYER_NAME;
+var BRANCH_NAME = "DismissableLayerBranch";
+var DismissableLayerBranch = import_react.forwardRef((props, forwardedRef) => {
+	const context = import_react.useContext(DismissableLayerContext);
+	const ref = import_react.useRef(null);
+	const composedRefs = useComposedRefs(forwardedRef, ref);
+	import_react.useEffect(() => {
+		const node = ref.current;
+		if (node) {
+			context.branches.add(node);
+			return () => {
+				context.branches.delete(node);
+			};
 		}
-	};
-	const getState = () => state;
-	const getInitialState = () => initialState;
-	const subscribe = (listener) => {
-		listeners.add(listener);
-		return () => listeners.delete(listener);
-	};
-	const destroy = () => {
-		console.warn("[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected.");
-		listeners.clear();
-	};
-	const api = {
-		setState,
-		getState,
-		getInitialState,
-		subscribe,
-		destroy
-	};
-	const initialState = state = createState(setState, getState, api);
-	return api;
-};
-var createStore = (createState) => createState ? createStoreImpl(createState) : createStoreImpl;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-sync-external-store@1.6.0_react@19.2.4/node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js
-/**
-* @license React
-* use-sync-external-store-shim.development.js
-*
-* Copyright (c) Meta Platforms, Inc. and affiliates.
-*
-* This source code is licensed under the MIT license found in the
-* LICENSE file in the root directory of this source tree.
-*/
-var require_use_sync_external_store_shim_development = /* @__PURE__ */ __commonJSMin(((exports) => {
-	(function() {
-		function is(x, y) {
-			return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
-		}
-		function useSyncExternalStore$2(subscribe, getSnapshot) {
-			didWarnOld18Alpha || void 0 === React.startTransition || (didWarnOld18Alpha = !0, console.error("You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."));
-			var value = getSnapshot();
-			if (!didWarnUncachedGetSnapshot) {
-				var cachedValue = getSnapshot();
-				objectIs(value, cachedValue) || (console.error("The result of getSnapshot should be cached to avoid an infinite loop"), didWarnUncachedGetSnapshot = !0);
-			}
-			cachedValue = useState({ inst: {
-				value,
-				getSnapshot
-			} });
-			var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
-			useLayoutEffect(function() {
-				inst.value = value;
-				inst.getSnapshot = getSnapshot;
-				checkIfSnapshotChanged(inst) && forceUpdate({ inst });
-			}, [
-				subscribe,
-				value,
-				getSnapshot
-			]);
-			useEffect(function() {
-				checkIfSnapshotChanged(inst) && forceUpdate({ inst });
-				return subscribe(function() {
-					checkIfSnapshotChanged(inst) && forceUpdate({ inst });
-				});
-			}, [subscribe]);
-			useDebugValue(value);
-			return value;
-		}
-		function checkIfSnapshotChanged(inst) {
-			var latestGetSnapshot = inst.getSnapshot;
-			inst = inst.value;
-			try {
-				var nextValue = latestGetSnapshot();
-				return !objectIs(inst, nextValue);
-			} catch (error) {
-				return !0;
-			}
-		}
-		function useSyncExternalStore$1(subscribe, getSnapshot) {
-			return getSnapshot();
-		}
-		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-		var React = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState = React.useState, useEffect = React.useEffect, useLayoutEffect = React.useLayoutEffect, useDebugValue = React.useDebugValue, didWarnOld18Alpha = !1, didWarnUncachedGetSnapshot = !1, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-		exports.useSyncExternalStore = void 0 !== React.useSyncExternalStore ? React.useSyncExternalStore : shim;
-		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
-	})();
-}));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-sync-external-store@1.6.0_react@19.2.4/node_modules/use-sync-external-store/shim/index.js
-var require_shim = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-	module.exports = require_use_sync_external_store_shim_development();
-}));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/use-sync-external-store@1.6.0_react@19.2.4/node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.development.js
-/**
-* @license React
-* use-sync-external-store-shim/with-selector.development.js
-*
-* Copyright (c) Meta Platforms, Inc. and affiliates.
-*
-* This source code is licensed under the MIT license found in the
-* LICENSE file in the root directory of this source tree.
-*/
-var require_with_selector_development = /* @__PURE__ */ __commonJSMin(((exports) => {
-	(function() {
-		function is(x, y) {
-			return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
-		}
-		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-		var React = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore = shim.useSyncExternalStore, useRef = React.useRef, useEffect = React.useEffect, useMemo = React.useMemo, useDebugValue = React.useDebugValue;
-		exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-			var instRef = useRef(null);
-			if (null === instRef.current) {
-				var inst = {
-					hasValue: !1,
-					value: null
+	}, [context.branches]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...props,
+		ref: composedRefs
+	});
+});
+DismissableLayerBranch.displayName = BRANCH_NAME;
+function usePointerDownOutside(onPointerDownOutside, ownerDocument = globalThis?.document) {
+	const handlePointerDownOutside = useCallbackRef$1(onPointerDownOutside);
+	const isPointerInsideReactTreeRef = import_react.useRef(false);
+	const handleClickRef = import_react.useRef(() => {});
+	import_react.useEffect(() => {
+		const handlePointerDown = (event) => {
+			if (event.target && !isPointerInsideReactTreeRef.current) {
+				let handleAndDispatchPointerDownOutsideEvent2 = function() {
+					handleAndDispatchCustomEvent(POINTER_DOWN_OUTSIDE, handlePointerDownOutside, eventDetail, { discrete: true });
 				};
-				instRef.current = inst;
-			} else inst = instRef.current;
-			instRef = useMemo(function() {
-				function memoizedSelector(nextSnapshot) {
-					if (!hasMemo) {
-						hasMemo = !0;
-						memoizedSnapshot = nextSnapshot;
-						nextSnapshot = selector(nextSnapshot);
-						if (void 0 !== isEqual && inst.hasValue) {
-							var currentSelection = inst.value;
-							if (isEqual(currentSelection, nextSnapshot)) return memoizedSelection = currentSelection;
-						}
-						return memoizedSelection = nextSnapshot;
-					}
-					currentSelection = memoizedSelection;
-					if (objectIs(memoizedSnapshot, nextSnapshot)) return currentSelection;
-					var nextSelection = selector(nextSnapshot);
-					if (void 0 !== isEqual && isEqual(currentSelection, nextSelection)) return memoizedSnapshot = nextSnapshot, currentSelection;
-					memoizedSnapshot = nextSnapshot;
-					return memoizedSelection = nextSelection;
-				}
-				var hasMemo = !1, memoizedSnapshot, memoizedSelection, maybeGetServerSnapshot = void 0 === getServerSnapshot ? null : getServerSnapshot;
-				return [function() {
-					return memoizedSelector(getSnapshot());
-				}, null === maybeGetServerSnapshot ? void 0 : function() {
-					return memoizedSelector(maybeGetServerSnapshot());
-				}];
-			}, [
-				getSnapshot,
-				getServerSnapshot,
-				selector,
-				isEqual
-			]);
-			var value = useSyncExternalStore(subscribe, instRef[0], instRef[1]);
-			useEffect(function() {
-				inst.hasValue = !0;
-				inst.value = value;
-			}, [value]);
-			useDebugValue(value);
-			return value;
+				const eventDetail = { originalEvent: event };
+				if (event.pointerType === "touch") {
+					ownerDocument.removeEventListener("click", handleClickRef.current);
+					handleClickRef.current = handleAndDispatchPointerDownOutsideEvent2;
+					ownerDocument.addEventListener("click", handleClickRef.current, { once: true });
+				} else handleAndDispatchPointerDownOutsideEvent2();
+			} else ownerDocument.removeEventListener("click", handleClickRef.current);
+			isPointerInsideReactTreeRef.current = false;
 		};
-		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
-	})();
-}));
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/zustand@4.5.7_@types+react@19.2.14_react@19.2.4/node_modules/zustand/esm/index.mjs
-var import_with_selector = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module) => {
-	module.exports = require_with_selector_development();
-})))(), 1);
-var { useDebugValue } = import_react.default;
-var { useSyncExternalStoreWithSelector } = import_with_selector.default;
-var didWarnAboutEqualityFn = false;
-var identity = (arg) => arg;
-function useStore(api, selector = identity, equalityFn) {
-	if (equalityFn && !didWarnAboutEqualityFn) {
-		console.warn("[DEPRECATED] Use `createWithEqualityFn` instead of `create` or use `useStoreWithEqualityFn` instead of `useStore`. They can be imported from 'zustand/traditional'. https://github.com/pmndrs/zustand/discussions/1937");
-		didWarnAboutEqualityFn = true;
-	}
-	const slice = useSyncExternalStoreWithSelector(api.subscribe, api.getState, api.getServerState || api.getInitialState, selector, equalityFn);
-	useDebugValue(slice);
-	return slice;
+		const timerId = window.setTimeout(() => {
+			ownerDocument.addEventListener("pointerdown", handlePointerDown);
+		}, 0);
+		return () => {
+			window.clearTimeout(timerId);
+			ownerDocument.removeEventListener("pointerdown", handlePointerDown);
+			ownerDocument.removeEventListener("click", handleClickRef.current);
+		};
+	}, [ownerDocument, handlePointerDownOutside]);
+	return { onPointerDownCapture: () => isPointerInsideReactTreeRef.current = true };
 }
-var createImpl = (createState) => {
-	if (typeof createState !== "function") console.warn("[DEPRECATED] Passing a vanilla store will be unsupported in a future version. Instead use `import { useStore } from 'zustand'`.");
-	const api = typeof createState === "function" ? createStore(createState) : createState;
-	const useBoundStore = (selector, equalityFn) => useStore(api, selector, equalityFn);
-	Object.assign(useBoundStore, api);
-	return useBoundStore;
-};
-var create = (createState) => createState ? createImpl(createState) : createImpl;
-//#endregion
-//#region src/stores/useSearchStore.ts
-var useSearchStore = create((set) => ({
-	isOpen: false,
-	setIsOpen: (isOpen) => set({ isOpen }),
-	toggle: () => set((state) => ({ isOpen: !state.isOpen }))
-}));
+function useFocusOutside(onFocusOutside, ownerDocument = globalThis?.document) {
+	const handleFocusOutside = useCallbackRef$1(onFocusOutside);
+	const isFocusInsideReactTreeRef = import_react.useRef(false);
+	import_react.useEffect(() => {
+		const handleFocus = (event) => {
+			if (event.target && !isFocusInsideReactTreeRef.current) handleAndDispatchCustomEvent(FOCUS_OUTSIDE, handleFocusOutside, { originalEvent: event }, { discrete: false });
+		};
+		ownerDocument.addEventListener("focusin", handleFocus);
+		return () => ownerDocument.removeEventListener("focusin", handleFocus);
+	}, [ownerDocument, handleFocusOutside]);
+	return {
+		onFocusCapture: () => isFocusInsideReactTreeRef.current = true,
+		onBlurCapture: () => isFocusInsideReactTreeRef.current = false
+	};
+}
+function dispatchUpdate() {
+	const event = new CustomEvent(CONTEXT_UPDATE);
+	document.dispatchEvent(event);
+}
+function handleAndDispatchCustomEvent(name, handler, detail, { discrete }) {
+	const target = detail.originalEvent.target;
+	const event = new CustomEvent(name, {
+		bubbles: false,
+		cancelable: true,
+		detail
+	});
+	if (handler) target.addEventListener(name, handler, { once: true });
+	if (discrete) dispatchDiscreteCustomEvent(target, event);
+	else target.dispatchEvent(event);
+}
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-focus-scope@1.1.7_@types+react-dom@19.2.3_@types+react@19.2.14__@types+_f62f3af4ca2ba305a7aecf04c8534604/node_modules/@radix-ui/react-focus-scope/dist/index.mjs
 var AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount";
@@ -27619,7 +22752,7 @@ var FocusScope = import_react.forwardRef((props, forwardedRef) => {
 		trapped,
 		focusScope.paused
 	]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
 		tabIndex: -1,
 		...scopeProps,
 		ref: composedRefs,
@@ -27694,6 +22827,119 @@ function arrayRemove(array, item) {
 }
 function removeLinks(items) {
 	return items.filter((item) => item.tagName !== "A");
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-portal@1.1.9_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_7668895bec2444446faa4e0f4eb5244b/node_modules/@radix-ui/react-portal/dist/index.mjs
+var PORTAL_NAME$1 = "Portal";
+var Portal$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { container: containerProp, ...portalProps } = props;
+	const [mounted, setMounted] = import_react.useState(false);
+	useLayoutEffect2(() => setMounted(true), []);
+	const container = containerProp || mounted && globalThis?.document?.body;
+	return container ? import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...portalProps,
+		ref: forwardedRef
+	}), container) : null;
+});
+Portal$1.displayName = PORTAL_NAME$1;
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-presence@1.1.5_@types+react-dom@19.2.3_@types+react@19.2.14__@types+rea_c01c26c80b5ab5e3ecefbda6eca51ad1/node_modules/@radix-ui/react-presence/dist/index.mjs
+function useStateMachine(initialState, machine) {
+	return import_react.useReducer((state, event) => {
+		return machine[state][event] ?? state;
+	}, initialState);
+}
+var Presence = (props) => {
+	const { present, children } = props;
+	const presence = usePresence(present);
+	const child = typeof children === "function" ? children({ present: presence.isPresent }) : import_react.Children.only(children);
+	const ref = useComposedRefs(presence.ref, getElementRef$1(child));
+	return typeof children === "function" || presence.isPresent ? import_react.cloneElement(child, { ref }) : null;
+};
+Presence.displayName = "Presence";
+function usePresence(present) {
+	const [node, setNode] = import_react.useState();
+	const stylesRef = import_react.useRef(null);
+	const prevPresentRef = import_react.useRef(present);
+	const prevAnimationNameRef = import_react.useRef("none");
+	const [state, send] = useStateMachine(present ? "mounted" : "unmounted", {
+		mounted: {
+			UNMOUNT: "unmounted",
+			ANIMATION_OUT: "unmountSuspended"
+		},
+		unmountSuspended: {
+			MOUNT: "mounted",
+			ANIMATION_END: "unmounted"
+		},
+		unmounted: { MOUNT: "mounted" }
+	});
+	import_react.useEffect(() => {
+		const currentAnimationName = getAnimationName(stylesRef.current);
+		prevAnimationNameRef.current = state === "mounted" ? currentAnimationName : "none";
+	}, [state]);
+	useLayoutEffect2(() => {
+		const styles = stylesRef.current;
+		const wasPresent = prevPresentRef.current;
+		if (wasPresent !== present) {
+			const prevAnimationName = prevAnimationNameRef.current;
+			const currentAnimationName = getAnimationName(styles);
+			if (present) send("MOUNT");
+			else if (currentAnimationName === "none" || styles?.display === "none") send("UNMOUNT");
+			else if (wasPresent && prevAnimationName !== currentAnimationName) send("ANIMATION_OUT");
+			else send("UNMOUNT");
+			prevPresentRef.current = present;
+		}
+	}, [present, send]);
+	useLayoutEffect2(() => {
+		if (node) {
+			let timeoutId;
+			const ownerWindow = node.ownerDocument.defaultView ?? window;
+			const handleAnimationEnd = (event) => {
+				const isCurrentAnimation = getAnimationName(stylesRef.current).includes(CSS.escape(event.animationName));
+				if (event.target === node && isCurrentAnimation) {
+					send("ANIMATION_END");
+					if (!prevPresentRef.current) {
+						const currentFillMode = node.style.animationFillMode;
+						node.style.animationFillMode = "forwards";
+						timeoutId = ownerWindow.setTimeout(() => {
+							if (node.style.animationFillMode === "forwards") node.style.animationFillMode = currentFillMode;
+						});
+					}
+				}
+			};
+			const handleAnimationStart = (event) => {
+				if (event.target === node) prevAnimationNameRef.current = getAnimationName(stylesRef.current);
+			};
+			node.addEventListener("animationstart", handleAnimationStart);
+			node.addEventListener("animationcancel", handleAnimationEnd);
+			node.addEventListener("animationend", handleAnimationEnd);
+			return () => {
+				ownerWindow.clearTimeout(timeoutId);
+				node.removeEventListener("animationstart", handleAnimationStart);
+				node.removeEventListener("animationcancel", handleAnimationEnd);
+				node.removeEventListener("animationend", handleAnimationEnd);
+			};
+		} else send("ANIMATION_END");
+	}, [node, send]);
+	return {
+		isPresent: ["mounted", "unmountSuspended"].includes(state),
+		ref: import_react.useCallback((node2) => {
+			stylesRef.current = node2 ? getComputedStyle(node2) : null;
+			setNode(node2);
+		}, [])
+	};
+}
+function getAnimationName(styles) {
+	return styles?.animationName || "none";
+}
+function getElementRef$1(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
 }
 //#endregion
 //#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-focus-guards@1.1.3_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-focus-guards/dist/index.mjs
@@ -28569,23 +23815,23 @@ var Dialog$1 = (props) => {
 	});
 };
 Dialog$1.displayName = DIALOG_NAME;
-var TRIGGER_NAME$1 = "DialogTrigger";
+var TRIGGER_NAME = "DialogTrigger";
 var DialogTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...triggerProps } = props;
-	const context = useDialogContext(TRIGGER_NAME$1, __scopeDialog);
+	const context = useDialogContext(TRIGGER_NAME, __scopeDialog);
 	const composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
 		type: "button",
 		"aria-haspopup": "dialog",
 		"aria-expanded": context.open,
 		"aria-controls": context.contentId,
-		"data-state": getState$1(context.open),
+		"data-state": getState(context.open),
 		...triggerProps,
 		ref: composedTriggerRef,
 		onClick: composeEventHandlers(props.onClick, context.onOpenToggle)
 	});
 });
-DialogTrigger$1.displayName = TRIGGER_NAME$1;
+DialogTrigger$1.displayName = TRIGGER_NAME;
 var PORTAL_NAME = "DialogPortal";
 var [PortalProvider, usePortalContext] = createDialogContext(PORTAL_NAME, { forceMount: void 0 });
 var DialogPortal$1 = (props) => {
@@ -28619,16 +23865,16 @@ var DialogOverlay$1 = import_react.forwardRef((props, forwardedRef) => {
 	}) : null;
 });
 DialogOverlay$1.displayName = OVERLAY_NAME;
-var Slot = /* @__PURE__ */ createSlot$1("DialogOverlay.RemoveScroll");
+var Slot$1 = /* @__PURE__ */ createSlot$1("DialogOverlay.RemoveScroll");
 var DialogOverlayImpl = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...overlayProps } = props;
 	const context = useDialogContext(OVERLAY_NAME, __scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ReactRemoveScroll, {
-		as: Slot,
+		as: Slot$1,
 		allowPinchZoom: true,
 		shards: [context.contentRef],
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-			"data-state": getState$1(context.open),
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+			"data-state": getState(context.open),
 			...overlayProps,
 			ref: forwardedRef,
 			style: {
@@ -28727,7 +23973,7 @@ var DialogContentImpl = import_react.forwardRef((props, forwardedRef) => {
 			id: context.contentId,
 			"aria-describedby": context.descriptionId,
 			"aria-labelledby": context.titleId,
-			"data-state": getState$1(context.open),
+			"data-state": getState(context.open),
 			...contentProps,
 			ref: composedRefs,
 			onDismiss: () => context.onOpenChange(false)
@@ -28741,7 +23987,7 @@ var TITLE_NAME = "DialogTitle";
 var DialogTitle$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...titleProps } = props;
 	const context = useDialogContext(TITLE_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.h2, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.h2, {
 		id: context.titleId,
 		...titleProps,
 		ref: forwardedRef
@@ -28752,7 +23998,7 @@ var DESCRIPTION_NAME = "DialogDescription";
 var DialogDescription$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...descriptionProps } = props;
 	const context = useDialogContext(DESCRIPTION_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.p, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.p, {
 		id: context.descriptionId,
 		...descriptionProps,
 		ref: forwardedRef
@@ -28763,7 +24009,7 @@ var CLOSE_NAME = "DialogClose";
 var DialogClose$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...closeProps } = props;
 	const context = useDialogContext(CLOSE_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
 		type: "button",
 		...closeProps,
 		ref: forwardedRef,
@@ -28771,7 +24017,7 @@ var DialogClose$1 = import_react.forwardRef((props, forwardedRef) => {
 	});
 });
 DialogClose$1.displayName = CLOSE_NAME;
-function getState$1(open) {
+function getState(open) {
 	return open ? "open" : "closed";
 }
 var TITLE_WARNING_NAME = "DialogTitleWarning";
@@ -28809,8 +24055,7 @@ var DescriptionWarning = ({ contentRef, descriptionId }) => {
 	]);
 	return null;
 };
-var Root$2 = Dialog$1;
-var Trigger = DialogTrigger$1;
+var Root = Dialog$1;
 var Portal = DialogPortal$1;
 var Overlay = DialogOverlay$1;
 var Content = DialogContent$1;
@@ -28818,1081 +24063,14 @@ var Title = DialogTitle$1;
 var Description = DialogDescription$1;
 var Close = DialogClose$1;
 //#endregion
-//#region src/components/ui/sheet.tsx
-var Sheet = Root$2;
-var SheetTrigger = Trigger;
-var SheetPortal = Portal;
-var SheetOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay, {
-	"data-uid": "src/components/ui/sheet.tsx:21:3",
-	"data-prohibitions": "[editContent]",
-	className: cn$1("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
-	...props,
-	ref
-}));
-SheetOverlay.displayName = Overlay.displayName;
-var sheetVariants = cva("fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500", {
-	variants: { side: {
-		top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-		bottom: "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-		left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
-		right: "inset-y-0 right-0 h-full w-3/4  border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm"
-	} },
-	defaultVariants: { side: "right" }
-});
-var SheetContent = import_react.forwardRef(({ side = "right", className, children, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetPortal, {
-	"data-uid": "src/components/ui/sheet.tsx:60:3",
-	"data-prohibitions": "[editContent]",
-	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetOverlay, {
-		"data-uid": "src/components/ui/sheet.tsx:61:5",
-		"data-prohibitions": "[editContent]"
-	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Content, {
-		"data-uid": "src/components/ui/sheet.tsx:62:5",
-		"data-prohibitions": "[editContent]",
-		ref,
-		className: cn$1(sheetVariants({ side }), className),
-		...props,
-		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Close, {
-			"data-uid": "src/components/ui/sheet.tsx:64:7",
-			"data-prohibitions": "[]",
-			className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(X$1, {
-				"data-uid": "src/components/ui/sheet.tsx:65:9",
-				"data-prohibitions": "[editContent]",
-				className: "h-4 w-4"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-				"data-uid": "src/components/ui/sheet.tsx:66:9",
-				"data-prohibitions": "[]",
-				className: "sr-only",
-				children: "Close"
-			})]
-		})]
-	})]
-}));
-SheetContent.displayName = Content.displayName;
-var SheetHeader = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/sheet.tsx:74:3",
-	"data-prohibitions": "[editContent]",
-	className: cn$1("flex flex-col space-y-2 text-center sm:text-left", className),
-	...props
-});
-SheetHeader.displayName = "SheetHeader";
-var SheetFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/sheet.tsx:79:3",
-	"data-prohibitions": "[editContent]",
-	className: cn$1("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
-	...props
-});
-SheetFooter.displayName = "SheetFooter";
-var SheetTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title, {
-	"data-uid": "src/components/ui/sheet.tsx:90:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("text-lg font-semibold text-foreground", className),
-	...props
-}));
-SheetTitle.displayName = Title.displayName;
-var SheetDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Description, {
-	"data-uid": "src/components/ui/sheet.tsx:102:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("text-sm text-muted-foreground", className),
-	...props
-}));
-SheetDescription.displayName = Description.displayName;
-//#endregion
-//#region src/components/Header.tsx
-var navLinks = [
-	{
-		href: "/",
-		label: "Início"
-	},
-	{
-		href: "/uti-pediatrica",
-		label: "UTI Pediátrica"
-	},
-	{
-		href: "/emergencia",
-		label: "Emergências"
-	},
-	{
-		href: "/sobre",
-		label: "Sobre"
-	}
-];
-function Header() {
-	const location = useLocation();
-	const setIsOpen = useSearchStore((state) => state.setIsOpen);
-	const [mobileMenuOpen, setMobileMenuOpen] = (0, import_react.useState)(false);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("header", {
-		"data-uid": "src/components/Header.tsx:22:5",
-		"data-prohibitions": "[editContent]",
-		className: "sticky top-0 z-40 w-full glass-header",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/components/Header.tsx:23:7",
-			"data-prohibitions": "[editContent]",
-			className: "container mx-auto flex h-16 items-center justify-between px-4 sm:px-8",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-					"data-uid": "src/components/Header.tsx:24:9",
-					"data-prohibitions": "[]",
-					to: "/",
-					className: "flex items-center gap-2 transition-opacity hover:opacity-90",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/Header.tsx:25:11",
-						"data-prohibitions": "[]",
-						className: "bg-primary/10 p-1.5 rounded-lg",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
-							"data-uid": "src/components/Header.tsx:26:13",
-							"data-prohibitions": "[editContent]",
-							className: "h-6 w-6 text-primary"
-						})
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/Header.tsx:28:11",
-						"data-prohibitions": "[]",
-						className: "font-display font-bold text-lg hidden sm:inline-block",
-						children: ["Ponto Crítico ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/components/Header.tsx:29:27",
-							"data-prohibitions": "[]",
-							className: "text-primary",
-							children: "Pediátrico"
-						})]
-					})]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", {
-					"data-uid": "src/components/Header.tsx:34:9",
-					"data-prohibitions": "[editContent]",
-					className: "hidden md:flex items-center gap-6",
-					children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-						"data-uid": "src/components/Header.tsx:36:13",
-						"data-prohibitions": "[editContent]",
-						to: link.href,
-						className: cn$1("text-sm font-medium transition-colors hover:text-primary", location.pathname === link.href ? "text-primary" : "text-muted-foreground"),
-						children: link.label
-					}, link.href))
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/Header.tsx:49:9",
-					"data-prohibitions": "[editContent]",
-					className: "flex items-center gap-2",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/components/Header.tsx:50:11",
-							"data-prohibitions": "[]",
-							variant: "ghost",
-							size: "icon",
-							onClick: () => setIsOpen(true),
-							className: "text-muted-foreground hover:text-foreground",
-							"aria-label": "Buscar",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-								"data-uid": "src/components/Header.tsx:57:13",
-								"data-prohibitions": "[editContent]",
-								className: "h-5 w-5"
-							})
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/components/Header.tsx:60:11",
-							"data-prohibitions": "[]",
-							className: "hidden sm:flex bg-primary hover:bg-primary/90 text-white shadow-soft",
-							children: "Newsletter"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Sheet, {
-							"data-uid": "src/components/Header.tsx:65:11",
-							"data-prohibitions": "[editContent]",
-							open: mobileMenuOpen,
-							onOpenChange: setMobileMenuOpen,
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetTrigger, {
-								"data-uid": "src/components/Header.tsx:66:13",
-								"data-prohibitions": "[]",
-								asChild: true,
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-									"data-uid": "src/components/Header.tsx:67:15",
-									"data-prohibitions": "[]",
-									variant: "ghost",
-									size: "icon",
-									className: "md:hidden",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Menu, {
-										"data-uid": "src/components/Header.tsx:68:17",
-										"data-prohibitions": "[editContent]",
-										className: "h-5 w-5"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/components/Header.tsx:69:17",
-										"data-prohibitions": "[]",
-										className: "sr-only",
-										children: "Toggle Menu"
-									})]
-								})
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetContent, {
-								"data-uid": "src/components/Header.tsx:72:13",
-								"data-prohibitions": "[editContent]",
-								side: "right",
-								className: "w-[300px] sm:w-[400px]",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetHeader, {
-									"data-uid": "src/components/Header.tsx:73:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetTitle, {
-										"data-uid": "src/components/Header.tsx:74:17",
-										"data-prohibitions": "[]",
-										className: "flex items-center gap-2 justify-left",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
-											"data-uid": "src/components/Header.tsx:75:19",
-											"data-prohibitions": "[editContent]",
-											className: "h-5 w-5 text-primary"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											"data-uid": "src/components/Header.tsx:76:19",
-											"data-prohibitions": "[]",
-											children: "Navegação"
-										})]
-									})
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/components/Header.tsx:79:15",
-									"data-prohibitions": "[editContent]",
-									className: "flex flex-col gap-4 mt-8",
-									children: [navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-										"data-uid": "src/components/Header.tsx:81:19",
-										"data-prohibitions": "[editContent]",
-										to: link.href,
-										onClick: () => setMobileMenuOpen(false),
-										className: cn$1("text-lg font-medium px-2 py-1 rounded-md transition-colors", location.pathname === link.href ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"),
-										children: link.label
-									}, link.href)), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-										"data-uid": "src/components/Header.tsx:95:17",
-										"data-prohibitions": "[]",
-										className: "mt-4 w-full",
-										children: "Assinar Newsletter"
-									})]
-								})]
-							})]
-						})
-					]
-				})
-			]
-		})
-	});
-}
-//#endregion
-//#region src/components/Footer.tsx
-function Footer() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("footer", {
-		"data-uid": "src/components/Footer.tsx:6:5",
-		"data-prohibitions": "[editContent]",
-		className: "border-t bg-muted/30 pt-12 pb-8 mt-auto",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/components/Footer.tsx:7:7",
-			"data-prohibitions": "[editContent]",
-			className: "container mx-auto px-4 sm:px-8",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/Footer.tsx:8:9",
-				"data-prohibitions": "[]",
-				className: "grid grid-cols-1 md:grid-cols-4 gap-8 mb-8",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/Footer.tsx:9:11",
-						"data-prohibitions": "[]",
-						className: "md:col-span-2",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-								"data-uid": "src/components/Footer.tsx:10:13",
-								"data-prohibitions": "[]",
-								to: "/",
-								className: "flex items-center gap-2 mb-4",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
-									"data-uid": "src/components/Footer.tsx:11:15",
-									"data-prohibitions": "[editContent]",
-									className: "h-6 w-6 text-primary"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/components/Footer.tsx:12:15",
-									"data-prohibitions": "[]",
-									className: "font-display font-bold text-lg",
-									children: "Ponto Crítico Pediátrico"
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/components/Footer.tsx:14:13",
-								"data-prohibitions": "[]",
-								className: "text-sm text-muted-foreground max-w-sm mb-4 leading-relaxed",
-								children: "Resumos baseados em evidências das publicações mais relevantes em Terapia Intensiva e Emergências Pediátricas para atualização médica rápida."
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/components/Footer.tsx:18:13",
-								"data-prohibitions": "[]",
-								className: "text-xs text-muted-foreground/80 max-w-sm",
-								children: "* O conteúdo deste site tem caráter puramente educacional e não substitui o julgamento clínico individualizado na beira do leito."
-							})
-						]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/Footer.tsx:24:11",
-						"data-prohibitions": "[]",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							"data-uid": "src/components/Footer.tsx:25:13",
-							"data-prohibitions": "[]",
-							className: "font-semibold mb-4",
-							children: "Categorias"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
-							"data-uid": "src/components/Footer.tsx:26:13",
-							"data-prohibitions": "[]",
-							className: "space-y-2 text-sm",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-									"data-uid": "src/components/Footer.tsx:27:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-										"data-uid": "src/components/Footer.tsx:28:17",
-										"data-prohibitions": "[]",
-										to: "/uti-pediatrica",
-										className: "text-muted-foreground hover:text-primary transition-colors",
-										children: "UTI Pediátrica"
-									})
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-									"data-uid": "src/components/Footer.tsx:35:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-										"data-uid": "src/components/Footer.tsx:36:17",
-										"data-prohibitions": "[]",
-										to: "/emergencia",
-										className: "text-muted-foreground hover:text-primary transition-colors",
-										children: "Emergências"
-									})
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-									"data-uid": "src/components/Footer.tsx:43:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-										"data-uid": "src/components/Footer.tsx:44:17",
-										"data-prohibitions": "[]",
-										to: "/sobre",
-										className: "text-muted-foreground hover:text-primary transition-colors",
-										children: "Sobre o Projeto"
-									})
-								})
-							]
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/Footer.tsx:54:11",
-						"data-prohibitions": "[]",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							"data-uid": "src/components/Footer.tsx:55:13",
-							"data-prohibitions": "[]",
-							className: "font-semibold mb-4",
-							children: "Conecte-se"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
-							"data-uid": "src/components/Footer.tsx:56:13",
-							"data-prohibitions": "[]",
-							className: "space-y-2 text-sm",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-									"data-uid": "src/components/Footer.tsx:57:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
-										"data-uid": "src/components/Footer.tsx:58:17",
-										"data-prohibitions": "[]",
-										href: "#",
-										className: "text-muted-foreground hover:text-primary transition-colors",
-										children: "Instagram"
-									})
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-									"data-uid": "src/components/Footer.tsx:62:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
-										"data-uid": "src/components/Footer.tsx:63:17",
-										"data-prohibitions": "[]",
-										href: "#",
-										className: "text-muted-foreground hover:text-primary transition-colors",
-										children: "LinkedIn"
-									})
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-									"data-uid": "src/components/Footer.tsx:67:15",
-									"data-prohibitions": "[]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
-										"data-uid": "src/components/Footer.tsx:68:17",
-										"data-prohibitions": "[]",
-										href: "#",
-										className: "text-muted-foreground hover:text-primary transition-colors",
-										children: "Twitter (X)"
-									})
-								})
-							]
-						})]
-					})
-				]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/Footer.tsx:76:9",
-				"data-prohibitions": "[editContent]",
-				className: "border-t pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-muted-foreground",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-					"data-uid": "src/components/Footer.tsx:77:11",
-					"data-prohibitions": "[editContent]",
-					children: [
-						"© ",
-						(/* @__PURE__ */ new Date()).getFullYear(),
-						" Ponto Crítico Pediátrico. Todos os direitos reservados."
-					]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/Footer.tsx:80:11",
-					"data-prohibitions": "[]",
-					className: "flex gap-4 mt-4 md:mt-0",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
-						"data-uid": "src/components/Footer.tsx:81:13",
-						"data-prohibitions": "[]",
-						href: "#",
-						className: "hover:underline",
-						children: "Termos de Uso"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
-						"data-uid": "src/components/Footer.tsx:84:13",
-						"data-prohibitions": "[]",
-						href: "#",
-						className: "hover:underline",
-						children: "Privacidade"
-					})]
-				})]
-			})]
-		})
-	});
-}
-//#endregion
-//#region src/data/articles.ts
-var mockArticles = [
-	{
-		id: "1",
-		slug: "ventilacao-protetora-sdra-pediatrica",
-		title: "Ventilação Protetora na Síndrome do Desconforto Respiratório Agudo (SDRA) Pediátrica",
-		journal: "Pediatric Critical Care Medicine",
-		date: "2023-11-15",
-		category: "UTIP",
-		excerpt: "Análise das estratégias de ventilação mecânica protetora e seu impacto na mortalidade de pacientes pediátricos com SDRA.",
-		context: "A Síndrome do Desconforto Respiratório Agudo (SDRA) continua sendo uma causa significativa de morbimortalidade na UTIP. Estratégias de ventilação protetora, bem estabelecidas em adultos, ainda geram debates sobre os parâmetros ideais na população pediátrica, especialmente quanto ao volume corrente e titulação da PEEP.",
-		methodology: "Estudo multicêntrico, retrospectivo de coorte, analisando dados de 450 crianças (1 mês a 16 anos) diagnosticadas com SDRA moderada a grave, avaliando as configurações do ventilador nas primeiras 48 horas de intubação.",
-		keyPoints: [
-			"Uso de volume corrente ≤ 6 mL/kg de peso ideal foi associado a maior número de dias livres de ventilador.",
-			"A titulação da PEEP guiada pela tabela PEEP/FiO2 do protocolo PALICC mostrou-se superior à titulação empírica.",
-			"Pressões de platô > 28 cmH2O foram preditores independentes de mortalidade."
-		],
-		conclusion: "A adoção rigorosa de estratégias de ventilação protetora, limitando volumes correntes e pressões de platô, é crucial. A aplicação das diretrizes PALICC melhora desfechos clinicamente relevantes na SDRA pediátrica.",
-		evidenceLevel: "Alta",
-		topics: ["Ventilação Mecânica", "Respiratório"],
-		isNew: true
-	},
-	{
-		id: "2",
-		slug: "manejo-choque-septico-sala-emergencia",
-		title: "Atualizações no Manejo da Fluido-Terapia no Choque Séptico na Sala de Emergência",
-		journal: "Annals of Emergency Medicine",
-		date: "2023-10-22",
-		category: "Emergência",
-		excerpt: "Comparação entre ressuscitação volêmica restritiva vs. liberal nas primeiras horas de atendimento ao choque séptico.",
-		context: "Historicamente, a recomendação para o choque séptico pediátrico envolvia bôlus agressivos de fluidos (até 60mL/kg). Recentes estudos levantaram preocupações sobre a sobrecarga hídrica e seus efeitos deletérios, sugerindo uma abordagem mais cautelosa e guiada por metas.",
-		methodology: "Ensaio clínico randomizado (ECR) envolvendo 200 pacientes pediátricos apresentando choque séptico não-dengue em departamentos de emergência, comparando bôlus de 10-20 mL/kg vs. bôlus padronizado antigo.",
-		keyPoints: [
-			"A estratégia restritiva não resultou em aumento de mortalidade comparada à liberal.",
-			"Pacientes no grupo restritivo necessitaram de menos dias de suporte ventilatório.",
-			"O uso precoce de inotrópicos (antes do 3º bôlus de fluido) acelerou a reversão do choque."
-		],
-		conclusion: "A ressuscitação fluídica deve ser criteriosa e individualizada. Avaliar a resposta hemodinâmica após cada bôlus de 10-20 mL/kg e considerar a introdução precoce de drogas vasoativas é a melhor prática atual.",
-		evidenceLevel: "Alta",
-		topics: [
-			"Choque",
-			"Sepse",
-			"Hemodinâmica"
-		],
-		isNew: true
-	},
-	{
-		id: "3",
-		slug: "cetoacidose-diabetica-protocolos-fluidos",
-		title: "Dois Sacos ou Um? Protocolos de Reposição na Cetoacidose Diabética",
-		journal: "Journal of Pediatrics",
-		date: "2023-09-05",
-		category: "Emergência",
-		excerpt: "Avaliação da eficácia e segurança do sistema de dois sacos (two-bag system) na correção da CAD pediátrica.",
-		context: "O manejo da CAD exige ajustes frequentes na taxa de infusão de glicose para evitar hipoglicemia enquanto se mantém a infusão de insulina. O sistema de dois sacos promete maior agilidade nesses ajustes na emergência e enfermaria.",
-		methodology: "Estudo quase-experimental antes e depois da implementação do protocolo de dois sacos em um hospital pediátrico terciário (n=120).",
-		keyPoints: [
-			"Tempo significativamente menor para o primeiro ajuste da taxa de glicose no sistema de dois sacos.",
-			"Redução na incidência de hipoglicemia iatrogênica (glicemia < 70 mg/dL).",
-			"Tempo de resolução da acidose (pH > 7.3) foi semelhante em ambos os grupos."
-		],
-		conclusion: "O sistema de dois sacos é uma estratégia segura, custo-efetiva e que reduz a carga de trabalho da enfermagem, minimizando flutuações glicêmicas indesejadas durante o tratamento da CAD.",
-		evidenceLevel: "Moderada",
-		topics: ["Endocrinologia", "Metabólico"],
-		isNew: false
-	},
-	{
-		id: "4",
-		slug: "sedacao-analgesia-dexmedetomidina",
-		title: "Uso Precoce de Dexmedetomidina para Poupar Opioides na UTIP",
-		journal: "Intensive Care Medicine",
-		date: "2023-08-12",
-		category: "UTIP",
-		excerpt: "O impacto da dexmedetomidina na redução da síndrome de abstinência e tempo de ventilação mecânica.",
-		context: "A sedação prolongada com opioides e benzodiazepínicos na UTIP está associada à síndrome de abstinência, delirium e aumento do tempo de internação. A dexmedetomidina, um agonista alfa-2, surge como alternativa poupadora.",
-		methodology: "Revisão sistemática e meta-análise de 12 estudos controlados envolvendo crianças em ventilação mecânica por mais de 48 horas.",
-		keyPoints: [
-			"A infusão precoce de dexmedetomidina reduziu a dose cumulativa de fentanil em 35%.",
-			"Menor incidência de delirium pediátrico avaliado pelo CAPD.",
-			"Bradicardia foi o evento adverso mais comum, raramente exigindo intervenção farmacológica."
-		],
-		conclusion: "A dexmedetomidina é eficaz como sedativo adjuvante para poupar opioides, melhorando o perfil de despertar do paciente, desde que monitorada a resposta cronotrópica.",
-		evidenceLevel: "Alta",
-		topics: ["Sedação", "Neurologia"],
-		isNew: false
-	},
-	{
-		id: "5",
-		slug: "trauma-cranioencefalico-alvos-osmoterapia",
-		title: "Solução Salina Hipertônica vs Manitol no TCE Grave Pediátrico",
-		journal: "Pediatric Emergency Care",
-		date: "2023-07-30",
-		category: "Emergência",
-		excerpt: "Diretrizes práticas para o manejo da hipertensão intracraniana aguda na sala de trauma.",
-		context: "O controle da pressão intracraniana (PIC) é vital no TCE grave. A escolha do agente osmótico inicial na sala de emergência frequentemente varia entre Salina Hipertônica (SSH) e Manitol.",
-		methodology: "Estudo de coorte observacional pareado por escore de propensão em centros de trauma pediátrico nível I.",
-		keyPoints: [
-			"A SSH 3% em bôlus demonstrou redução mais rápida e sustentada da PIC em comparação ao Manitol.",
-			"O Manitol esteve associado a maior risco de instabilidade hemodinâmica (hipotensão) em pacientes politraumatizados.",
-			"Não houve diferença significativa na sobrevida em 30 dias."
-		],
-		conclusion: "A Solução Salina Hipertônica (3%) deve ser considerada o agente osmolar de primeira linha na emergência pediátrica para suspeita de hipertensão intracraniana, especialmente na presença de choque hipovolêmico concomitante.",
-		evidenceLevel: "Moderada",
-		topics: ["Trauma", "Neurologia"],
-		isNew: false
-	},
-	{
-		id: "6",
-		slug: "nutricao-enteral-precoce-instabilidade",
-		title: "Nutrição Enteral Precoce em Pacientes Pediátricos com Instabilidade Hemodinâmica",
-		journal: "Clinical Nutrition",
-		date: "2023-06-18",
-		category: "UTIP",
-		excerpt: "Segurança e viabilidade da nutrição enteral trófica durante o uso de drogas vasoativas.",
-		context: "O início da nutrição enteral costuma ser atrasado em pacientes chocados devido ao medo de isquemia mesentérica. No entanto, o jejum prolongado afeta a integridade da barreira intestinal.",
-		methodology: "Estudo prospectivo observacional em crianças recebendo baixas a moderadas doses de inotrópicos (escore inotrópico < 15).",
-		keyPoints: [
-			"A nutrição trófica (10-20 mL/kg/dia) iniciada nas primeiras 48h foi bem tolerada.",
-			"A incidência de isquemia intestinal foi < 1%, sem diferença para o grupo em jejum.",
-			"Associação com menor tempo para atingir a meta calórica total após a estabilização."
-		],
-		conclusion: "A nutrição enteral trófica é segura em crianças com suporte hemodinâmico estável, mesmo em uso de drogas vasoativas, e deve ser encorajada precocemente.",
-		evidenceLevel: "Baixa",
-		topics: ["Nutrição", "Gastroenterologia"],
-		isNew: false
-	}
-];
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/cmdk@1.1.1_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@19.2.14_react-dom_774a6dff9510bebce6a2343405a1ca59/node_modules/cmdk/dist/chunk-NZJY6EH4.mjs
-var U = 1, Y$1 = .9, H = .8, J = .17, p = .1, u = .999, $ = .9999;
-var k$1 = .99, m = /[\\\/_+.#"@\[\(\{&]/, B$1 = /[\\\/_+.#"@\[\(\{&]/g, K$1 = /[\s-]/, X = /[\s-]/g;
-function G(_, C, h, P, A, f, O) {
-	if (f === C.length) return A === _.length ? U : k$1;
-	var T = `${A},${f}`;
-	if (O[T] !== void 0) return O[T];
-	for (var L = P.charAt(f), c = h.indexOf(L, A), S = 0, E, N, R, M; c >= 0;) E = G(_, C, h, P, c + 1, f + 1, O), E > S && (c === A ? E *= U : m.test(_.charAt(c - 1)) ? (E *= H, R = _.slice(A, c - 1).match(B$1), R && A > 0 && (E *= Math.pow(u, R.length))) : K$1.test(_.charAt(c - 1)) ? (E *= Y$1, M = _.slice(A, c - 1).match(X), M && A > 0 && (E *= Math.pow(u, M.length))) : (E *= J, A > 0 && (E *= Math.pow(u, c - A))), _.charAt(c) !== C.charAt(f) && (E *= $)), (E < p && h.charAt(c - 1) === P.charAt(f + 1) || P.charAt(f + 1) === P.charAt(f) && h.charAt(c - 1) !== P.charAt(f)) && (N = G(_, C, h, P, c + 1, f + 2, O), N * p > E && (E = N * p)), E > S && (S = E), c = h.indexOf(L, c + 1);
-	return O[T] = S, S;
-}
-function D(_) {
-	return _.toLowerCase().replace(X, " ");
-}
-function W(_, C, h) {
-	return _ = h && h.length > 0 ? `${_ + " " + h.join(" ")}` : _, G(_, C, D(_), D(C), 0, 0, {});
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-primitive@2.1.4_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_0243fb2db8a1fb85ca77b8d9e5c2d650/node_modules/@radix-ui/react-primitive/dist/index.mjs
-var Primitive = [
-	"a",
-	"button",
-	"div",
-	"form",
-	"h2",
-	"h3",
-	"img",
-	"input",
-	"label",
-	"li",
-	"nav",
-	"ol",
-	"p",
-	"select",
-	"span",
-	"svg",
-	"ul"
-].reduce((primitive, node) => {
-	const Slot = /* @__PURE__ */ createSlot(`Primitive.${node}`);
-	const Node = import_react.forwardRef((props, forwardedRef) => {
-		const { asChild, ...primitiveProps } = props;
-		const Comp = asChild ? Slot : node;
-		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
-			...primitiveProps,
-			ref: forwardedRef
-		});
-	});
-	Node.displayName = `Primitive.${node}`;
-	return {
-		...primitive,
-		[node]: Node
-	};
-}, {});
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/cmdk@1.1.1_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@19.2.14_react-dom_774a6dff9510bebce6a2343405a1ca59/node_modules/cmdk/dist/index.mjs
-var N = "[cmdk-group=\"\"]", Y = "[cmdk-group-items=\"\"]", be = "[cmdk-group-heading=\"\"]", le = "[cmdk-item=\"\"]", ce = `${le}:not([aria-disabled="true"])`, Z = "cmdk-item-select", T = "data-value", Re = (r, o, n) => W(r, o, n), ue = import_react.createContext(void 0), K = () => import_react.useContext(ue), de = import_react.createContext(void 0), ee = () => import_react.useContext(de), fe = import_react.createContext(void 0), me = import_react.forwardRef((r, o) => {
-	let n = L(() => {
-		var e, a;
-		return {
-			search: "",
-			value: (a = (e = r.value) != null ? e : r.defaultValue) != null ? a : "",
-			selectedItemId: void 0,
-			filtered: {
-				count: 0,
-				items: /* @__PURE__ */ new Map(),
-				groups: /* @__PURE__ */ new Set()
-			}
-		};
-	}), u = L(() => /* @__PURE__ */ new Set()), c = L(() => /* @__PURE__ */ new Map()), d = L(() => /* @__PURE__ */ new Map()), f = L(() => /* @__PURE__ */ new Set()), p = pe(r), { label: b, children: m, value: R, onValueChange: x, filter: C, shouldFilter: S, loop: A, disablePointerSelection: ge = !1, vimBindings: j = !0, ...O } = r, $ = useId(), q = useId(), _ = useId(), I = import_react.useRef(null), v = ke();
-	k(() => {
-		if (R !== void 0) {
-			let e = R.trim();
-			n.current.value = e, E.emit();
-		}
-	}, [R]), k(() => {
-		v(6, ne);
-	}, []);
-	let E = import_react.useMemo(() => ({
-		subscribe: (e) => (f.current.add(e), () => f.current.delete(e)),
-		snapshot: () => n.current,
-		setState: (e, a, s) => {
-			var i, l, g, y;
-			if (!Object.is(n.current[e], a)) {
-				if (n.current[e] = a, e === "search") J(), z(), v(1, W);
-				else if (e === "value") {
-					if (document.activeElement.hasAttribute("cmdk-input") || document.activeElement.hasAttribute("cmdk-root")) {
-						let h = document.getElementById(_);
-						h ? h.focus() : (i = document.getElementById($)) == null || i.focus();
-					}
-					if (v(7, () => {
-						var h;
-						n.current.selectedItemId = (h = M()) == null ? void 0 : h.id, E.emit();
-					}), s || v(5, ne), ((l = p.current) == null ? void 0 : l.value) !== void 0) {
-						let h = a != null ? a : "";
-						(y = (g = p.current).onValueChange) == null || y.call(g, h);
-						return;
-					}
-				}
-				E.emit();
-			}
-		},
-		emit: () => {
-			f.current.forEach((e) => e());
-		}
-	}), []), U = import_react.useMemo(() => ({
-		value: (e, a, s) => {
-			var i;
-			a !== ((i = d.current.get(e)) == null ? void 0 : i.value) && (d.current.set(e, {
-				value: a,
-				keywords: s
-			}), n.current.filtered.items.set(e, te(a, s)), v(2, () => {
-				z(), E.emit();
-			}));
-		},
-		item: (e, a) => (u.current.add(e), a && (c.current.has(a) ? c.current.get(a).add(e) : c.current.set(a, new Set([e]))), v(3, () => {
-			J(), z(), n.current.value || W(), E.emit();
-		}), () => {
-			d.current.delete(e), u.current.delete(e), n.current.filtered.items.delete(e);
-			let s = M();
-			v(4, () => {
-				J(), (s == null ? void 0 : s.getAttribute("id")) === e && W(), E.emit();
-			});
-		}),
-		group: (e) => (c.current.has(e) || c.current.set(e, /* @__PURE__ */ new Set()), () => {
-			d.current.delete(e), c.current.delete(e);
-		}),
-		filter: () => p.current.shouldFilter,
-		label: b || r["aria-label"],
-		getDisablePointerSelection: () => p.current.disablePointerSelection,
-		listId: $,
-		inputId: _,
-		labelId: q,
-		listInnerRef: I
-	}), []);
-	function te(e, a) {
-		var i, l;
-		let s = (l = (i = p.current) == null ? void 0 : i.filter) != null ? l : Re;
-		return e ? s(e, n.current.search, a) : 0;
-	}
-	function z() {
-		if (!n.current.search || p.current.shouldFilter === !1) return;
-		let e = n.current.filtered.items, a = [];
-		n.current.filtered.groups.forEach((i) => {
-			let l = c.current.get(i), g = 0;
-			l.forEach((y) => {
-				let h = e.get(y);
-				g = Math.max(h, g);
-			}), a.push([i, g]);
-		});
-		let s = I.current;
-		V().sort((i, l) => {
-			var h, F;
-			let g = i.getAttribute("id"), y = l.getAttribute("id");
-			return ((h = e.get(y)) != null ? h : 0) - ((F = e.get(g)) != null ? F : 0);
-		}).forEach((i) => {
-			let l = i.closest(Y);
-			l ? l.appendChild(i.parentElement === l ? i : i.closest(`${Y} > *`)) : s.appendChild(i.parentElement === s ? i : i.closest(`${Y} > *`));
-		}), a.sort((i, l) => l[1] - i[1]).forEach((i) => {
-			var g;
-			let l = (g = I.current) == null ? void 0 : g.querySelector(`${N}[${T}="${encodeURIComponent(i[0])}"]`);
-			l?.parentElement.appendChild(l);
-		});
-	}
-	function W() {
-		let e = V().find((s) => s.getAttribute("aria-disabled") !== "true"), a = e == null ? void 0 : e.getAttribute(T);
-		E.setState("value", a || void 0);
-	}
-	function J() {
-		var a, s, i, l;
-		if (!n.current.search || p.current.shouldFilter === !1) {
-			n.current.filtered.count = u.current.size;
-			return;
-		}
-		n.current.filtered.groups = /* @__PURE__ */ new Set();
-		let e = 0;
-		for (let g of u.current) {
-			let F = te((s = (a = d.current.get(g)) == null ? void 0 : a.value) != null ? s : "", (l = (i = d.current.get(g)) == null ? void 0 : i.keywords) != null ? l : []);
-			n.current.filtered.items.set(g, F), F > 0 && e++;
-		}
-		for (let [g, y] of c.current) for (let h of y) if (n.current.filtered.items.get(h) > 0) {
-			n.current.filtered.groups.add(g);
-			break;
-		}
-		n.current.filtered.count = e;
-	}
-	function ne() {
-		var a, s, i;
-		let e = M();
-		e && (((a = e.parentElement) == null ? void 0 : a.firstChild) === e && ((i = (s = e.closest(N)) == null ? void 0 : s.querySelector(be)) == null || i.scrollIntoView({ block: "nearest" })), e.scrollIntoView({ block: "nearest" }));
-	}
-	function M() {
-		var e;
-		return (e = I.current) == null ? void 0 : e.querySelector(`${le}[aria-selected="true"]`);
-	}
-	function V() {
-		var e;
-		return Array.from(((e = I.current) == null ? void 0 : e.querySelectorAll(ce)) || []);
-	}
-	function X(e) {
-		let s = V()[e];
-		s && E.setState("value", s.getAttribute(T));
-	}
-	function Q(e) {
-		var g;
-		let a = M(), s = V(), i = s.findIndex((y) => y === a), l = s[i + e];
-		(g = p.current) != null && g.loop && (l = i + e < 0 ? s[s.length - 1] : i + e === s.length ? s[0] : s[i + e]), l && E.setState("value", l.getAttribute(T));
-	}
-	function re(e) {
-		let a = M(), s = a == null ? void 0 : a.closest(N), i;
-		for (; s && !i;) s = e > 0 ? we(s, N) : De(s, N), i = s == null ? void 0 : s.querySelector(ce);
-		i ? E.setState("value", i.getAttribute(T)) : Q(e);
-	}
-	let oe = () => X(V().length - 1), ie = (e) => {
-		e.preventDefault(), e.metaKey ? oe() : e.altKey ? re(1) : Q(1);
-	}, se = (e) => {
-		e.preventDefault(), e.metaKey ? X(0) : e.altKey ? re(-1) : Q(-1);
-	};
-	return import_react.createElement(Primitive.div, {
-		ref: o,
-		tabIndex: -1,
-		...O,
-		"cmdk-root": "",
-		onKeyDown: (e) => {
-			var s;
-			(s = O.onKeyDown) == null || s.call(O, e);
-			let a = e.nativeEvent.isComposing || e.keyCode === 229;
-			if (!(e.defaultPrevented || a)) switch (e.key) {
-				case "n":
-				case "j":
-					j && e.ctrlKey && ie(e);
-					break;
-				case "ArrowDown":
-					ie(e);
-					break;
-				case "p":
-				case "k":
-					j && e.ctrlKey && se(e);
-					break;
-				case "ArrowUp":
-					se(e);
-					break;
-				case "Home":
-					e.preventDefault(), X(0);
-					break;
-				case "End":
-					e.preventDefault(), oe();
-					break;
-				case "Enter": {
-					e.preventDefault();
-					let i = M();
-					if (i) {
-						let l = new Event(Z);
-						i.dispatchEvent(l);
-					}
-				}
-			}
-		}
-	}, import_react.createElement("label", {
-		"cmdk-label": "",
-		htmlFor: U.inputId,
-		id: U.labelId,
-		style: Te
-	}, b), B(r, (e) => import_react.createElement(de.Provider, { value: E }, import_react.createElement(ue.Provider, { value: U }, e))));
-}), he = import_react.forwardRef((r, o) => {
-	var _, I;
-	let n = useId(), u = import_react.useRef(null), c = import_react.useContext(fe), d = K(), f = pe(r), p = (I = (_ = f.current) == null ? void 0 : _.forceMount) != null ? I : c == null ? void 0 : c.forceMount;
-	k(() => {
-		if (!p) return d.item(n, c == null ? void 0 : c.id);
-	}, [p]);
-	let b = ve(n, u, [
-		r.value,
-		r.children,
-		u
-	], r.keywords), m = ee(), R = P((v) => v.value && v.value === b.current), x = P((v) => p || d.filter() === !1 ? !0 : v.search ? v.filtered.items.get(n) > 0 : !0);
-	import_react.useEffect(() => {
-		let v = u.current;
-		if (!(!v || r.disabled)) return v.addEventListener(Z, C), () => v.removeEventListener(Z, C);
-	}, [
-		x,
-		r.onSelect,
-		r.disabled
-	]);
-	function C() {
-		var v, E;
-		S(), (E = (v = f.current).onSelect) == null || E.call(v, b.current);
-	}
-	function S() {
-		m.setState("value", b.current, !0);
-	}
-	if (!x) return null;
-	let { disabled: A, value: ge, onSelect: j, forceMount: O, keywords: $, ...q } = r;
-	return import_react.createElement(Primitive.div, {
-		ref: composeRefs(u, o),
-		...q,
-		id: n,
-		"cmdk-item": "",
-		role: "option",
-		"aria-disabled": !!A,
-		"aria-selected": !!R,
-		"data-disabled": !!A,
-		"data-selected": !!R,
-		onPointerMove: A || d.getDisablePointerSelection() ? void 0 : S,
-		onClick: A ? void 0 : C
-	}, r.children);
-}), Ee = import_react.forwardRef((r, o) => {
-	let { heading: n, children: u, forceMount: c, ...d } = r, f = useId(), p = import_react.useRef(null), b = import_react.useRef(null), m = useId(), R = K(), x = P((S) => c || R.filter() === !1 ? !0 : S.search ? S.filtered.groups.has(f) : !0);
-	k(() => R.group(f), []), ve(f, p, [
-		r.value,
-		r.heading,
-		b
-	]);
-	let C = import_react.useMemo(() => ({
-		id: f,
-		forceMount: c
-	}), [c]);
-	return import_react.createElement(Primitive.div, {
-		ref: composeRefs(p, o),
-		...d,
-		"cmdk-group": "",
-		role: "presentation",
-		hidden: x ? void 0 : !0
-	}, n && import_react.createElement("div", {
-		ref: b,
-		"cmdk-group-heading": "",
-		"aria-hidden": !0,
-		id: m
-	}, n), B(r, (S) => import_react.createElement("div", {
-		"cmdk-group-items": "",
-		role: "group",
-		"aria-labelledby": n ? m : void 0
-	}, import_react.createElement(fe.Provider, { value: C }, S))));
-}), ye = import_react.forwardRef((r, o) => {
-	let { alwaysRender: n, ...u } = r, c = import_react.useRef(null), d = P((f) => !f.search);
-	return !n && !d ? null : import_react.createElement(Primitive.div, {
-		ref: composeRefs(c, o),
-		...u,
-		"cmdk-separator": "",
-		role: "separator"
-	});
-}), Se = import_react.forwardRef((r, o) => {
-	let { onValueChange: n, ...u } = r, c = r.value != null, d = ee(), f = P((m) => m.search), p = P((m) => m.selectedItemId), b = K();
-	return import_react.useEffect(() => {
-		r.value != null && d.setState("search", r.value);
-	}, [r.value]), import_react.createElement(Primitive.input, {
-		ref: o,
-		...u,
-		"cmdk-input": "",
-		autoComplete: "off",
-		autoCorrect: "off",
-		spellCheck: !1,
-		"aria-autocomplete": "list",
-		role: "combobox",
-		"aria-expanded": !0,
-		"aria-controls": b.listId,
-		"aria-labelledby": b.labelId,
-		"aria-activedescendant": p,
-		id: b.inputId,
-		type: "text",
-		value: c ? r.value : f,
-		onChange: (m) => {
-			c || d.setState("search", m.target.value), n?.(m.target.value);
-		}
-	});
-}), Ce = import_react.forwardRef((r, o) => {
-	let { children: n, label: u = "Suggestions", ...c } = r, d = import_react.useRef(null), f = import_react.useRef(null), p = P((m) => m.selectedItemId), b = K();
-	return import_react.useEffect(() => {
-		if (f.current && d.current) {
-			let m = f.current, R = d.current, x, C = new ResizeObserver(() => {
-				x = requestAnimationFrame(() => {
-					let S = m.offsetHeight;
-					R.style.setProperty("--cmdk-list-height", S.toFixed(1) + "px");
-				});
-			});
-			return C.observe(m), () => {
-				cancelAnimationFrame(x), C.unobserve(m);
-			};
-		}
-	}, []), import_react.createElement(Primitive.div, {
-		ref: composeRefs(d, o),
-		...c,
-		"cmdk-list": "",
-		role: "listbox",
-		tabIndex: -1,
-		"aria-activedescendant": p,
-		"aria-label": u,
-		id: b.listId
-	}, B(r, (m) => import_react.createElement("div", {
-		ref: composeRefs(f, b.listInnerRef),
-		"cmdk-list-sizer": ""
-	}, m)));
-}), xe = import_react.forwardRef((r, o) => {
-	let { open: n, onOpenChange: u, overlayClassName: c, contentClassName: d, container: f, ...p } = r;
-	return import_react.createElement(Root$2, {
-		open: n,
-		onOpenChange: u
-	}, import_react.createElement(Portal, { container: f }, import_react.createElement(Overlay, {
-		"cmdk-overlay": "",
-		className: c
-	}), import_react.createElement(Content, {
-		"aria-label": r.label,
-		"cmdk-dialog": "",
-		className: d
-	}, import_react.createElement(me, {
-		ref: o,
-		...p
-	}))));
-}), Ie = import_react.forwardRef((r, o) => P((u) => u.filtered.count === 0) ? import_react.createElement(Primitive.div, {
-	ref: o,
-	...r,
-	"cmdk-empty": "",
-	role: "presentation"
-}) : null), Pe = import_react.forwardRef((r, o) => {
-	let { progress: n, children: u, label: c = "Loading...", ...d } = r;
-	return import_react.createElement(Primitive.div, {
-		ref: o,
-		...d,
-		"cmdk-loading": "",
-		role: "progressbar",
-		"aria-valuenow": n,
-		"aria-valuemin": 0,
-		"aria-valuemax": 100,
-		"aria-label": c
-	}, B(r, (f) => import_react.createElement("div", { "aria-hidden": !0 }, f)));
-}), _e = Object.assign(me, {
-	List: Ce,
-	Item: he,
-	Input: Se,
-	Group: Ee,
-	Separator: ye,
-	Dialog: xe,
-	Empty: Ie,
-	Loading: Pe
-});
-function we(r, o) {
-	let n = r.nextElementSibling;
-	for (; n;) {
-		if (n.matches(o)) return n;
-		n = n.nextElementSibling;
-	}
-}
-function De(r, o) {
-	let n = r.previousElementSibling;
-	for (; n;) {
-		if (n.matches(o)) return n;
-		n = n.previousElementSibling;
-	}
-}
-function pe(r) {
-	let o = import_react.useRef(r);
-	return k(() => {
-		o.current = r;
-	}), o;
-}
-var k = typeof window == "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
-function L(r) {
-	let o = import_react.useRef();
-	return o.current === void 0 && (o.current = r()), o;
-}
-function P(r) {
-	let o = ee(), n = () => r(o.snapshot());
-	return import_react.useSyncExternalStore(o.subscribe, n, n);
-}
-function ve(r, o, n, u = []) {
-	let c = import_react.useRef(), d = K();
-	return k(() => {
-		var b;
-		let f = (() => {
-			var m;
-			for (let R of n) {
-				if (typeof R == "string") return R.trim();
-				if (typeof R == "object" && "current" in R) return R.current ? (m = R.current.textContent) == null ? void 0 : m.trim() : c.current;
-			}
-		})(), p = u.map((m) => m.trim());
-		d.value(r, f, p), (b = o.current) == null || b.setAttribute(T, f), c.current = f;
-	}), c;
-}
-var ke = () => {
-	let [r, o] = import_react.useState(), n = L(() => /* @__PURE__ */ new Map());
-	return k(() => {
-		n.current.forEach((u) => u()), n.current = /* @__PURE__ */ new Map();
-	}, [r]), (u, c) => {
-		n.current.set(u, c), o({});
-	};
-};
-function Me(r) {
-	let o = r.type;
-	return typeof o == "function" ? o(r.props) : "render" in o ? o.render(r.props) : r;
-}
-function B({ asChild: r, children: o }, n) {
-	return r && import_react.isValidElement(o) ? import_react.cloneElement(Me(o), { ref: o.ref }, n(o.props.children)) : n(o);
-}
-var Te = {
-	position: "absolute",
-	width: "1px",
-	height: "1px",
-	padding: "0",
-	margin: "-1px",
-	overflow: "hidden",
-	clip: "rect(0, 0, 0, 0)",
-	whiteSpace: "nowrap",
-	borderWidth: "0"
-};
-//#endregion
 //#region src/components/ui/dialog.tsx
-var Dialog = Root$2;
+var Dialog = Root;
 var DialogPortal = Portal;
 var DialogOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay, {
 	"data-uid": "src/components/ui/dialog.tsx:20:3",
 	"data-prohibitions": "[editContent]",
 	ref,
-	className: cn$1("fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
+	className: cn("fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
 	...props
 }));
 DialogOverlay.displayName = Overlay.displayName;
@@ -29906,13 +24084,13 @@ var DialogContent = import_react.forwardRef(({ className, children, ...props }, 
 		"data-uid": "src/components/ui/dialog.tsx:37:5",
 		"data-prohibitions": "[editContent]",
 		ref,
-		className: cn$1("fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overflow-y-auto max-h-screen", className),
+		className: cn("fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overflow-y-auto max-h-screen", className),
 		...props,
 		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Close, {
 			"data-uid": "src/components/ui/dialog.tsx:46:7",
 			"data-prohibitions": "[]",
 			className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(X$1, {
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, {
 				"data-uid": "src/components/ui/dialog.tsx:47:9",
 				"data-prohibitions": "[editContent]",
 				className: "h-4 w-4"
@@ -29929,14 +24107,14 @@ DialogContent.displayName = Content.displayName;
 var DialogHeader = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 	"data-uid": "src/components/ui/dialog.tsx:56:3",
 	"data-prohibitions": "[editContent]",
-	className: cn$1("flex flex-col space-y-1.5 text-center sm:text-left", className),
+	className: cn("flex flex-col space-y-1.5 text-center sm:text-left", className),
 	...props
 });
 DialogHeader.displayName = "DialogHeader";
 var DialogFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 	"data-uid": "src/components/ui/dialog.tsx:61:3",
 	"data-prohibitions": "[editContent]",
-	className: cn$1("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
+	className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
 	...props
 });
 DialogFooter.displayName = "DialogFooter";
@@ -29944,7 +24122,7 @@ var DialogTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @
 	"data-uid": "src/components/ui/dialog.tsx:72:3",
 	"data-prohibitions": "[editContent]",
 	ref,
-	className: cn$1("text-lg font-semibold leading-none tracking-tight", className),
+	className: cn("text-lg font-semibold leading-none tracking-tight", className),
 	...props
 }));
 DialogTitle.displayName = Title.displayName;
@@ -29952,175 +24130,637 @@ var DialogDescription = import_react.forwardRef(({ className, ...props }, ref) =
 	"data-uid": "src/components/ui/dialog.tsx:84:3",
 	"data-prohibitions": "[editContent]",
 	ref,
-	className: cn$1("text-sm text-muted-foreground", className),
+	className: cn("text-sm text-muted-foreground", className),
 	...props
 }));
 DialogDescription.displayName = Description.displayName;
 //#endregion
-//#region src/components/ui/command.tsx
-var Command = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e, {
-	"data-uid": "src/components/ui/command.tsx:14:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground", className),
-	...props
-}));
-Command.displayName = _e.displayName;
-var CommandDialog = ({ children, ...props }) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
-		"data-uid": "src/components/ui/command.tsx:27:5",
+//#region src/components/ui/input.tsx
+var Input = import_react.forwardRef(({ className, type, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+		"data-uid": "src/components/ui/input.tsx:9:7",
 		"data-prohibitions": "[editContent]",
-		...props,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, {
-			"data-uid": "src/components/ui/command.tsx:28:7",
-			"data-prohibitions": "[editContent]",
-			className: "overflow-hidden p-0 shadow-lg",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Command, {
-				"data-uid": "src/components/ui/command.tsx:29:9",
-				"data-prohibitions": "[editContent]",
-				className: "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5",
-				children
-			})
-		})
-	});
-};
-var CommandInput = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-	"data-uid": "src/components/ui/command.tsx:41:3",
-	"data-prohibitions": "[editContent]",
-	className: "flex items-center border-b px-3",
-	"cmdk-input-wrapper": "",
-	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-		"data-uid": "src/components/ui/command.tsx:42:5",
-		"data-prohibitions": "[editContent]",
-		className: "mr-2 h-4 w-4 shrink-0 opacity-50"
-	}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e.Input, {
-		"data-uid": "src/components/ui/command.tsx:43:5",
-		"data-prohibitions": "[editContent]",
+		type,
+		className: cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className),
 		ref,
-		className: cn$1("flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50", className),
-		...props
-	})]
-}));
-CommandInput.displayName = _e.Input.displayName;
-var CommandList = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e.List, {
-	"data-uid": "src/components/ui/command.tsx:60:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("max-h-[300px] overflow-y-auto overflow-x-hidden", className),
-	...props
-}));
-CommandList.displayName = _e.List.displayName;
-var CommandEmpty = import_react.forwardRef((props, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e.Empty, {
-	"data-uid": "src/components/ui/command.tsx:73:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: "py-6 text-center text-sm",
-	...props
-}));
-CommandEmpty.displayName = _e.Empty.displayName;
-var CommandGroup = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e.Group, {
-	"data-uid": "src/components/ui/command.tsx:82:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground", className),
-	...props
-}));
-CommandGroup.displayName = _e.Group.displayName;
-var CommandSeparator = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e.Separator, {
-	"data-uid": "src/components/ui/command.tsx:98:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("-mx-1 h-px bg-border", className),
-	...props
-}));
-CommandSeparator.displayName = _e.Separator.displayName;
-var CommandItem = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(_e.Item, {
-	"data-uid": "src/components/ui/command.tsx:110:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("relative flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected='true']:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", className),
-	...props
-}));
-CommandItem.displayName = _e.Item.displayName;
-var CommandShortcut = ({ className, ...props }) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-		"data-uid": "src/components/ui/command.tsx:124:5",
-		"data-prohibitions": "[editContent]",
-		className: cn$1("ml-auto text-xs tracking-widest text-muted-foreground", className),
 		...props
 	});
-};
-CommandShortcut.displayName = "CommandShortcut";
+});
+Input.displayName = "Input";
+//#endregion
+//#region src/data/articles.ts
+var articles = [
+	{
+		id: "1",
+		title: "Manejo da Cetoacidose Diabética em Pediatria",
+		summary: "Protocolo atualizado para hidratação, insulinoterapia e monitoramento de eletrólitos em pacientes pediátricos com CAD.",
+		content: "A cetoacidose diabética (CAD) é uma complicação grave e potencialmente fatal do diabetes mellitus. Na pediatria, o manejo exige atenção rigorosa à reposição volêmica cautelosa para evitar edema cerebral. A infusão contínua de insulina deve ser iniciada apenas após a expansão de volume inicial. O monitoramento horário da glicemia capilar e gasometria venosa é essencial nas primeiras 12-24 horas. Reposição de potássio deve ser iniciada precocemente devido à depleção corporal total, mesmo com níveis séricos normais na admissão.",
+		category: "UTI Pediátrica",
+		date: "15 Mar 2026",
+		readTime: "8 min",
+		isNew: true
+	},
+	{
+		id: "2",
+		title: "Reconhecimento Precoce da Sepse Pediátrica",
+		summary: "Sinais de alerta, escores de triagem e o 'pacote de uma hora' para otimização da sobrevida em emergências.",
+		content: "A sepse continua sendo uma das principais causas de mortalidade infantil globalmente. O reconhecimento precoce baseia-se na identificação rápida de sinais de disfunção orgânica, taquicardia desproporcional à febre e alteração do estado mental. A implementação do 'bundle' da primeira hora - que inclui obtenção de acessos, coleta de hemoculturas, administração de fluidos em bólus (10-20 mL/kg) e início de antibioticoterapia de amplo espectro - reduz significativamente a mortalidade.",
+		category: "Urgências",
+		date: "10 Mar 2026",
+		readTime: "6 min"
+	},
+	{
+		id: "3",
+		title: "Ventilação Mecânica Protetora em Pediatria",
+		summary: "Estratégias de ventilação mecânica para minimizar lesões induzidas pelo ventilador (VILI) em neonatos e lactentes.",
+		content: "A ventilação protetora visa evitar o volutrauma, barotrauma e atelectrauma. Estratégias incluem o uso de volumes correntes fisiológicos (5-8 mL/kg), limitação da pressão de platô (< 28-30 cmH2O) e titulação adequada do PEEP para manter os alvéolos abertos sem causar superdistensão. A hipercapnia permissiva pode ser tolerada desde que o pH seja mantido > 7.20, exceto em pacientes com hipertensão intracraniana ou hipertensão pulmonar grave.",
+		category: "UTI Pediátrica",
+		date: "05 Mar 2026",
+		readTime: "12 min"
+	},
+	{
+		id: "4",
+		title: "Manejo do Choque Anafilático",
+		summary: "Diretrizes práticas para o tratamento imediato da anafilaxia no departamento de emergência pediátrica.",
+		content: "A epinefrina intramuscular (0.01 mg/kg, máx 0.5 mg) na região ântero-lateral da coxa é o tratamento de primeira linha e deve ser administrada imediatamente em qualquer caso suspeito de anafilaxia com comprometimento respiratório ou cardiovascular. Terapias adjuvantes incluem anti-histamínicos H1 e H2, corticosteróides e broncodilatadores, porém nunca devem atrasar a administração da epinefrina. Monitoramento rigoroso por pelo menos 4-6 horas é necessário devido ao risco de reações bifásicas.",
+		category: "Urgências",
+		date: "28 Fev 2026",
+		readTime: "7 min"
+	}
+];
+//#endregion
+//#region src/stores/useSearchStore.ts
+var globalIsOpen = false;
+var listeners = /* @__PURE__ */ new Set();
+var notify = () => listeners.forEach((l) => l());
+function useSearchStore() {
+	const [isOpen, setIsOpenState] = (0, import_react.useState)(globalIsOpen);
+	(0, import_react.useEffect)(() => {
+		const listener = () => setIsOpenState(globalIsOpen);
+		listeners.add(listener);
+		return () => {
+			listeners.delete(listener);
+		};
+	}, []);
+	const setIsOpen = (newVal) => {
+		globalIsOpen = newVal;
+		notify();
+	};
+	return {
+		isOpen,
+		setIsOpen
+	};
+}
 //#endregion
 //#region src/components/SearchDialog.tsx
 function SearchDialog() {
 	const { isOpen, setIsOpen } = useSearchStore();
+	const [query, setQuery] = (0, import_react.useState)("");
 	const navigate = useNavigate();
-	import_react.useEffect(() => {
-		const down = (e) => {
+	const results = query.trim() === "" ? [] : articles.filter((a) => a.title.toLowerCase().includes(query.toLowerCase()) || a.category.toLowerCase().includes(query.toLowerCase()));
+	(0, import_react.useEffect)(() => {
+		const handleKeyDown = (e) => {
 			if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
 				setIsOpen(!isOpen);
 			}
 		};
-		document.addEventListener("keydown", down);
-		return () => document.removeEventListener("keydown", down);
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [isOpen, setIsOpen]);
-	const runCommand = import_react.useCallback((command) => {
-		setIsOpen(false);
-		command();
-	}, [setIsOpen]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CommandDialog, {
-		"data-uid": "src/components/SearchDialog.tsx:39:5",
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
+		"data-uid": "src/components/SearchDialog.tsx:41:5",
 		"data-prohibitions": "[editContent]",
 		open: isOpen,
 		onOpenChange: setIsOpen,
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CommandInput, {
-			"data-uid": "src/components/SearchDialog.tsx:40:7",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
+			"data-uid": "src/components/SearchDialog.tsx:42:7",
 			"data-prohibitions": "[editContent]",
-			placeholder: "Buscar artigos por título, tema ou palavra-chave..."
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CommandList, {
-			"data-uid": "src/components/SearchDialog.tsx:41:7",
-			"data-prohibitions": "[editContent]",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CommandEmpty, {
-				"data-uid": "src/components/SearchDialog.tsx:42:9",
-				"data-prohibitions": "[]",
-				children: "Nenhum artigo encontrado."
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CommandGroup, {
-				"data-uid": "src/components/SearchDialog.tsx:43:9",
-				"data-prohibitions": "[editContent]",
-				heading: "Artigos",
-				children: mockArticles.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CommandItem, {
-					"data-uid": "src/components/SearchDialog.tsx:45:13",
-					"data-prohibitions": "[editContent]",
-					value: article.title + " " + article.topics.join(" "),
-					onSelect: () => runCommand(() => navigate(`/artigo/${article.slug}`)),
-					className: "flex flex-col items-start gap-1 py-3",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/SearchDialog.tsx:51:15",
-						"data-prohibitions": "[editContent]",
-						className: "flex items-center gap-2 w-full",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
-							"data-uid": "src/components/SearchDialog.tsx:52:17",
-							"data-prohibitions": "[editContent]",
-							className: "h-4 w-4 text-muted-foreground shrink-0"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/components/SearchDialog.tsx:53:17",
-							"data-prohibitions": "[editContent]",
-							className: "font-medium line-clamp-1",
-							children: article.title
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/SearchDialog.tsx:55:15",
-						"data-prohibitions": "[editContent]",
-						className: "text-xs text-muted-foreground ml-6",
-						children: [
-							article.category,
-							" • ",
-							article.journal
-						]
+			className: "sm:max-w-[600px] bg-background/95 backdrop-blur-xl border-white/10 p-0 overflow-hidden shadow-2xl",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, {
+					"data-uid": "src/components/SearchDialog.tsx:43:9",
+					"data-prohibitions": "[]",
+					className: "sr-only",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+						"data-uid": "src/components/SearchDialog.tsx:44:11",
+						"data-prohibitions": "[]",
+						children: "Buscar Artigos"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
+						"data-uid": "src/components/SearchDialog.tsx:45:11",
+						"data-prohibitions": "[]",
+						children: "Digite para buscar artigos por título ou categoria."
 					})]
-				}, article.id))
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/SearchDialog.tsx:47:9",
+					"data-prohibitions": "[]",
+					className: "flex items-center px-4 border-b border-white/10",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
+						"data-uid": "src/components/SearchDialog.tsx:48:11",
+						"data-prohibitions": "[editContent]",
+						className: "w-5 h-5 text-muted-foreground mr-2"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/SearchDialog.tsx:49:11",
+						"data-prohibitions": "[editContent]",
+						placeholder: "Buscar em Ponto Crítico...",
+						className: "border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg h-14 w-full",
+						value: query,
+						onChange: (e) => setQuery(e.target.value),
+						autoFocus: true
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/components/SearchDialog.tsx:57:9",
+					"data-prohibitions": "[editContent]",
+					className: "max-h-[60vh] overflow-y-auto p-2",
+					children: results.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/components/SearchDialog.tsx:59:13",
+						"data-prohibitions": "[editContent]",
+						className: "space-y-1",
+						children: results.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							"data-uid": "src/components/SearchDialog.tsx:61:17",
+							"data-prohibitions": "[editContent]",
+							className: "w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 transition-colors group",
+							onClick: () => {
+								setIsOpen(false);
+								navigate(`/article/${article.id}`);
+							},
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/components/SearchDialog.tsx:69:19",
+								"data-prohibitions": "[]",
+								className: "w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileText, {
+									"data-uid": "src/components/SearchDialog.tsx:70:21",
+									"data-prohibitions": "[editContent]",
+									className: "w-5 h-5"
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/components/SearchDialog.tsx:72:19",
+								"data-prohibitions": "[editContent]",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									"data-uid": "src/components/SearchDialog.tsx:73:21",
+									"data-prohibitions": "[editContent]",
+									className: "font-medium text-white",
+									children: article.title
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									"data-uid": "src/components/SearchDialog.tsx:74:21",
+									"data-prohibitions": "[editContent]",
+									className: "text-xs text-muted-foreground",
+									children: article.category
+								})]
+							})]
+						}, article.id))
+					}) : query.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/SearchDialog.tsx:80:13",
+						"data-prohibitions": "[editContent]",
+						className: "text-center py-12 text-muted-foreground",
+						children: [
+							"Nenhum artigo encontrado para \"",
+							query,
+							"\""
+						]
+					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/SearchDialog.tsx:84:13",
+						"data-prohibitions": "[]",
+						className: "text-center py-12 text-muted-foreground flex flex-col items-center",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
+							"data-uid": "src/components/SearchDialog.tsx:85:15",
+							"data-prohibitions": "[editContent]",
+							className: "w-12 h-12 opacity-20 mb-4"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							"data-uid": "src/components/SearchDialog.tsx:86:15",
+							"data-prohibitions": "[]",
+							children: "Comece a digitar para buscar resumos e diretrizes."
+						})]
+					})
+				})
+			]
+		})
+	});
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-slot@1.2.4_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-slot/dist/index.mjs
+var REACT_LAZY_TYPE = Symbol.for("react.lazy");
+var use = import_react[" use ".trim().toString()];
+function isPromiseLike(value) {
+	return typeof value === "object" && value !== null && "then" in value;
+}
+function isLazyComponent(element) {
+	return element != null && typeof element === "object" && "$$typeof" in element && element.$$typeof === REACT_LAZY_TYPE && "_payload" in element && isPromiseLike(element._payload);
+}
+/* @__NO_SIDE_EFFECTS__ */
+function createSlot(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
+	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
+		let { children, ...slotProps } = props;
+		if (isLazyComponent(children) && typeof use === "function") children = use(children._payload);
+		const childrenArray = import_react.Children.toArray(children);
+		const slottable = childrenArray.find(isSlottable);
+		if (slottable) {
+			const newElement = slottable.props.children;
+			const newChildren = childrenArray.map((child) => {
+				if (child === slottable) {
+					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
+					return import_react.isValidElement(newElement) ? newElement.props.children : null;
+				} else return child;
+			});
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+				...slotProps,
+				ref: forwardedRef,
+				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
+			});
+		}
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+			...slotProps,
+			ref: forwardedRef,
+			children
+		});
+	});
+	Slot2.displayName = `${ownerName}.Slot`;
+	return Slot2;
+}
+var Slot = /* @__PURE__ */ createSlot("Slot");
+/* @__NO_SIDE_EFFECTS__ */
+function createSlotClone(ownerName) {
+	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
+		let { children, ...slotProps } = props;
+		if (isLazyComponent(children) && typeof use === "function") children = use(children._payload);
+		if (import_react.isValidElement(children)) {
+			const childrenRef = getElementRef(children);
+			const props2 = mergeProps(slotProps, children.props);
+			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+			return import_react.cloneElement(children, props2);
+		}
+		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
+	});
+	SlotClone.displayName = `${ownerName}.SlotClone`;
+	return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
+function isSlottable(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
+}
+function mergeProps(slotProps, childProps) {
+	const overrideProps = { ...childProps };
+	for (const propName in childProps) {
+		const slotPropValue = slotProps[propName];
+		const childPropValue = childProps[propName];
+		if (/^on[A-Z]/.test(propName)) {
+			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
+				const result = childPropValue(...args);
+				slotPropValue(...args);
+				return result;
+			};
+			else if (slotPropValue) overrideProps[propName] = slotPropValue;
+		} else if (propName === "style") overrideProps[propName] = {
+			...slotPropValue,
+			...childPropValue
+		};
+		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
+	}
+	return {
+		...slotProps,
+		...overrideProps
+	};
+}
+function getElementRef(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
+}
+//#endregion
+//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority/dist/index.mjs
+/**
+* Copyright 2022 Joe Bell. All rights reserved.
+*
+* This file is licensed to you under the Apache License, Version 2.0
+* (the "License"); you may not use this file except in compliance with the
+* License. You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*/ var falsyToString = (value) => typeof value === "boolean" ? `${value}` : value === 0 ? "0" : value;
+var cx = clsx;
+var cva = (base, config) => (props) => {
+	var _config_compoundVariants;
+	if ((config === null || config === void 0 ? void 0 : config.variants) == null) return cx(base, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
+	const { variants, defaultVariants } = config;
+	const getVariantClassNames = Object.keys(variants).map((variant) => {
+		const variantProp = props === null || props === void 0 ? void 0 : props[variant];
+		const defaultVariantProp = defaultVariants === null || defaultVariants === void 0 ? void 0 : defaultVariants[variant];
+		if (variantProp === null) return null;
+		const variantKey = falsyToString(variantProp) || falsyToString(defaultVariantProp);
+		return variants[variant][variantKey];
+	});
+	const propsWithoutUndefined = props && Object.entries(props).reduce((acc, param) => {
+		let [key, value] = param;
+		if (value === void 0) return acc;
+		acc[key] = value;
+		return acc;
+	}, {});
+	return cx(base, getVariantClassNames, config === null || config === void 0 ? void 0 : (_config_compoundVariants = config.compoundVariants) === null || _config_compoundVariants === void 0 ? void 0 : _config_compoundVariants.reduce((acc, param) => {
+		let { class: cvClass, className: cvClassName, ...compoundVariantOptions } = param;
+		return Object.entries(compoundVariantOptions).every((param) => {
+			let [key, value] = param;
+			return Array.isArray(value) ? value.includes({
+				...defaultVariants,
+				...propsWithoutUndefined
+			}[key]) : {
+				...defaultVariants,
+				...propsWithoutUndefined
+			}[key] === value;
+		}) ? [
+			...acc,
+			cvClass,
+			cvClassName
+		] : acc;
+	}, []), props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
+};
+//#endregion
+//#region src/components/ui/button.tsx
+var buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", {
+	variants: {
+		variant: {
+			default: "bg-primary text-primary-foreground hover:bg-primary/90",
+			destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+			outline: "border border-input bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground",
+			secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+			ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
+			link: "text-foreground underline-offset-4 hover:underline"
+		},
+		size: {
+			default: "h-10 px-4 py-2",
+			sm: "h-9 rounded-md px-3",
+			lg: "h-11 rounded-md px-8",
+			icon: "h-10 w-10"
+		}
+	},
+	defaultVariants: {
+		variant: "default",
+		size: "default"
+	}
+});
+var Button = import_react.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(asChild ? Slot : "button", {
+		"data-uid": "src/components/ui/button.tsx:44:7",
+		"data-prohibitions": "[editContent]",
+		className: cn(buttonVariants({
+			variant,
+			size,
+			className
+		})),
+		ref,
+		...props
+	});
+});
+Button.displayName = "Button";
+//#endregion
+//#region src/assets/generatedimage_1773607393240-f55fc.png
+var generatedimage_1773607393240_f55fc_default = "/assets/generatedimage_1773607393240-f55fc-Ca9FkCmk.png";
+//#endregion
+//#region src/components/Header.tsx
+function Header() {
+	const location = useLocation();
+	const { setIsOpen } = useSearchStore();
+	const [isScrolled, setIsScrolled] = (0, import_react.useState)(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = (0, import_react.useState)(false);
+	(0, import_react.useEffect)(() => {
+		const handleScroll = () => {
+			setIsScrolled(window.scrollY > 20);
+		};
+		window.addEventListener("scroll", handleScroll);
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, []);
+	const navLinks = [
+		{
+			path: "/",
+			label: "Início"
+		},
+		{
+			path: "/category/uti-pediatrica",
+			label: "UTI Pediátrica"
+		},
+		{
+			path: "/category/urgencias",
+			label: "Urgências"
+		},
+		{
+			path: "/about",
+			label: "Sobre"
+		}
+	];
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
+		"data-uid": "src/components/Header.tsx:32:5",
+		"data-prohibitions": "[editContent]",
+		className: cn("fixed top-0 w-full z-50 transition-all duration-300 border-b", isScrolled ? "glass-header shadow-md border-white/10 py-3" : "bg-transparent border-transparent py-5"),
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/components/Header.tsx:40:7",
+				"data-prohibitions": "[editContent]",
+				className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/Header.tsx:41:9",
+					"data-prohibitions": "[editContent]",
+					className: "flex justify-between items-center",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+							"data-uid": "src/components/Header.tsx:42:11",
+							"data-prohibitions": "[]",
+							to: "/",
+							className: "flex items-center space-x-3 group",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/components/Header.tsx:43:13",
+								"data-prohibitions": "[]",
+								className: "relative",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									"data-uid": "src/components/Header.tsx:44:15",
+									"data-prohibitions": "[editContent]",
+									className: "absolute inset-0 bg-primary/20 rounded-xl blur-md group-hover:bg-primary/40 transition-colors"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+									"data-uid": "src/components/Header.tsx:45:15",
+									"data-prohibitions": "[editContent]",
+									src: generatedimage_1773607393240_f55fc_default,
+									alt: "Logo",
+									className: "w-10 h-10 rounded-xl relative z-10 shadow-sm border border-white/10 object-cover"
+								})]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/components/Header.tsx:51:13",
+								"data-prohibitions": "[]",
+								className: "flex flex-col",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/components/Header.tsx:52:15",
+									"data-prohibitions": "[]",
+									className: "font-extrabold text-lg leading-none tracking-tight text-white",
+									children: "Ponto Crítico"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/components/Header.tsx:55:15",
+									"data-prohibitions": "[]",
+									className: "text-primary text-xs font-semibold uppercase tracking-wider",
+									children: "Pediátrico"
+								})]
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", {
+							"data-uid": "src/components/Header.tsx:61:11",
+							"data-prohibitions": "[editContent]",
+							className: "hidden md:flex items-center space-x-8",
+							children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+								"data-uid": "src/components/Header.tsx:63:15",
+								"data-prohibitions": "[editContent]",
+								to: link.path,
+								className: cn("text-sm font-medium transition-colors hover:text-primary relative py-1", location.pathname === link.path ? "text-primary" : "text-muted-foreground"),
+								children: [link.label, location.pathname === link.path && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/components/Header.tsx:73:19",
+									"data-prohibitions": "[editContent]",
+									className: "absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full animate-fade-in"
+								})]
+							}, link.path))
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/components/Header.tsx:79:11",
+							"data-prohibitions": "[editContent]",
+							className: "flex items-center space-x-4",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								"data-uid": "src/components/Header.tsx:80:13",
+								"data-prohibitions": "[]",
+								variant: "ghost",
+								size: "icon",
+								onClick: () => setIsOpen(true),
+								className: "text-muted-foreground hover:text-white hover:bg-white/5 rounded-full",
+								"aria-label": "Buscar",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
+									"data-uid": "src/components/Header.tsx:87:15",
+									"data-prohibitions": "[editContent]",
+									className: "h-5 w-5"
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								"data-uid": "src/components/Header.tsx:90:13",
+								"data-prohibitions": "[editContent]",
+								variant: "ghost",
+								size: "icon",
+								className: "md:hidden text-muted-foreground hover:text-white",
+								onClick: () => setMobileMenuOpen(!mobileMenuOpen),
+								children: mobileMenuOpen ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, {
+									"data-uid": "src/components/Header.tsx:96:33",
+									"data-prohibitions": "[editContent]",
+									className: "h-6 w-6"
+								}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Menu, {
+									"data-uid": "src/components/Header.tsx:96:61",
+									"data-prohibitions": "[editContent]",
+									className: "h-6 w-6"
+								})
+							})]
+						})
+					]
+				})
+			}),
+			mobileMenuOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/components/Header.tsx:103:9",
+				"data-prohibitions": "[editContent]",
+				className: "md:hidden absolute top-full left-0 w-full glass-header border-b border-white/10 py-4 px-4 animate-slide-down",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/components/Header.tsx:104:11",
+					"data-prohibitions": "[editContent]",
+					className: "flex flex-col space-y-4",
+					children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+						"data-uid": "src/components/Header.tsx:106:15",
+						"data-prohibitions": "[editContent]",
+						to: link.path,
+						onClick: () => setMobileMenuOpen(false),
+						className: cn("text-base font-medium px-4 py-2 rounded-lg transition-colors", location.pathname === link.path ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-white"),
+						children: link.label
+					}, link.path))
+				})
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SearchDialog, {
+				"data-uid": "src/components/Header.tsx:123:7",
+				"data-prohibitions": "[editContent]"
+			})
+		]
+	});
+}
+//#endregion
+//#region src/components/Footer.tsx
+function Footer() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
+		"data-uid": "src/components/Footer.tsx:6:5",
+		"data-prohibitions": "[editContent]",
+		className: "bg-background/80 backdrop-blur-md border-t border-white/5 py-12 mt-16 relative overflow-hidden",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-uid": "src/components/Footer.tsx:7:7",
+			"data-prohibitions": "[editContent]",
+			className: "absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-32 bg-primary/10 rounded-t-full blur-3xl z-0"
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/components/Footer.tsx:8:7",
+			"data-prohibitions": "[editContent]",
+			className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/Footer.tsx:9:9",
+				"data-prohibitions": "[]",
+				className: "flex flex-col md:flex-row justify-between items-center gap-6",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/Footer.tsx:10:11",
+					"data-prohibitions": "[]",
+					className: "flex items-center space-x-3",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+						"data-uid": "src/components/Footer.tsx:11:13",
+						"data-prohibitions": "[editContent]",
+						src: generatedimage_1773607393240_f55fc_default,
+						alt: "Logo",
+						className: "w-8 h-8 rounded-lg opacity-80"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						"data-uid": "src/components/Footer.tsx:12:13",
+						"data-prohibitions": "[]",
+						className: "font-semibold text-lg text-white/90",
+						children: "Ponto Crítico Pediátrico"
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/Footer.tsx:14:11",
+					"data-prohibitions": "[]",
+					className: "text-sm text-muted-foreground flex gap-4",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							"data-uid": "src/components/Footer.tsx:15:13",
+							"data-prohibitions": "[]",
+							to: "/",
+							className: "hover:text-primary transition-colors",
+							children: "Início"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							"data-uid": "src/components/Footer.tsx:18:13",
+							"data-prohibitions": "[]",
+							to: "/about",
+							className: "hover:text-primary transition-colors",
+							children: "Sobre"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							"data-uid": "src/components/Footer.tsx:21:13",
+							"data-prohibitions": "[]",
+							to: "/contact",
+							className: "hover:text-primary transition-colors",
+							children: "Contato"
+						})
+					]
+				})]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/Footer.tsx:26:9",
+				"data-prohibitions": "[editContent]",
+				className: "mt-8 text-center text-xs text-muted-foreground/60",
+				children: [
+					"© ",
+					(/* @__PURE__ */ new Date()).getFullYear(),
+					" Ponto Crítico Pediátrico. Proteção Técnica. Todos os direitos reservados."
+				]
 			})]
 		})]
 	});
@@ -30129,2938 +24769,69 @@ function SearchDialog() {
 //#region src/components/Layout.tsx
 function Layout() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/components/Layout.tsx:9:5",
-		"data-prohibitions": "[editContent]",
-		className: "flex flex-col min-h-screen relative overflow-x-hidden",
+		"data-uid": "src/components/Layout.tsx:7:5",
+		"data-prohibitions": "[]",
+		className: "min-h-screen flex flex-col relative overflow-hidden",
 		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/components/Layout.tsx:11:7",
-				"data-prohibitions": "[editContent]",
-				className: "fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px] -z-10 pointer-events-none"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/components/Layout.tsx:12:7",
-				"data-prohibitions": "[editContent]",
-				className: "fixed bottom-[-10%] right-[-5%] w-[30%] h-[40%] rounded-full bg-secondary/5 blur-[100px] -z-10 pointer-events-none"
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/Layout.tsx:8:7",
+				"data-prohibitions": "[]",
+				className: "fixed inset-0 pointer-events-none z-[-1]",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/components/Layout.tsx:9:9",
+						"data-prohibitions": "[editContent]",
+						className: "absolute top-[20%] w-full h-32 opacity-10",
+						style: {
+							backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50 L80 50 L90 20 L100 80 L110 10 L120 90 L130 50 L200 50' stroke='%2300D2D3' fill='none' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+							backgroundRepeat: "repeat-x",
+							backgroundSize: "200px 100px"
+						}
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/components/Layout.tsx:17:9",
+						"data-prohibitions": "[editContent]",
+						className: "absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full border border-primary/10 mix-blend-overlay"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/components/Layout.tsx:18:9",
+						"data-prohibitions": "[editContent]",
+						className: "absolute top-[5%] right-[5%] w-[20vw] h-[20vw] rounded-full border border-primary/20 mix-blend-overlay"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/components/Layout.tsx:19:9",
+						"data-prohibitions": "[editContent]",
+						className: "absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full border border-white/5 bg-primary/5 blur-3xl"
+					})
+				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Header, {
-				"data-uid": "src/components/Layout.tsx:14:7",
+				"data-uid": "src/components/Layout.tsx:22:7",
 				"data-prohibitions": "[editContent]"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
-				"data-uid": "src/components/Layout.tsx:15:7",
+				"data-uid": "src/components/Layout.tsx:23:7",
 				"data-prohibitions": "[]",
-				className: "flex-1 flex flex-col",
+				className: "flex-grow pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {
-					"data-uid": "src/components/Layout.tsx:16:9",
+					"data-uid": "src/components/Layout.tsx:24:9",
 					"data-prohibitions": "[editContent]"
 				})
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Footer, {
-				"data-uid": "src/components/Layout.tsx:18:7",
-				"data-prohibitions": "[editContent]"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SearchDialog, {
-				"data-uid": "src/components/Layout.tsx:19:7",
+				"data-uid": "src/components/Layout.tsx:26:7",
 				"data-prohibitions": "[editContent]"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScrollRestoration, {
-				"data-uid": "src/components/Layout.tsx:20:7",
+				"data-uid": "src/components/Layout.tsx:27:7",
 				"data-prohibitions": "[editContent]"
 			})
 		]
 	});
 }
 //#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/constants.js
-/**
-* @constant
-* @name daysInYear
-* @summary Days in 1 year.
-*
-* @description
-* How many days in a year.
-*
-* One years equals 365.2425 days according to the formula:
-*
-* > Leap year occurs every 4 years, except for years that are divisible by 100 and not divisible by 400.
-* > 1 mean year = (365+1/4-1/100+1/400) days = 365.2425 days
-*/
-var daysInYear = 365.2425;
-Math.pow(10, 8) * 24 * 60 * 60 * 1e3;
-/**
-* @constant
-* @name millisecondsInWeek
-* @summary Milliseconds in 1 week.
-*/
-var millisecondsInWeek = 6048e5;
-/**
-* @constant
-* @name millisecondsInDay
-* @summary Milliseconds in 1 day.
-*/
-var millisecondsInDay = 864e5;
-/**
-* @constant
-* @name millisecondsInMinute
-* @summary Milliseconds in 1 minute
-*/
-var millisecondsInMinute = 6e4;
-/**
-* @constant
-* @name millisecondsInHour
-* @summary Milliseconds in 1 hour
-*/
-var millisecondsInHour = 36e5;
-/**
-* @constant
-* @name secondsInDay
-* @summary Seconds in 1 day.
-*/
-var secondsInDay = 3600 * 24;
-secondsInDay * 7;
-secondsInDay * daysInYear / 12 * 3;
-/**
-* @constant
-* @name constructFromSymbol
-* @summary Symbol enabling Date extensions to inherit properties from the reference date.
-*
-* The symbol is used to enable the `constructFrom` function to construct a date
-* using a reference date and a value. It allows to transfer extra properties
-* from the reference date to the new date. It's useful for extensions like
-* [`TZDate`](https://github.com/date-fns/tz) that accept a time zone as
-* a constructor argument.
-*/
-var constructFromSymbol = Symbol.for("constructDateFrom");
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/constructFrom.js
-/**
-* @name constructFrom
-* @category Generic Helpers
-* @summary Constructs a date using the reference date and the value
-*
-* @description
-* The function constructs a new date using the constructor from the reference
-* date and the given value. It helps to build generic functions that accept
-* date extensions.
-*
-* It defaults to `Date` if the passed reference date is a number or a string.
-*
-* Starting from v3.7.0, it allows to construct a date using `[Symbol.for("constructDateFrom")]`
-* enabling to transfer extra properties from the reference date to the new date.
-* It's useful for extensions like [`TZDate`](https://github.com/date-fns/tz)
-* that accept a time zone as a constructor argument.
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-*
-* @param date - The reference date to take constructor from
-* @param value - The value to create the date
-*
-* @returns Date initialized using the given date and value
-*
-* @example
-* import { constructFrom } from "./constructFrom/date-fns";
-*
-* // A function that clones a date preserving the original type
-* function cloneDate<DateType extends Date>(date: DateType): DateType {
-*   return constructFrom(
-*     date, // Use constructor from the given date
-*     date.getTime() // Use the date value to create a new date
-*   );
-* }
-*/
-function constructFrom(date, value) {
-	if (typeof date === "function") return date(value);
-	if (date && typeof date === "object" && constructFromSymbol in date) return date[constructFromSymbol](value);
-	if (date instanceof Date) return new date.constructor(value);
-	return new Date(value);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/toDate.js
-/**
-* @name toDate
-* @category Common Helpers
-* @summary Convert the given argument to an instance of Date.
-*
-* @description
-* Convert the given argument to an instance of Date.
-*
-* If the argument is an instance of Date, the function returns its clone.
-*
-* If the argument is a number, it is treated as a timestamp.
-*
-* If the argument is none of the above, the function returns Invalid Date.
-*
-* Starting from v3.7.0, it clones a date using `[Symbol.for("constructDateFrom")]`
-* enabling to transfer extra properties from the reference date to the new date.
-* It's useful for extensions like [`TZDate`](https://github.com/date-fns/tz)
-* that accept a time zone as a constructor argument.
-*
-* **Note**: *all* Date arguments passed to any *date-fns* function is processed by `toDate`.
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param argument - The value to convert
-*
-* @returns The parsed date in the local time zone
-*
-* @example
-* // Clone the date:
-* const result = toDate(new Date(2014, 1, 11, 11, 30, 30))
-* //=> Tue Feb 11 2014 11:30:30
-*
-* @example
-* // Convert the timestamp to date:
-* const result = toDate(1392098430000)
-* //=> Tue Feb 11 2014 11:30:30
-*/
-function toDate(argument, context) {
-	return constructFrom(context || argument, argument);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/defaultOptions.js
-var defaultOptions = {};
-function getDefaultOptions() {
-	return defaultOptions;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/startOfWeek.js
-/**
-* The {@link startOfWeek} function options.
-*/
-/**
-* @name startOfWeek
-* @category Week Helpers
-* @summary Return the start of a week for the given date.
-*
-* @description
-* Return the start of a week for the given date.
-* The result will be in the local timezone.
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param date - The original date
-* @param options - An object with options
-*
-* @returns The start of a week
-*
-* @example
-* // The start of a week for 2 September 2014 11:55:00:
-* const result = startOfWeek(new Date(2014, 8, 2, 11, 55, 0))
-* //=> Sun Aug 31 2014 00:00:00
-*
-* @example
-* // If the week starts on Monday, the start of the week for 2 September 2014 11:55:00:
-* const result = startOfWeek(new Date(2014, 8, 2, 11, 55, 0), { weekStartsOn: 1 })
-* //=> Mon Sep 01 2014 00:00:00
-*/
-function startOfWeek(date, options) {
-	const defaultOptions = getDefaultOptions();
-	const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions.weekStartsOn ?? defaultOptions.locale?.options?.weekStartsOn ?? 0;
-	const _date = toDate(date, options?.in);
-	const day = _date.getDay();
-	const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
-	_date.setDate(_date.getDate() - diff);
-	_date.setHours(0, 0, 0, 0);
-	return _date;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/startOfISOWeek.js
-/**
-* The {@link startOfISOWeek} function options.
-*/
-/**
-* @name startOfISOWeek
-* @category ISO Week Helpers
-* @summary Return the start of an ISO week for the given date.
-*
-* @description
-* Return the start of an ISO week for the given date.
-* The result will be in the local timezone.
-*
-* ISO week-numbering year: http://en.wikipedia.org/wiki/ISO_week_date
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param date - The original date
-* @param options - An object with options
-*
-* @returns The start of an ISO week
-*
-* @example
-* // The start of an ISO week for 2 September 2014 11:55:00:
-* const result = startOfISOWeek(new Date(2014, 8, 2, 11, 55, 0))
-* //=> Mon Sep 01 2014 00:00:00
-*/
-function startOfISOWeek(date, options) {
-	return startOfWeek(date, {
-		...options,
-		weekStartsOn: 1
-	});
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/getISOWeekYear.js
-/**
-* The {@link getISOWeekYear} function options.
-*/
-/**
-* @name getISOWeekYear
-* @category ISO Week-Numbering Year Helpers
-* @summary Get the ISO week-numbering year of the given date.
-*
-* @description
-* Get the ISO week-numbering year of the given date,
-* which always starts 3 days before the year's first Thursday.
-*
-* ISO week-numbering year: http://en.wikipedia.org/wiki/ISO_week_date
-*
-* @param date - The given date
-*
-* @returns The ISO week-numbering year
-*
-* @example
-* // Which ISO-week numbering year is 2 January 2005?
-* const result = getISOWeekYear(new Date(2005, 0, 2))
-* //=> 2004
-*/
-function getISOWeekYear(date, options) {
-	const _date = toDate(date, options?.in);
-	const year = _date.getFullYear();
-	const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
-	fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
-	fourthOfJanuaryOfNextYear.setHours(0, 0, 0, 0);
-	const startOfNextYear = startOfISOWeek(fourthOfJanuaryOfNextYear);
-	const fourthOfJanuaryOfThisYear = constructFrom(_date, 0);
-	fourthOfJanuaryOfThisYear.setFullYear(year, 0, 4);
-	fourthOfJanuaryOfThisYear.setHours(0, 0, 0, 0);
-	const startOfThisYear = startOfISOWeek(fourthOfJanuaryOfThisYear);
-	if (_date.getTime() >= startOfNextYear.getTime()) return year + 1;
-	else if (_date.getTime() >= startOfThisYear.getTime()) return year;
-	else return year - 1;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/getTimezoneOffsetInMilliseconds.js
-/**
-* Google Chrome as of 67.0.3396.87 introduced timezones with offset that includes seconds.
-* They usually appear for dates that denote time before the timezones were introduced
-* (e.g. for 'Europe/Prague' timezone the offset is GMT+00:57:44 before 1 October 1891
-* and GMT+01:00:00 after that date)
-*
-* Date#getTimezoneOffset returns the offset in minutes and would return 57 for the example above,
-* which would lead to incorrect calculations.
-*
-* This function returns the timezone offset in milliseconds that takes seconds in account.
-*/
-function getTimezoneOffsetInMilliseconds(date) {
-	const _date = toDate(date);
-	const utcDate = new Date(Date.UTC(_date.getFullYear(), _date.getMonth(), _date.getDate(), _date.getHours(), _date.getMinutes(), _date.getSeconds(), _date.getMilliseconds()));
-	utcDate.setUTCFullYear(_date.getFullYear());
-	return +date - +utcDate;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/normalizeDates.js
-function normalizeDates(context, ...dates) {
-	const normalize = constructFrom.bind(null, context || dates.find((date) => typeof date === "object"));
-	return dates.map(normalize);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/startOfDay.js
-/**
-* The {@link startOfDay} function options.
-*/
-/**
-* @name startOfDay
-* @category Day Helpers
-* @summary Return the start of a day for the given date.
-*
-* @description
-* Return the start of a day for the given date.
-* The result will be in the local timezone.
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param date - The original date
-* @param options - The options
-*
-* @returns The start of a day
-*
-* @example
-* // The start of a day for 2 September 2014 11:55:00:
-* const result = startOfDay(new Date(2014, 8, 2, 11, 55, 0))
-* //=> Tue Sep 02 2014 00:00:00
-*/
-function startOfDay(date, options) {
-	const _date = toDate(date, options?.in);
-	_date.setHours(0, 0, 0, 0);
-	return _date;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/differenceInCalendarDays.js
-/**
-* The {@link differenceInCalendarDays} function options.
-*/
-/**
-* @name differenceInCalendarDays
-* @category Day Helpers
-* @summary Get the number of calendar days between the given dates.
-*
-* @description
-* Get the number of calendar days between the given dates. This means that the times are removed
-* from the dates and then the difference in days is calculated.
-*
-* @param laterDate - The later date
-* @param earlierDate - The earlier date
-* @param options - The options object
-*
-* @returns The number of calendar days
-*
-* @example
-* // How many calendar days are between
-* // 2 July 2011 23:00:00 and 2 July 2012 00:00:00?
-* const result = differenceInCalendarDays(
-*   new Date(2012, 6, 2, 0, 0),
-*   new Date(2011, 6, 2, 23, 0)
-* )
-* //=> 366
-* // How many calendar days are between
-* // 2 July 2011 23:59:00 and 3 July 2011 00:01:00?
-* const result = differenceInCalendarDays(
-*   new Date(2011, 6, 3, 0, 1),
-*   new Date(2011, 6, 2, 23, 59)
-* )
-* //=> 1
-*/
-function differenceInCalendarDays(laterDate, earlierDate, options) {
-	const [laterDate_, earlierDate_] = normalizeDates(options?.in, laterDate, earlierDate);
-	const laterStartOfDay = startOfDay(laterDate_);
-	const earlierStartOfDay = startOfDay(earlierDate_);
-	const laterTimestamp = +laterStartOfDay - getTimezoneOffsetInMilliseconds(laterStartOfDay);
-	const earlierTimestamp = +earlierStartOfDay - getTimezoneOffsetInMilliseconds(earlierStartOfDay);
-	return Math.round((laterTimestamp - earlierTimestamp) / millisecondsInDay);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/startOfISOWeekYear.js
-/**
-* The {@link startOfISOWeekYear} function options.
-*/
-/**
-* @name startOfISOWeekYear
-* @category ISO Week-Numbering Year Helpers
-* @summary Return the start of an ISO week-numbering year for the given date.
-*
-* @description
-* Return the start of an ISO week-numbering year,
-* which always starts 3 days before the year's first Thursday.
-* The result will be in the local timezone.
-*
-* ISO week-numbering year: http://en.wikipedia.org/wiki/ISO_week_date
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param date - The original date
-* @param options - An object with options
-*
-* @returns The start of an ISO week-numbering year
-*
-* @example
-* // The start of an ISO week-numbering year for 2 July 2005:
-* const result = startOfISOWeekYear(new Date(2005, 6, 2))
-* //=> Mon Jan 03 2005 00:00:00
-*/
-function startOfISOWeekYear(date, options) {
-	const year = getISOWeekYear(date, options);
-	const fourthOfJanuary = constructFrom(options?.in || date, 0);
-	fourthOfJanuary.setFullYear(year, 0, 4);
-	fourthOfJanuary.setHours(0, 0, 0, 0);
-	return startOfISOWeek(fourthOfJanuary);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/isDate.js
-/**
-* @name isDate
-* @category Common Helpers
-* @summary Is the given value a date?
-*
-* @description
-* Returns true if the given value is an instance of Date. The function works for dates transferred across iframes.
-*
-* @param value - The value to check
-*
-* @returns True if the given value is a date
-*
-* @example
-* // For a valid date:
-* const result = isDate(new Date())
-* //=> true
-*
-* @example
-* // For an invalid date:
-* const result = isDate(new Date(NaN))
-* //=> true
-*
-* @example
-* // For some value:
-* const result = isDate('2014-02-31')
-* //=> false
-*
-* @example
-* // For an object:
-* const result = isDate({})
-* //=> false
-*/
-function isDate(value) {
-	return value instanceof Date || typeof value === "object" && Object.prototype.toString.call(value) === "[object Date]";
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/isValid.js
-/**
-* @name isValid
-* @category Common Helpers
-* @summary Is the given date valid?
-*
-* @description
-* Returns false if argument is Invalid Date and true otherwise.
-* Argument is converted to Date using `toDate`. See [toDate](https://date-fns.org/docs/toDate)
-* Invalid Date is a Date, whose time value is NaN.
-*
-* Time value of Date: http://es5.github.io/#x15.9.1.1
-*
-* @param date - The date to check
-*
-* @returns The date is valid
-*
-* @example
-* // For the valid date:
-* const result = isValid(new Date(2014, 1, 31))
-* //=> true
-*
-* @example
-* // For the value, convertible into a date:
-* const result = isValid(1393804800000)
-* //=> true
-*
-* @example
-* // For the invalid date:
-* const result = isValid(new Date(''))
-* //=> false
-*/
-function isValid(date) {
-	return !(!isDate(date) && typeof date !== "number" || isNaN(+toDate(date)));
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/startOfYear.js
-/**
-* The {@link startOfYear} function options.
-*/
-/**
-* @name startOfYear
-* @category Year Helpers
-* @summary Return the start of a year for the given date.
-*
-* @description
-* Return the start of a year for the given date.
-* The result will be in the local timezone.
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param date - The original date
-* @param options - The options
-*
-* @returns The start of a year
-*
-* @example
-* // The start of a year for 2 September 2014 11:55:00:
-* const result = startOfYear(new Date(2014, 8, 2, 11, 55, 00))
-* //=> Wed Jan 01 2014 00:00:00
-*/
-function startOfYear(date, options) {
-	const date_ = toDate(date, options?.in);
-	date_.setFullYear(date_.getFullYear(), 0, 1);
-	date_.setHours(0, 0, 0, 0);
-	return date_;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/en-US/_lib/formatDistance.js
-var formatDistanceLocale$1 = {
-	lessThanXSeconds: {
-		one: "less than a second",
-		other: "less than {{count}} seconds"
-	},
-	xSeconds: {
-		one: "1 second",
-		other: "{{count}} seconds"
-	},
-	halfAMinute: "half a minute",
-	lessThanXMinutes: {
-		one: "less than a minute",
-		other: "less than {{count}} minutes"
-	},
-	xMinutes: {
-		one: "1 minute",
-		other: "{{count}} minutes"
-	},
-	aboutXHours: {
-		one: "about 1 hour",
-		other: "about {{count}} hours"
-	},
-	xHours: {
-		one: "1 hour",
-		other: "{{count}} hours"
-	},
-	xDays: {
-		one: "1 day",
-		other: "{{count}} days"
-	},
-	aboutXWeeks: {
-		one: "about 1 week",
-		other: "about {{count}} weeks"
-	},
-	xWeeks: {
-		one: "1 week",
-		other: "{{count}} weeks"
-	},
-	aboutXMonths: {
-		one: "about 1 month",
-		other: "about {{count}} months"
-	},
-	xMonths: {
-		one: "1 month",
-		other: "{{count}} months"
-	},
-	aboutXYears: {
-		one: "about 1 year",
-		other: "about {{count}} years"
-	},
-	xYears: {
-		one: "1 year",
-		other: "{{count}} years"
-	},
-	overXYears: {
-		one: "over 1 year",
-		other: "over {{count}} years"
-	},
-	almostXYears: {
-		one: "almost 1 year",
-		other: "almost {{count}} years"
-	}
-};
-var formatDistance$1 = (token, count, options) => {
-	let result;
-	const tokenValue = formatDistanceLocale$1[token];
-	if (typeof tokenValue === "string") result = tokenValue;
-	else if (count === 1) result = tokenValue.one;
-	else result = tokenValue.other.replace("{{count}}", count.toString());
-	if (options?.addSuffix) if (options.comparison && options.comparison > 0) return "in " + result;
-	else return result + " ago";
-	return result;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/_lib/buildFormatLongFn.js
-function buildFormatLongFn(args) {
-	return (options = {}) => {
-		const width = options.width ? String(options.width) : args.defaultWidth;
-		return args.formats[width] || args.formats[args.defaultWidth];
-	};
-}
-var formatLong$1 = {
-	date: buildFormatLongFn({
-		formats: {
-			full: "EEEE, MMMM do, y",
-			long: "MMMM do, y",
-			medium: "MMM d, y",
-			short: "MM/dd/yyyy"
-		},
-		defaultWidth: "full"
-	}),
-	time: buildFormatLongFn({
-		formats: {
-			full: "h:mm:ss a zzzz",
-			long: "h:mm:ss a z",
-			medium: "h:mm:ss a",
-			short: "h:mm a"
-		},
-		defaultWidth: "full"
-	}),
-	dateTime: buildFormatLongFn({
-		formats: {
-			full: "{{date}} 'at' {{time}}",
-			long: "{{date}} 'at' {{time}}",
-			medium: "{{date}}, {{time}}",
-			short: "{{date}}, {{time}}"
-		},
-		defaultWidth: "full"
-	})
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/en-US/_lib/formatRelative.js
-var formatRelativeLocale$1 = {
-	lastWeek: "'last' eeee 'at' p",
-	yesterday: "'yesterday at' p",
-	today: "'today at' p",
-	tomorrow: "'tomorrow at' p",
-	nextWeek: "eeee 'at' p",
-	other: "P"
-};
-var formatRelative$1 = (token, _date, _baseDate, _options) => formatRelativeLocale$1[token];
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/_lib/buildLocalizeFn.js
-/**
-* The localize function argument callback which allows to convert raw value to
-* the actual type.
-*
-* @param value - The value to convert
-*
-* @returns The converted value
-*/
-/**
-* The map of localized values for each width.
-*/
-/**
-* The index type of the locale unit value. It types conversion of units of
-* values that don't start at 0 (i.e. quarters).
-*/
-/**
-* Converts the unit value to the tuple of values.
-*/
-/**
-* The tuple of localized era values. The first element represents BC,
-* the second element represents AD.
-*/
-/**
-* The tuple of localized quarter values. The first element represents Q1.
-*/
-/**
-* The tuple of localized day values. The first element represents Sunday.
-*/
-/**
-* The tuple of localized month values. The first element represents January.
-*/
-function buildLocalizeFn(args) {
-	return (value, options) => {
-		const context = options?.context ? String(options.context) : "standalone";
-		let valuesArray;
-		if (context === "formatting" && args.formattingValues) {
-			const defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
-			const width = options?.width ? String(options.width) : defaultWidth;
-			valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
-		} else {
-			const defaultWidth = args.defaultWidth;
-			const width = options?.width ? String(options.width) : args.defaultWidth;
-			valuesArray = args.values[width] || args.values[defaultWidth];
-		}
-		const index = args.argumentCallback ? args.argumentCallback(value) : value;
-		return valuesArray[index];
-	};
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/en-US/_lib/localize.js
-var eraValues$1 = {
-	narrow: ["B", "A"],
-	abbreviated: ["BC", "AD"],
-	wide: ["Before Christ", "Anno Domini"]
-};
-var quarterValues$1 = {
-	narrow: [
-		"1",
-		"2",
-		"3",
-		"4"
-	],
-	abbreviated: [
-		"Q1",
-		"Q2",
-		"Q3",
-		"Q4"
-	],
-	wide: [
-		"1st quarter",
-		"2nd quarter",
-		"3rd quarter",
-		"4th quarter"
-	]
-};
-var monthValues$1 = {
-	narrow: [
-		"J",
-		"F",
-		"M",
-		"A",
-		"M",
-		"J",
-		"J",
-		"A",
-		"S",
-		"O",
-		"N",
-		"D"
-	],
-	abbreviated: [
-		"Jan",
-		"Feb",
-		"Mar",
-		"Apr",
-		"May",
-		"Jun",
-		"Jul",
-		"Aug",
-		"Sep",
-		"Oct",
-		"Nov",
-		"Dec"
-	],
-	wide: [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
-	]
-};
-var dayValues$1 = {
-	narrow: [
-		"S",
-		"M",
-		"T",
-		"W",
-		"T",
-		"F",
-		"S"
-	],
-	short: [
-		"Su",
-		"Mo",
-		"Tu",
-		"We",
-		"Th",
-		"Fr",
-		"Sa"
-	],
-	abbreviated: [
-		"Sun",
-		"Mon",
-		"Tue",
-		"Wed",
-		"Thu",
-		"Fri",
-		"Sat"
-	],
-	wide: [
-		"Sunday",
-		"Monday",
-		"Tuesday",
-		"Wednesday",
-		"Thursday",
-		"Friday",
-		"Saturday"
-	]
-};
-var dayPeriodValues$1 = {
-	narrow: {
-		am: "a",
-		pm: "p",
-		midnight: "mi",
-		noon: "n",
-		morning: "morning",
-		afternoon: "afternoon",
-		evening: "evening",
-		night: "night"
-	},
-	abbreviated: {
-		am: "AM",
-		pm: "PM",
-		midnight: "midnight",
-		noon: "noon",
-		morning: "morning",
-		afternoon: "afternoon",
-		evening: "evening",
-		night: "night"
-	},
-	wide: {
-		am: "a.m.",
-		pm: "p.m.",
-		midnight: "midnight",
-		noon: "noon",
-		morning: "morning",
-		afternoon: "afternoon",
-		evening: "evening",
-		night: "night"
-	}
-};
-var formattingDayPeriodValues$1 = {
-	narrow: {
-		am: "a",
-		pm: "p",
-		midnight: "mi",
-		noon: "n",
-		morning: "in the morning",
-		afternoon: "in the afternoon",
-		evening: "in the evening",
-		night: "at night"
-	},
-	abbreviated: {
-		am: "AM",
-		pm: "PM",
-		midnight: "midnight",
-		noon: "noon",
-		morning: "in the morning",
-		afternoon: "in the afternoon",
-		evening: "in the evening",
-		night: "at night"
-	},
-	wide: {
-		am: "a.m.",
-		pm: "p.m.",
-		midnight: "midnight",
-		noon: "noon",
-		morning: "in the morning",
-		afternoon: "in the afternoon",
-		evening: "in the evening",
-		night: "at night"
-	}
-};
-var ordinalNumber$1 = (dirtyNumber, _options) => {
-	const number = Number(dirtyNumber);
-	const rem100 = number % 100;
-	if (rem100 > 20 || rem100 < 10) switch (rem100 % 10) {
-		case 1: return number + "st";
-		case 2: return number + "nd";
-		case 3: return number + "rd";
-	}
-	return number + "th";
-};
-var localize$1 = {
-	ordinalNumber: ordinalNumber$1,
-	era: buildLocalizeFn({
-		values: eraValues$1,
-		defaultWidth: "wide"
-	}),
-	quarter: buildLocalizeFn({
-		values: quarterValues$1,
-		defaultWidth: "wide",
-		argumentCallback: (quarter) => quarter - 1
-	}),
-	month: buildLocalizeFn({
-		values: monthValues$1,
-		defaultWidth: "wide"
-	}),
-	day: buildLocalizeFn({
-		values: dayValues$1,
-		defaultWidth: "wide"
-	}),
-	dayPeriod: buildLocalizeFn({
-		values: dayPeriodValues$1,
-		defaultWidth: "wide",
-		formattingValues: formattingDayPeriodValues$1,
-		defaultFormattingWidth: "wide"
-	})
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/_lib/buildMatchFn.js
-function buildMatchFn(args) {
-	return (string, options = {}) => {
-		const width = options.width;
-		const matchPattern = width && args.matchPatterns[width] || args.matchPatterns[args.defaultMatchWidth];
-		const matchResult = string.match(matchPattern);
-		if (!matchResult) return null;
-		const matchedString = matchResult[0];
-		const parsePatterns = width && args.parsePatterns[width] || args.parsePatterns[args.defaultParseWidth];
-		const key = Array.isArray(parsePatterns) ? findIndex(parsePatterns, (pattern) => pattern.test(matchedString)) : findKey(parsePatterns, (pattern) => pattern.test(matchedString));
-		let value;
-		value = args.valueCallback ? args.valueCallback(key) : key;
-		value = options.valueCallback ? options.valueCallback(value) : value;
-		const rest = string.slice(matchedString.length);
-		return {
-			value,
-			rest
-		};
-	};
-}
-function findKey(object, predicate) {
-	for (const key in object) if (Object.prototype.hasOwnProperty.call(object, key) && predicate(object[key])) return key;
-}
-function findIndex(array, predicate) {
-	for (let key = 0; key < array.length; key++) if (predicate(array[key])) return key;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/_lib/buildMatchPatternFn.js
-function buildMatchPatternFn(args) {
-	return (string, options = {}) => {
-		const matchResult = string.match(args.matchPattern);
-		if (!matchResult) return null;
-		const matchedString = matchResult[0];
-		const parseResult = string.match(args.parsePattern);
-		if (!parseResult) return null;
-		let value = args.valueCallback ? args.valueCallback(parseResult[0]) : parseResult[0];
-		value = options.valueCallback ? options.valueCallback(value) : value;
-		const rest = string.slice(matchedString.length);
-		return {
-			value,
-			rest
-		};
-	};
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/en-US.js
-/**
-* @category Locales
-* @summary English locale (United States).
-* @language English
-* @iso-639-2 eng
-* @author Sasha Koss [@kossnocorp](https://github.com/kossnocorp)
-* @author Lesha Koss [@leshakoss](https://github.com/leshakoss)
-*/
-var enUS = {
-	code: "en-US",
-	formatDistance: formatDistance$1,
-	formatLong: formatLong$1,
-	formatRelative: formatRelative$1,
-	localize: localize$1,
-	match: {
-		ordinalNumber: buildMatchPatternFn({
-			matchPattern: /^(\d+)(th|st|nd|rd)?/i,
-			parsePattern: /\d+/i,
-			valueCallback: (value) => parseInt(value, 10)
-		}),
-		era: buildMatchFn({
-			matchPatterns: {
-				narrow: /^(b|a)/i,
-				abbreviated: /^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,
-				wide: /^(before christ|before common era|anno domini|common era)/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: { any: [/^b/i, /^(a|c)/i] },
-			defaultParseWidth: "any"
-		}),
-		quarter: buildMatchFn({
-			matchPatterns: {
-				narrow: /^[1234]/i,
-				abbreviated: /^q[1234]/i,
-				wide: /^[1234](th|st|nd|rd)? quarter/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: { any: [
-				/1/i,
-				/2/i,
-				/3/i,
-				/4/i
-			] },
-			defaultParseWidth: "any",
-			valueCallback: (index) => index + 1
-		}),
-		month: buildMatchFn({
-			matchPatterns: {
-				narrow: /^[jfmasond]/i,
-				abbreviated: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
-				wide: /^(january|february|march|april|may|june|july|august|september|october|november|december)/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: {
-				narrow: [
-					/^j/i,
-					/^f/i,
-					/^m/i,
-					/^a/i,
-					/^m/i,
-					/^j/i,
-					/^j/i,
-					/^a/i,
-					/^s/i,
-					/^o/i,
-					/^n/i,
-					/^d/i
-				],
-				any: [
-					/^ja/i,
-					/^f/i,
-					/^mar/i,
-					/^ap/i,
-					/^may/i,
-					/^jun/i,
-					/^jul/i,
-					/^au/i,
-					/^s/i,
-					/^o/i,
-					/^n/i,
-					/^d/i
-				]
-			},
-			defaultParseWidth: "any"
-		}),
-		day: buildMatchFn({
-			matchPatterns: {
-				narrow: /^[smtwf]/i,
-				short: /^(su|mo|tu|we|th|fr|sa)/i,
-				abbreviated: /^(sun|mon|tue|wed|thu|fri|sat)/i,
-				wide: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: {
-				narrow: [
-					/^s/i,
-					/^m/i,
-					/^t/i,
-					/^w/i,
-					/^t/i,
-					/^f/i,
-					/^s/i
-				],
-				any: [
-					/^su/i,
-					/^m/i,
-					/^tu/i,
-					/^w/i,
-					/^th/i,
-					/^f/i,
-					/^sa/i
-				]
-			},
-			defaultParseWidth: "any"
-		}),
-		dayPeriod: buildMatchFn({
-			matchPatterns: {
-				narrow: /^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,
-				any: /^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i
-			},
-			defaultMatchWidth: "any",
-			parsePatterns: { any: {
-				am: /^a/i,
-				pm: /^p/i,
-				midnight: /^mi/i,
-				noon: /^no/i,
-				morning: /morning/i,
-				afternoon: /afternoon/i,
-				evening: /evening/i,
-				night: /night/i
-			} },
-			defaultParseWidth: "any"
-		})
-	},
-	options: {
-		weekStartsOn: 0,
-		firstWeekContainsDate: 1
-	}
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/getDayOfYear.js
-/**
-* The {@link getDayOfYear} function options.
-*/
-/**
-* @name getDayOfYear
-* @category Day Helpers
-* @summary Get the day of the year of the given date.
-*
-* @description
-* Get the day of the year of the given date.
-*
-* @param date - The given date
-* @param options - The options
-*
-* @returns The day of year
-*
-* @example
-* // Which day of the year is 2 July 2014?
-* const result = getDayOfYear(new Date(2014, 6, 2))
-* //=> 183
-*/
-function getDayOfYear(date, options) {
-	const _date = toDate(date, options?.in);
-	return differenceInCalendarDays(_date, startOfYear(_date)) + 1;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/getISOWeek.js
-/**
-* The {@link getISOWeek} function options.
-*/
-/**
-* @name getISOWeek
-* @category ISO Week Helpers
-* @summary Get the ISO week of the given date.
-*
-* @description
-* Get the ISO week of the given date.
-*
-* ISO week-numbering year: http://en.wikipedia.org/wiki/ISO_week_date
-*
-* @param date - The given date
-* @param options - The options
-*
-* @returns The ISO week
-*
-* @example
-* // Which week of the ISO-week numbering year is 2 January 2005?
-* const result = getISOWeek(new Date(2005, 0, 2))
-* //=> 53
-*/
-function getISOWeek(date, options) {
-	const _date = toDate(date, options?.in);
-	const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
-	return Math.round(diff / millisecondsInWeek) + 1;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/getWeekYear.js
-/**
-* The {@link getWeekYear} function options.
-*/
-/**
-* @name getWeekYear
-* @category Week-Numbering Year Helpers
-* @summary Get the local week-numbering year of the given date.
-*
-* @description
-* Get the local week-numbering year of the given date.
-* The exact calculation depends on the values of
-* `options.weekStartsOn` (which is the index of the first day of the week)
-* and `options.firstWeekContainsDate` (which is the day of January, which is always in
-* the first week of the week-numbering year)
-*
-* Week numbering: https://en.wikipedia.org/wiki/Week#The_ISO_week_date_system
-*
-* @param date - The given date
-* @param options - An object with options.
-*
-* @returns The local week-numbering year
-*
-* @example
-* // Which week numbering year is 26 December 2004 with the default settings?
-* const result = getWeekYear(new Date(2004, 11, 26))
-* //=> 2005
-*
-* @example
-* // Which week numbering year is 26 December 2004 if week starts on Saturday?
-* const result = getWeekYear(new Date(2004, 11, 26), { weekStartsOn: 6 })
-* //=> 2004
-*
-* @example
-* // Which week numbering year is 26 December 2004 if the first week contains 4 January?
-* const result = getWeekYear(new Date(2004, 11, 26), { firstWeekContainsDate: 4 })
-* //=> 2004
-*/
-function getWeekYear(date, options) {
-	const _date = toDate(date, options?.in);
-	const year = _date.getFullYear();
-	const defaultOptions = getDefaultOptions();
-	const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions.firstWeekContainsDate ?? defaultOptions.locale?.options?.firstWeekContainsDate ?? 1;
-	const firstWeekOfNextYear = constructFrom(options?.in || date, 0);
-	firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
-	firstWeekOfNextYear.setHours(0, 0, 0, 0);
-	const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
-	const firstWeekOfThisYear = constructFrom(options?.in || date, 0);
-	firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
-	firstWeekOfThisYear.setHours(0, 0, 0, 0);
-	const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
-	if (+_date >= +startOfNextYear) return year + 1;
-	else if (+_date >= +startOfThisYear) return year;
-	else return year - 1;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/startOfWeekYear.js
-/**
-* The {@link startOfWeekYear} function options.
-*/
-/**
-* @name startOfWeekYear
-* @category Week-Numbering Year Helpers
-* @summary Return the start of a local week-numbering year for the given date.
-*
-* @description
-* Return the start of a local week-numbering year.
-* The exact calculation depends on the values of
-* `options.weekStartsOn` (which is the index of the first day of the week)
-* and `options.firstWeekContainsDate` (which is the day of January, which is always in
-* the first week of the week-numbering year)
-*
-* Week numbering: https://en.wikipedia.org/wiki/Week#The_ISO_week_date_system
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type.
-*
-* @param date - The original date
-* @param options - An object with options
-*
-* @returns The start of a week-numbering year
-*
-* @example
-* // The start of an a week-numbering year for 2 July 2005 with default settings:
-* const result = startOfWeekYear(new Date(2005, 6, 2))
-* //=> Sun Dec 26 2004 00:00:00
-*
-* @example
-* // The start of a week-numbering year for 2 July 2005
-* // if Monday is the first day of week
-* // and 4 January is always in the first week of the year:
-* const result = startOfWeekYear(new Date(2005, 6, 2), {
-*   weekStartsOn: 1,
-*   firstWeekContainsDate: 4
-* })
-* //=> Mon Jan 03 2005 00:00:00
-*/
-function startOfWeekYear(date, options) {
-	const defaultOptions = getDefaultOptions();
-	const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions.firstWeekContainsDate ?? defaultOptions.locale?.options?.firstWeekContainsDate ?? 1;
-	const year = getWeekYear(date, options);
-	const firstWeek = constructFrom(options?.in || date, 0);
-	firstWeek.setFullYear(year, 0, firstWeekContainsDate);
-	firstWeek.setHours(0, 0, 0, 0);
-	return startOfWeek(firstWeek, options);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/getWeek.js
-/**
-* The {@link getWeek} function options.
-*/
-/**
-* @name getWeek
-* @category Week Helpers
-* @summary Get the local week index of the given date.
-*
-* @description
-* Get the local week index of the given date.
-* The exact calculation depends on the values of
-* `options.weekStartsOn` (which is the index of the first day of the week)
-* and `options.firstWeekContainsDate` (which is the day of January, which is always in
-* the first week of the week-numbering year)
-*
-* Week numbering: https://en.wikipedia.org/wiki/Week#The_ISO_week_date_system
-*
-* @param date - The given date
-* @param options - An object with options
-*
-* @returns The week
-*
-* @example
-* // Which week of the local week numbering year is 2 January 2005 with default options?
-* const result = getWeek(new Date(2005, 0, 2))
-* //=> 2
-*
-* @example
-* // Which week of the local week numbering year is 2 January 2005,
-* // if Monday is the first day of the week,
-* // and the first week of the year always contains 4 January?
-* const result = getWeek(new Date(2005, 0, 2), {
-*   weekStartsOn: 1,
-*   firstWeekContainsDate: 4
-* })
-* //=> 53
-*/
-function getWeek(date, options) {
-	const _date = toDate(date, options?.in);
-	const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
-	return Math.round(diff / millisecondsInWeek) + 1;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/addLeadingZeros.js
-function addLeadingZeros(number, targetLength) {
-	return (number < 0 ? "-" : "") + Math.abs(number).toString().padStart(targetLength, "0");
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/format/lightFormatters.js
-var lightFormatters = {
-	y(date, token) {
-		const signedYear = date.getFullYear();
-		const year = signedYear > 0 ? signedYear : 1 - signedYear;
-		return addLeadingZeros(token === "yy" ? year % 100 : year, token.length);
-	},
-	M(date, token) {
-		const month = date.getMonth();
-		return token === "M" ? String(month + 1) : addLeadingZeros(month + 1, 2);
-	},
-	d(date, token) {
-		return addLeadingZeros(date.getDate(), token.length);
-	},
-	a(date, token) {
-		const dayPeriodEnumValue = date.getHours() / 12 >= 1 ? "pm" : "am";
-		switch (token) {
-			case "a":
-			case "aa": return dayPeriodEnumValue.toUpperCase();
-			case "aaa": return dayPeriodEnumValue;
-			case "aaaaa": return dayPeriodEnumValue[0];
-			default: return dayPeriodEnumValue === "am" ? "a.m." : "p.m.";
-		}
-	},
-	h(date, token) {
-		return addLeadingZeros(date.getHours() % 12 || 12, token.length);
-	},
-	H(date, token) {
-		return addLeadingZeros(date.getHours(), token.length);
-	},
-	m(date, token) {
-		return addLeadingZeros(date.getMinutes(), token.length);
-	},
-	s(date, token) {
-		return addLeadingZeros(date.getSeconds(), token.length);
-	},
-	S(date, token) {
-		const numberOfDigits = token.length;
-		const milliseconds = date.getMilliseconds();
-		return addLeadingZeros(Math.trunc(milliseconds * Math.pow(10, numberOfDigits - 3)), token.length);
-	}
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/format/formatters.js
-var dayPeriodEnum = {
-	am: "am",
-	pm: "pm",
-	midnight: "midnight",
-	noon: "noon",
-	morning: "morning",
-	afternoon: "afternoon",
-	evening: "evening",
-	night: "night"
-};
-var formatters = {
-	G: function(date, token, localize) {
-		const era = date.getFullYear() > 0 ? 1 : 0;
-		switch (token) {
-			case "G":
-			case "GG":
-			case "GGG": return localize.era(era, { width: "abbreviated" });
-			case "GGGGG": return localize.era(era, { width: "narrow" });
-			default: return localize.era(era, { width: "wide" });
-		}
-	},
-	y: function(date, token, localize) {
-		if (token === "yo") {
-			const signedYear = date.getFullYear();
-			const year = signedYear > 0 ? signedYear : 1 - signedYear;
-			return localize.ordinalNumber(year, { unit: "year" });
-		}
-		return lightFormatters.y(date, token);
-	},
-	Y: function(date, token, localize, options) {
-		const signedWeekYear = getWeekYear(date, options);
-		const weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear;
-		if (token === "YY") return addLeadingZeros(weekYear % 100, 2);
-		if (token === "Yo") return localize.ordinalNumber(weekYear, { unit: "year" });
-		return addLeadingZeros(weekYear, token.length);
-	},
-	R: function(date, token) {
-		return addLeadingZeros(getISOWeekYear(date), token.length);
-	},
-	u: function(date, token) {
-		return addLeadingZeros(date.getFullYear(), token.length);
-	},
-	Q: function(date, token, localize) {
-		const quarter = Math.ceil((date.getMonth() + 1) / 3);
-		switch (token) {
-			case "Q": return String(quarter);
-			case "QQ": return addLeadingZeros(quarter, 2);
-			case "Qo": return localize.ordinalNumber(quarter, { unit: "quarter" });
-			case "QQQ": return localize.quarter(quarter, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "QQQQQ": return localize.quarter(quarter, {
-				width: "narrow",
-				context: "formatting"
-			});
-			default: return localize.quarter(quarter, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	q: function(date, token, localize) {
-		const quarter = Math.ceil((date.getMonth() + 1) / 3);
-		switch (token) {
-			case "q": return String(quarter);
-			case "qq": return addLeadingZeros(quarter, 2);
-			case "qo": return localize.ordinalNumber(quarter, { unit: "quarter" });
-			case "qqq": return localize.quarter(quarter, {
-				width: "abbreviated",
-				context: "standalone"
-			});
-			case "qqqqq": return localize.quarter(quarter, {
-				width: "narrow",
-				context: "standalone"
-			});
-			default: return localize.quarter(quarter, {
-				width: "wide",
-				context: "standalone"
-			});
-		}
-	},
-	M: function(date, token, localize) {
-		const month = date.getMonth();
-		switch (token) {
-			case "M":
-			case "MM": return lightFormatters.M(date, token);
-			case "Mo": return localize.ordinalNumber(month + 1, { unit: "month" });
-			case "MMM": return localize.month(month, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "MMMMM": return localize.month(month, {
-				width: "narrow",
-				context: "formatting"
-			});
-			default: return localize.month(month, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	L: function(date, token, localize) {
-		const month = date.getMonth();
-		switch (token) {
-			case "L": return String(month + 1);
-			case "LL": return addLeadingZeros(month + 1, 2);
-			case "Lo": return localize.ordinalNumber(month + 1, { unit: "month" });
-			case "LLL": return localize.month(month, {
-				width: "abbreviated",
-				context: "standalone"
-			});
-			case "LLLLL": return localize.month(month, {
-				width: "narrow",
-				context: "standalone"
-			});
-			default: return localize.month(month, {
-				width: "wide",
-				context: "standalone"
-			});
-		}
-	},
-	w: function(date, token, localize, options) {
-		const week = getWeek(date, options);
-		if (token === "wo") return localize.ordinalNumber(week, { unit: "week" });
-		return addLeadingZeros(week, token.length);
-	},
-	I: function(date, token, localize) {
-		const isoWeek = getISOWeek(date);
-		if (token === "Io") return localize.ordinalNumber(isoWeek, { unit: "week" });
-		return addLeadingZeros(isoWeek, token.length);
-	},
-	d: function(date, token, localize) {
-		if (token === "do") return localize.ordinalNumber(date.getDate(), { unit: "date" });
-		return lightFormatters.d(date, token);
-	},
-	D: function(date, token, localize) {
-		const dayOfYear = getDayOfYear(date);
-		if (token === "Do") return localize.ordinalNumber(dayOfYear, { unit: "dayOfYear" });
-		return addLeadingZeros(dayOfYear, token.length);
-	},
-	E: function(date, token, localize) {
-		const dayOfWeek = date.getDay();
-		switch (token) {
-			case "E":
-			case "EE":
-			case "EEE": return localize.day(dayOfWeek, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "EEEEE": return localize.day(dayOfWeek, {
-				width: "narrow",
-				context: "formatting"
-			});
-			case "EEEEEE": return localize.day(dayOfWeek, {
-				width: "short",
-				context: "formatting"
-			});
-			default: return localize.day(dayOfWeek, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	e: function(date, token, localize, options) {
-		const dayOfWeek = date.getDay();
-		const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
-		switch (token) {
-			case "e": return String(localDayOfWeek);
-			case "ee": return addLeadingZeros(localDayOfWeek, 2);
-			case "eo": return localize.ordinalNumber(localDayOfWeek, { unit: "day" });
-			case "eee": return localize.day(dayOfWeek, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "eeeee": return localize.day(dayOfWeek, {
-				width: "narrow",
-				context: "formatting"
-			});
-			case "eeeeee": return localize.day(dayOfWeek, {
-				width: "short",
-				context: "formatting"
-			});
-			default: return localize.day(dayOfWeek, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	c: function(date, token, localize, options) {
-		const dayOfWeek = date.getDay();
-		const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
-		switch (token) {
-			case "c": return String(localDayOfWeek);
-			case "cc": return addLeadingZeros(localDayOfWeek, token.length);
-			case "co": return localize.ordinalNumber(localDayOfWeek, { unit: "day" });
-			case "ccc": return localize.day(dayOfWeek, {
-				width: "abbreviated",
-				context: "standalone"
-			});
-			case "ccccc": return localize.day(dayOfWeek, {
-				width: "narrow",
-				context: "standalone"
-			});
-			case "cccccc": return localize.day(dayOfWeek, {
-				width: "short",
-				context: "standalone"
-			});
-			default: return localize.day(dayOfWeek, {
-				width: "wide",
-				context: "standalone"
-			});
-		}
-	},
-	i: function(date, token, localize) {
-		const dayOfWeek = date.getDay();
-		const isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
-		switch (token) {
-			case "i": return String(isoDayOfWeek);
-			case "ii": return addLeadingZeros(isoDayOfWeek, token.length);
-			case "io": return localize.ordinalNumber(isoDayOfWeek, { unit: "day" });
-			case "iii": return localize.day(dayOfWeek, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "iiiii": return localize.day(dayOfWeek, {
-				width: "narrow",
-				context: "formatting"
-			});
-			case "iiiiii": return localize.day(dayOfWeek, {
-				width: "short",
-				context: "formatting"
-			});
-			default: return localize.day(dayOfWeek, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	a: function(date, token, localize) {
-		const dayPeriodEnumValue = date.getHours() / 12 >= 1 ? "pm" : "am";
-		switch (token) {
-			case "a":
-			case "aa": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "aaa": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "abbreviated",
-				context: "formatting"
-			}).toLowerCase();
-			case "aaaaa": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "narrow",
-				context: "formatting"
-			});
-			default: return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	b: function(date, token, localize) {
-		const hours = date.getHours();
-		let dayPeriodEnumValue;
-		if (hours === 12) dayPeriodEnumValue = dayPeriodEnum.noon;
-		else if (hours === 0) dayPeriodEnumValue = dayPeriodEnum.midnight;
-		else dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
-		switch (token) {
-			case "b":
-			case "bb": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "bbb": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "abbreviated",
-				context: "formatting"
-			}).toLowerCase();
-			case "bbbbb": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "narrow",
-				context: "formatting"
-			});
-			default: return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	B: function(date, token, localize) {
-		const hours = date.getHours();
-		let dayPeriodEnumValue;
-		if (hours >= 17) dayPeriodEnumValue = dayPeriodEnum.evening;
-		else if (hours >= 12) dayPeriodEnumValue = dayPeriodEnum.afternoon;
-		else if (hours >= 4) dayPeriodEnumValue = dayPeriodEnum.morning;
-		else dayPeriodEnumValue = dayPeriodEnum.night;
-		switch (token) {
-			case "B":
-			case "BB":
-			case "BBB": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "abbreviated",
-				context: "formatting"
-			});
-			case "BBBBB": return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "narrow",
-				context: "formatting"
-			});
-			default: return localize.dayPeriod(dayPeriodEnumValue, {
-				width: "wide",
-				context: "formatting"
-			});
-		}
-	},
-	h: function(date, token, localize) {
-		if (token === "ho") {
-			let hours = date.getHours() % 12;
-			if (hours === 0) hours = 12;
-			return localize.ordinalNumber(hours, { unit: "hour" });
-		}
-		return lightFormatters.h(date, token);
-	},
-	H: function(date, token, localize) {
-		if (token === "Ho") return localize.ordinalNumber(date.getHours(), { unit: "hour" });
-		return lightFormatters.H(date, token);
-	},
-	K: function(date, token, localize) {
-		const hours = date.getHours() % 12;
-		if (token === "Ko") return localize.ordinalNumber(hours, { unit: "hour" });
-		return addLeadingZeros(hours, token.length);
-	},
-	k: function(date, token, localize) {
-		let hours = date.getHours();
-		if (hours === 0) hours = 24;
-		if (token === "ko") return localize.ordinalNumber(hours, { unit: "hour" });
-		return addLeadingZeros(hours, token.length);
-	},
-	m: function(date, token, localize) {
-		if (token === "mo") return localize.ordinalNumber(date.getMinutes(), { unit: "minute" });
-		return lightFormatters.m(date, token);
-	},
-	s: function(date, token, localize) {
-		if (token === "so") return localize.ordinalNumber(date.getSeconds(), { unit: "second" });
-		return lightFormatters.s(date, token);
-	},
-	S: function(date, token) {
-		return lightFormatters.S(date, token);
-	},
-	X: function(date, token, _localize) {
-		const timezoneOffset = date.getTimezoneOffset();
-		if (timezoneOffset === 0) return "Z";
-		switch (token) {
-			case "X": return formatTimezoneWithOptionalMinutes(timezoneOffset);
-			case "XXXX":
-			case "XX": return formatTimezone(timezoneOffset);
-			default: return formatTimezone(timezoneOffset, ":");
-		}
-	},
-	x: function(date, token, _localize) {
-		const timezoneOffset = date.getTimezoneOffset();
-		switch (token) {
-			case "x": return formatTimezoneWithOptionalMinutes(timezoneOffset);
-			case "xxxx":
-			case "xx": return formatTimezone(timezoneOffset);
-			default: return formatTimezone(timezoneOffset, ":");
-		}
-	},
-	O: function(date, token, _localize) {
-		const timezoneOffset = date.getTimezoneOffset();
-		switch (token) {
-			case "O":
-			case "OO":
-			case "OOO": return "GMT" + formatTimezoneShort(timezoneOffset, ":");
-			default: return "GMT" + formatTimezone(timezoneOffset, ":");
-		}
-	},
-	z: function(date, token, _localize) {
-		const timezoneOffset = date.getTimezoneOffset();
-		switch (token) {
-			case "z":
-			case "zz":
-			case "zzz": return "GMT" + formatTimezoneShort(timezoneOffset, ":");
-			default: return "GMT" + formatTimezone(timezoneOffset, ":");
-		}
-	},
-	t: function(date, token, _localize) {
-		return addLeadingZeros(Math.trunc(+date / 1e3), token.length);
-	},
-	T: function(date, token, _localize) {
-		return addLeadingZeros(+date, token.length);
-	}
-};
-function formatTimezoneShort(offset, delimiter = "") {
-	const sign = offset > 0 ? "-" : "+";
-	const absOffset = Math.abs(offset);
-	const hours = Math.trunc(absOffset / 60);
-	const minutes = absOffset % 60;
-	if (minutes === 0) return sign + String(hours);
-	return sign + String(hours) + delimiter + addLeadingZeros(minutes, 2);
-}
-function formatTimezoneWithOptionalMinutes(offset, delimiter) {
-	if (offset % 60 === 0) return (offset > 0 ? "-" : "+") + addLeadingZeros(Math.abs(offset) / 60, 2);
-	return formatTimezone(offset, delimiter);
-}
-function formatTimezone(offset, delimiter = "") {
-	const sign = offset > 0 ? "-" : "+";
-	const absOffset = Math.abs(offset);
-	const hours = addLeadingZeros(Math.trunc(absOffset / 60), 2);
-	const minutes = addLeadingZeros(absOffset % 60, 2);
-	return sign + hours + delimiter + minutes;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/format/longFormatters.js
-var dateLongFormatter = (pattern, formatLong) => {
-	switch (pattern) {
-		case "P": return formatLong.date({ width: "short" });
-		case "PP": return formatLong.date({ width: "medium" });
-		case "PPP": return formatLong.date({ width: "long" });
-		default: return formatLong.date({ width: "full" });
-	}
-};
-var timeLongFormatter = (pattern, formatLong) => {
-	switch (pattern) {
-		case "p": return formatLong.time({ width: "short" });
-		case "pp": return formatLong.time({ width: "medium" });
-		case "ppp": return formatLong.time({ width: "long" });
-		default: return formatLong.time({ width: "full" });
-	}
-};
-var dateTimeLongFormatter = (pattern, formatLong) => {
-	const matchResult = pattern.match(/(P+)(p+)?/) || [];
-	const datePattern = matchResult[1];
-	const timePattern = matchResult[2];
-	if (!timePattern) return dateLongFormatter(pattern, formatLong);
-	let dateTimeFormat;
-	switch (datePattern) {
-		case "P":
-			dateTimeFormat = formatLong.dateTime({ width: "short" });
-			break;
-		case "PP":
-			dateTimeFormat = formatLong.dateTime({ width: "medium" });
-			break;
-		case "PPP":
-			dateTimeFormat = formatLong.dateTime({ width: "long" });
-			break;
-		default:
-			dateTimeFormat = formatLong.dateTime({ width: "full" });
-			break;
-	}
-	return dateTimeFormat.replace("{{date}}", dateLongFormatter(datePattern, formatLong)).replace("{{time}}", timeLongFormatter(timePattern, formatLong));
-};
-var longFormatters = {
-	p: timeLongFormatter,
-	P: dateTimeLongFormatter
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/_lib/protectedTokens.js
-var dayOfYearTokenRE = /^D+$/;
-var weekYearTokenRE = /^Y+$/;
-var throwTokens = [
-	"D",
-	"DD",
-	"YY",
-	"YYYY"
-];
-function isProtectedDayOfYearToken(token) {
-	return dayOfYearTokenRE.test(token);
-}
-function isProtectedWeekYearToken(token) {
-	return weekYearTokenRE.test(token);
-}
-function warnOrThrowProtectedError(token, format, input) {
-	const _message = message(token, format, input);
-	console.warn(_message);
-	if (throwTokens.includes(token)) throw new RangeError(_message);
-}
-function message(token, format, input) {
-	const subject = token[0] === "Y" ? "years" : "days of the month";
-	return `Use \`${token.toLowerCase()}\` instead of \`${token}\` (in \`${format}\`) for formatting ${subject} to the input \`${input}\`; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md`;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/format.js
-var formattingTokensRegExp = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g;
-var longFormattingTokensRegExp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
-var escapedStringRegExp = /^'([^]*?)'?$/;
-var doubleQuoteRegExp = /''/g;
-var unescapedLatinCharacterRegExp = /[a-zA-Z]/;
-/**
-* The {@link format} function options.
-*/
-/**
-* @name format
-* @alias formatDate
-* @category Common Helpers
-* @summary Format the date.
-*
-* @description
-* Return the formatted date string in the given format. The result may vary by locale.
-*
-* > ⚠️ Please note that the `format` tokens differ from Moment.js and other libraries.
-* > See: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-*
-* The characters wrapped between two single quotes characters (') are escaped.
-* Two single quotes in a row, whether inside or outside a quoted sequence, represent a 'real' single quote.
-* (see the last example)
-*
-* Format of the string is based on Unicode Technical Standard #35:
-* https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
-* with a few additions (see note 7 below the table).
-*
-* Accepted patterns:
-* | Unit                            | Pattern | Result examples                   | Notes |
-* |---------------------------------|---------|-----------------------------------|-------|
-* | Era                             | G..GGG  | AD, BC                            |       |
-* |                                 | GGGG    | Anno Domini, Before Christ        | 2     |
-* |                                 | GGGGG   | A, B                              |       |
-* | Calendar year                   | y       | 44, 1, 1900, 2017                 | 5     |
-* |                                 | yo      | 44th, 1st, 0th, 17th              | 5,7   |
-* |                                 | yy      | 44, 01, 00, 17                    | 5     |
-* |                                 | yyy     | 044, 001, 1900, 2017              | 5     |
-* |                                 | yyyy    | 0044, 0001, 1900, 2017            | 5     |
-* |                                 | yyyyy   | ...                               | 3,5   |
-* | Local week-numbering year       | Y       | 44, 1, 1900, 2017                 | 5     |
-* |                                 | Yo      | 44th, 1st, 1900th, 2017th         | 5,7   |
-* |                                 | YY      | 44, 01, 00, 17                    | 5,8   |
-* |                                 | YYY     | 044, 001, 1900, 2017              | 5     |
-* |                                 | YYYY    | 0044, 0001, 1900, 2017            | 5,8   |
-* |                                 | YYYYY   | ...                               | 3,5   |
-* | ISO week-numbering year         | R       | -43, 0, 1, 1900, 2017             | 5,7   |
-* |                                 | RR      | -43, 00, 01, 1900, 2017           | 5,7   |
-* |                                 | RRR     | -043, 000, 001, 1900, 2017        | 5,7   |
-* |                                 | RRRR    | -0043, 0000, 0001, 1900, 2017     | 5,7   |
-* |                                 | RRRRR   | ...                               | 3,5,7 |
-* | Extended year                   | u       | -43, 0, 1, 1900, 2017             | 5     |
-* |                                 | uu      | -43, 01, 1900, 2017               | 5     |
-* |                                 | uuu     | -043, 001, 1900, 2017             | 5     |
-* |                                 | uuuu    | -0043, 0001, 1900, 2017           | 5     |
-* |                                 | uuuuu   | ...                               | 3,5   |
-* | Quarter (formatting)            | Q       | 1, 2, 3, 4                        |       |
-* |                                 | Qo      | 1st, 2nd, 3rd, 4th                | 7     |
-* |                                 | QQ      | 01, 02, 03, 04                    |       |
-* |                                 | QQQ     | Q1, Q2, Q3, Q4                    |       |
-* |                                 | QQQQ    | 1st quarter, 2nd quarter, ...     | 2     |
-* |                                 | QQQQQ   | 1, 2, 3, 4                        | 4     |
-* | Quarter (stand-alone)           | q       | 1, 2, 3, 4                        |       |
-* |                                 | qo      | 1st, 2nd, 3rd, 4th                | 7     |
-* |                                 | qq      | 01, 02, 03, 04                    |       |
-* |                                 | qqq     | Q1, Q2, Q3, Q4                    |       |
-* |                                 | qqqq    | 1st quarter, 2nd quarter, ...     | 2     |
-* |                                 | qqqqq   | 1, 2, 3, 4                        | 4     |
-* | Month (formatting)              | M       | 1, 2, ..., 12                     |       |
-* |                                 | Mo      | 1st, 2nd, ..., 12th               | 7     |
-* |                                 | MM      | 01, 02, ..., 12                   |       |
-* |                                 | MMM     | Jan, Feb, ..., Dec                |       |
-* |                                 | MMMM    | January, February, ..., December  | 2     |
-* |                                 | MMMMM   | J, F, ..., D                      |       |
-* | Month (stand-alone)             | L       | 1, 2, ..., 12                     |       |
-* |                                 | Lo      | 1st, 2nd, ..., 12th               | 7     |
-* |                                 | LL      | 01, 02, ..., 12                   |       |
-* |                                 | LLL     | Jan, Feb, ..., Dec                |       |
-* |                                 | LLLL    | January, February, ..., December  | 2     |
-* |                                 | LLLLL   | J, F, ..., D                      |       |
-* | Local week of year              | w       | 1, 2, ..., 53                     |       |
-* |                                 | wo      | 1st, 2nd, ..., 53th               | 7     |
-* |                                 | ww      | 01, 02, ..., 53                   |       |
-* | ISO week of year                | I       | 1, 2, ..., 53                     | 7     |
-* |                                 | Io      | 1st, 2nd, ..., 53th               | 7     |
-* |                                 | II      | 01, 02, ..., 53                   | 7     |
-* | Day of month                    | d       | 1, 2, ..., 31                     |       |
-* |                                 | do      | 1st, 2nd, ..., 31st               | 7     |
-* |                                 | dd      | 01, 02, ..., 31                   |       |
-* | Day of year                     | D       | 1, 2, ..., 365, 366               | 9     |
-* |                                 | Do      | 1st, 2nd, ..., 365th, 366th       | 7     |
-* |                                 | DD      | 01, 02, ..., 365, 366             | 9     |
-* |                                 | DDD     | 001, 002, ..., 365, 366           |       |
-* |                                 | DDDD    | ...                               | 3     |
-* | Day of week (formatting)        | E..EEE  | Mon, Tue, Wed, ..., Sun           |       |
-* |                                 | EEEE    | Monday, Tuesday, ..., Sunday      | 2     |
-* |                                 | EEEEE   | M, T, W, T, F, S, S               |       |
-* |                                 | EEEEEE  | Mo, Tu, We, Th, Fr, Sa, Su        |       |
-* | ISO day of week (formatting)    | i       | 1, 2, 3, ..., 7                   | 7     |
-* |                                 | io      | 1st, 2nd, ..., 7th                | 7     |
-* |                                 | ii      | 01, 02, ..., 07                   | 7     |
-* |                                 | iii     | Mon, Tue, Wed, ..., Sun           | 7     |
-* |                                 | iiii    | Monday, Tuesday, ..., Sunday      | 2,7   |
-* |                                 | iiiii   | M, T, W, T, F, S, S               | 7     |
-* |                                 | iiiiii  | Mo, Tu, We, Th, Fr, Sa, Su        | 7     |
-* | Local day of week (formatting)  | e       | 2, 3, 4, ..., 1                   |       |
-* |                                 | eo      | 2nd, 3rd, ..., 1st                | 7     |
-* |                                 | ee      | 02, 03, ..., 01                   |       |
-* |                                 | eee     | Mon, Tue, Wed, ..., Sun           |       |
-* |                                 | eeee    | Monday, Tuesday, ..., Sunday      | 2     |
-* |                                 | eeeee   | M, T, W, T, F, S, S               |       |
-* |                                 | eeeeee  | Mo, Tu, We, Th, Fr, Sa, Su        |       |
-* | Local day of week (stand-alone) | c       | 2, 3, 4, ..., 1                   |       |
-* |                                 | co      | 2nd, 3rd, ..., 1st                | 7     |
-* |                                 | cc      | 02, 03, ..., 01                   |       |
-* |                                 | ccc     | Mon, Tue, Wed, ..., Sun           |       |
-* |                                 | cccc    | Monday, Tuesday, ..., Sunday      | 2     |
-* |                                 | ccccc   | M, T, W, T, F, S, S               |       |
-* |                                 | cccccc  | Mo, Tu, We, Th, Fr, Sa, Su        |       |
-* | AM, PM                          | a..aa   | AM, PM                            |       |
-* |                                 | aaa     | am, pm                            |       |
-* |                                 | aaaa    | a.m., p.m.                        | 2     |
-* |                                 | aaaaa   | a, p                              |       |
-* | AM, PM, noon, midnight          | b..bb   | AM, PM, noon, midnight            |       |
-* |                                 | bbb     | am, pm, noon, midnight            |       |
-* |                                 | bbbb    | a.m., p.m., noon, midnight        | 2     |
-* |                                 | bbbbb   | a, p, n, mi                       |       |
-* | Flexible day period             | B..BBB  | at night, in the morning, ...     |       |
-* |                                 | BBBB    | at night, in the morning, ...     | 2     |
-* |                                 | BBBBB   | at night, in the morning, ...     |       |
-* | Hour [1-12]                     | h       | 1, 2, ..., 11, 12                 |       |
-* |                                 | ho      | 1st, 2nd, ..., 11th, 12th         | 7     |
-* |                                 | hh      | 01, 02, ..., 11, 12               |       |
-* | Hour [0-23]                     | H       | 0, 1, 2, ..., 23                  |       |
-* |                                 | Ho      | 0th, 1st, 2nd, ..., 23rd          | 7     |
-* |                                 | HH      | 00, 01, 02, ..., 23               |       |
-* | Hour [0-11]                     | K       | 1, 2, ..., 11, 0                  |       |
-* |                                 | Ko      | 1st, 2nd, ..., 11th, 0th          | 7     |
-* |                                 | KK      | 01, 02, ..., 11, 00               |       |
-* | Hour [1-24]                     | k       | 24, 1, 2, ..., 23                 |       |
-* |                                 | ko      | 24th, 1st, 2nd, ..., 23rd         | 7     |
-* |                                 | kk      | 24, 01, 02, ..., 23               |       |
-* | Minute                          | m       | 0, 1, ..., 59                     |       |
-* |                                 | mo      | 0th, 1st, ..., 59th               | 7     |
-* |                                 | mm      | 00, 01, ..., 59                   |       |
-* | Second                          | s       | 0, 1, ..., 59                     |       |
-* |                                 | so      | 0th, 1st, ..., 59th               | 7     |
-* |                                 | ss      | 00, 01, ..., 59                   |       |
-* | Fraction of second              | S       | 0, 1, ..., 9                      |       |
-* |                                 | SS      | 00, 01, ..., 99                   |       |
-* |                                 | SSS     | 000, 001, ..., 999                |       |
-* |                                 | SSSS    | ...                               | 3     |
-* | Timezone (ISO-8601 w/ Z)        | X       | -08, +0530, Z                     |       |
-* |                                 | XX      | -0800, +0530, Z                   |       |
-* |                                 | XXX     | -08:00, +05:30, Z                 |       |
-* |                                 | XXXX    | -0800, +0530, Z, +123456          | 2     |
-* |                                 | XXXXX   | -08:00, +05:30, Z, +12:34:56      |       |
-* | Timezone (ISO-8601 w/o Z)       | x       | -08, +0530, +00                   |       |
-* |                                 | xx      | -0800, +0530, +0000               |       |
-* |                                 | xxx     | -08:00, +05:30, +00:00            | 2     |
-* |                                 | xxxx    | -0800, +0530, +0000, +123456      |       |
-* |                                 | xxxxx   | -08:00, +05:30, +00:00, +12:34:56 |       |
-* | Timezone (GMT)                  | O...OOO | GMT-8, GMT+5:30, GMT+0            |       |
-* |                                 | OOOO    | GMT-08:00, GMT+05:30, GMT+00:00   | 2     |
-* | Timezone (specific non-locat.)  | z...zzz | GMT-8, GMT+5:30, GMT+0            | 6     |
-* |                                 | zzzz    | GMT-08:00, GMT+05:30, GMT+00:00   | 2,6   |
-* | Seconds timestamp               | t       | 512969520                         | 7     |
-* |                                 | tt      | ...                               | 3,7   |
-* | Milliseconds timestamp          | T       | 512969520900                      | 7     |
-* |                                 | TT      | ...                               | 3,7   |
-* | Long localized date             | P       | 04/29/1453                        | 7     |
-* |                                 | PP      | Apr 29, 1453                      | 7     |
-* |                                 | PPP     | April 29th, 1453                  | 7     |
-* |                                 | PPPP    | Friday, April 29th, 1453          | 2,7   |
-* | Long localized time             | p       | 12:00 AM                          | 7     |
-* |                                 | pp      | 12:00:00 AM                       | 7     |
-* |                                 | ppp     | 12:00:00 AM GMT+2                 | 7     |
-* |                                 | pppp    | 12:00:00 AM GMT+02:00             | 2,7   |
-* | Combination of date and time    | Pp      | 04/29/1453, 12:00 AM              | 7     |
-* |                                 | PPpp    | Apr 29, 1453, 12:00:00 AM         | 7     |
-* |                                 | PPPppp  | April 29th, 1453 at ...           | 7     |
-* |                                 | PPPPpppp| Friday, April 29th, 1453 at ...   | 2,7   |
-* Notes:
-* 1. "Formatting" units (e.g. formatting quarter) in the default en-US locale
-*    are the same as "stand-alone" units, but are different in some languages.
-*    "Formatting" units are declined according to the rules of the language
-*    in the context of a date. "Stand-alone" units are always nominative singular:
-*
-*    `format(new Date(2017, 10, 6), 'do LLLL', {locale: cs}) //=> '6. listopad'`
-*
-*    `format(new Date(2017, 10, 6), 'do MMMM', {locale: cs}) //=> '6. listopadu'`
-*
-* 2. Any sequence of the identical letters is a pattern, unless it is escaped by
-*    the single quote characters (see below).
-*    If the sequence is longer than listed in table (e.g. `EEEEEEEEEEE`)
-*    the output will be the same as default pattern for this unit, usually
-*    the longest one (in case of ISO weekdays, `EEEE`). Default patterns for units
-*    are marked with "2" in the last column of the table.
-*
-*    `format(new Date(2017, 10, 6), 'MMM') //=> 'Nov'`
-*
-*    `format(new Date(2017, 10, 6), 'MMMM') //=> 'November'`
-*
-*    `format(new Date(2017, 10, 6), 'MMMMM') //=> 'N'`
-*
-*    `format(new Date(2017, 10, 6), 'MMMMMM') //=> 'November'`
-*
-*    `format(new Date(2017, 10, 6), 'MMMMMMM') //=> 'November'`
-*
-* 3. Some patterns could be unlimited length (such as `yyyyyyyy`).
-*    The output will be padded with zeros to match the length of the pattern.
-*
-*    `format(new Date(2017, 10, 6), 'yyyyyyyy') //=> '00002017'`
-*
-* 4. `QQQQQ` and `qqqqq` could be not strictly numerical in some locales.
-*    These tokens represent the shortest form of the quarter.
-*
-* 5. The main difference between `y` and `u` patterns are B.C. years:
-*
-*    | Year | `y` | `u` |
-*    |------|-----|-----|
-*    | AC 1 |   1 |   1 |
-*    | BC 1 |   1 |   0 |
-*    | BC 2 |   2 |  -1 |
-*
-*    Also `yy` always returns the last two digits of a year,
-*    while `uu` pads single digit years to 2 characters and returns other years unchanged:
-*
-*    | Year | `yy` | `uu` |
-*    |------|------|------|
-*    | 1    |   01 |   01 |
-*    | 14   |   14 |   14 |
-*    | 376  |   76 |  376 |
-*    | 1453 |   53 | 1453 |
-*
-*    The same difference is true for local and ISO week-numbering years (`Y` and `R`),
-*    except local week-numbering years are dependent on `options.weekStartsOn`
-*    and `options.firstWeekContainsDate` (compare [getISOWeekYear](https://date-fns.org/docs/getISOWeekYear)
-*    and [getWeekYear](https://date-fns.org/docs/getWeekYear)).
-*
-* 6. Specific non-location timezones are currently unavailable in `date-fns`,
-*    so right now these tokens fall back to GMT timezones.
-*
-* 7. These patterns are not in the Unicode Technical Standard #35:
-*    - `i`: ISO day of week
-*    - `I`: ISO week of year
-*    - `R`: ISO week-numbering year
-*    - `t`: seconds timestamp
-*    - `T`: milliseconds timestamp
-*    - `o`: ordinal number modifier
-*    - `P`: long localized date
-*    - `p`: long localized time
-*
-* 8. `YY` and `YYYY` tokens represent week-numbering years but they are often confused with years.
-*    You should enable `options.useAdditionalWeekYearTokens` to use them. See: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-*
-* 9. `D` and `DD` tokens represent days of the year but they are often confused with days of the month.
-*    You should enable `options.useAdditionalDayOfYearTokens` to use them. See: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-*
-* @param date - The original date
-* @param format - The string of tokens
-* @param options - An object with options
-*
-* @returns The formatted date string
-*
-* @throws `date` must not be Invalid Date
-* @throws `options.locale` must contain `localize` property
-* @throws `options.locale` must contain `formatLong` property
-* @throws use `yyyy` instead of `YYYY` for formatting years using [format provided] to the input [input provided]; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-* @throws use `yy` instead of `YY` for formatting years using [format provided] to the input [input provided]; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-* @throws use `d` instead of `D` for formatting days of the month using [format provided] to the input [input provided]; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-* @throws use `dd` instead of `DD` for formatting days of the month using [format provided] to the input [input provided]; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
-* @throws format string contains an unescaped latin alphabet character
-*
-* @example
-* // Represent 11 February 2014 in middle-endian format:
-* const result = format(new Date(2014, 1, 11), 'MM/dd/yyyy')
-* //=> '02/11/2014'
-*
-* @example
-* // Represent 2 July 2014 in Esperanto:
-* import { eoLocale } from 'date-fns/locale/eo'
-* const result = format(new Date(2014, 6, 2), "do 'de' MMMM yyyy", {
-*   locale: eoLocale
-* })
-* //=> '2-a de julio 2014'
-*
-* @example
-* // Escape string by single quote characters:
-* const result = format(new Date(2014, 6, 2, 15), "h 'o''clock'")
-* //=> "3 o'clock"
-*/
-function format(date, formatStr, options) {
-	const defaultOptions = getDefaultOptions();
-	const locale = options?.locale ?? defaultOptions.locale ?? enUS;
-	const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions.firstWeekContainsDate ?? defaultOptions.locale?.options?.firstWeekContainsDate ?? 1;
-	const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions.weekStartsOn ?? defaultOptions.locale?.options?.weekStartsOn ?? 0;
-	const originalDate = toDate(date, options?.in);
-	if (!isValid(originalDate)) throw new RangeError("Invalid time value");
-	let parts = formatStr.match(longFormattingTokensRegExp).map((substring) => {
-		const firstCharacter = substring[0];
-		if (firstCharacter === "p" || firstCharacter === "P") {
-			const longFormatter = longFormatters[firstCharacter];
-			return longFormatter(substring, locale.formatLong);
-		}
-		return substring;
-	}).join("").match(formattingTokensRegExp).map((substring) => {
-		if (substring === "''") return {
-			isToken: false,
-			value: "'"
-		};
-		const firstCharacter = substring[0];
-		if (firstCharacter === "'") return {
-			isToken: false,
-			value: cleanEscapedString(substring)
-		};
-		if (formatters[firstCharacter]) return {
-			isToken: true,
-			value: substring
-		};
-		if (firstCharacter.match(unescapedLatinCharacterRegExp)) throw new RangeError("Format string contains an unescaped latin alphabet character `" + firstCharacter + "`");
-		return {
-			isToken: false,
-			value: substring
-		};
-	});
-	if (locale.localize.preprocessor) parts = locale.localize.preprocessor(originalDate, parts);
-	const formatterOptions = {
-		firstWeekContainsDate,
-		weekStartsOn,
-		locale
-	};
-	return parts.map((part) => {
-		if (!part.isToken) return part.value;
-		const token = part.value;
-		if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) warnOrThrowProtectedError(token, formatStr, String(date));
-		const formatter = formatters[token[0]];
-		return formatter(originalDate, token, locale.localize, formatterOptions);
-	}).join("");
-}
-function cleanEscapedString(input) {
-	const matched = input.match(escapedStringRegExp);
-	if (!matched) return input;
-	return matched[1].replace(doubleQuoteRegExp, "'");
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/parseISO.js
-/**
-* The {@link parseISO} function options.
-*/
-/**
-* @name parseISO
-* @category Common Helpers
-* @summary Parse ISO string
-*
-* @description
-* Parse the given string in ISO 8601 format and return an instance of Date.
-*
-* Function accepts complete ISO 8601 formats as well as partial implementations.
-* ISO 8601: http://en.wikipedia.org/wiki/ISO_8601
-*
-* If the argument isn't a string, the function cannot parse the string or
-* the values are invalid, it returns Invalid Date.
-*
-* @typeParam DateType - The `Date` type, the function operates on. Gets inferred from passed arguments. Allows to use extensions like [`UTCDate`](https://github.com/date-fns/utc).
-* @typeParam ResultDate - The result `Date` type, it is the type returned from the context function if it is passed, or inferred from the arguments.
-*
-* @param argument - The value to convert
-* @param options - An object with options
-*
-* @returns The parsed date in the local time zone
-*
-* @example
-* // Convert string '2014-02-11T11:30:30' to date:
-* const result = parseISO('2014-02-11T11:30:30')
-* //=> Tue Feb 11 2014 11:30:30
-*
-* @example
-* // Convert string '+02014101' to date,
-* // if the additional number of digits in the extended year format is 1:
-* const result = parseISO('+02014101', { additionalDigits: 1 })
-* //=> Fri Apr 11 2014 00:00:00
-*/
-function parseISO(argument, options) {
-	const invalidDate = () => constructFrom(options?.in, NaN);
-	const additionalDigits = options?.additionalDigits ?? 2;
-	const dateStrings = splitDateString(argument);
-	let date;
-	if (dateStrings.date) {
-		const parseYearResult = parseYear(dateStrings.date, additionalDigits);
-		date = parseDate(parseYearResult.restDateString, parseYearResult.year);
-	}
-	if (!date || isNaN(+date)) return invalidDate();
-	const timestamp = +date;
-	let time = 0;
-	let offset;
-	if (dateStrings.time) {
-		time = parseTime(dateStrings.time);
-		if (isNaN(time)) return invalidDate();
-	}
-	if (dateStrings.timezone) {
-		offset = parseTimezone(dateStrings.timezone);
-		if (isNaN(offset)) return invalidDate();
-	} else {
-		const tmpDate = new Date(timestamp + time);
-		const result = toDate(0, options?.in);
-		result.setFullYear(tmpDate.getUTCFullYear(), tmpDate.getUTCMonth(), tmpDate.getUTCDate());
-		result.setHours(tmpDate.getUTCHours(), tmpDate.getUTCMinutes(), tmpDate.getUTCSeconds(), tmpDate.getUTCMilliseconds());
-		return result;
-	}
-	return toDate(timestamp + time + offset, options?.in);
-}
-var patterns = {
-	dateTimeDelimiter: /[T ]/,
-	timeZoneDelimiter: /[Z ]/i,
-	timezone: /([Z+-].*)$/
-};
-var dateRegex = /^-?(?:(\d{3})|(\d{2})(?:-?(\d{2}))?|W(\d{2})(?:-?(\d{1}))?|)$/;
-var timeRegex = /^(\d{2}(?:[.,]\d*)?)(?::?(\d{2}(?:[.,]\d*)?))?(?::?(\d{2}(?:[.,]\d*)?))?$/;
-var timezoneRegex = /^([+-])(\d{2})(?::?(\d{2}))?$/;
-function splitDateString(dateString) {
-	const dateStrings = {};
-	const array = dateString.split(patterns.dateTimeDelimiter);
-	let timeString;
-	if (array.length > 2) return dateStrings;
-	if (/:/.test(array[0])) timeString = array[0];
-	else {
-		dateStrings.date = array[0];
-		timeString = array[1];
-		if (patterns.timeZoneDelimiter.test(dateStrings.date)) {
-			dateStrings.date = dateString.split(patterns.timeZoneDelimiter)[0];
-			timeString = dateString.substr(dateStrings.date.length, dateString.length);
-		}
-	}
-	if (timeString) {
-		const token = patterns.timezone.exec(timeString);
-		if (token) {
-			dateStrings.time = timeString.replace(token[1], "");
-			dateStrings.timezone = token[1];
-		} else dateStrings.time = timeString;
-	}
-	return dateStrings;
-}
-function parseYear(dateString, additionalDigits) {
-	const regex = new RegExp("^(?:(\\d{4}|[+-]\\d{" + (4 + additionalDigits) + "})|(\\d{2}|[+-]\\d{" + (2 + additionalDigits) + "})$)");
-	const captures = dateString.match(regex);
-	if (!captures) return {
-		year: NaN,
-		restDateString: ""
-	};
-	const year = captures[1] ? parseInt(captures[1]) : null;
-	const century = captures[2] ? parseInt(captures[2]) : null;
-	return {
-		year: century === null ? year : century * 100,
-		restDateString: dateString.slice((captures[1] || captures[2]).length)
-	};
-}
-function parseDate(dateString, year) {
-	if (year === null) return /* @__PURE__ */ new Date(NaN);
-	const captures = dateString.match(dateRegex);
-	if (!captures) return /* @__PURE__ */ new Date(NaN);
-	const isWeekDate = !!captures[4];
-	const dayOfYear = parseDateUnit(captures[1]);
-	const month = parseDateUnit(captures[2]) - 1;
-	const day = parseDateUnit(captures[3]);
-	const week = parseDateUnit(captures[4]);
-	const dayOfWeek = parseDateUnit(captures[5]) - 1;
-	if (isWeekDate) {
-		if (!validateWeekDate(year, week, dayOfWeek)) return /* @__PURE__ */ new Date(NaN);
-		return dayOfISOWeekYear(year, week, dayOfWeek);
-	} else {
-		const date = /* @__PURE__ */ new Date(0);
-		if (!validateDate(year, month, day) || !validateDayOfYearDate(year, dayOfYear)) return /* @__PURE__ */ new Date(NaN);
-		date.setUTCFullYear(year, month, Math.max(dayOfYear, day));
-		return date;
-	}
-}
-function parseDateUnit(value) {
-	return value ? parseInt(value) : 1;
-}
-function parseTime(timeString) {
-	const captures = timeString.match(timeRegex);
-	if (!captures) return NaN;
-	const hours = parseTimeUnit(captures[1]);
-	const minutes = parseTimeUnit(captures[2]);
-	const seconds = parseTimeUnit(captures[3]);
-	if (!validateTime(hours, minutes, seconds)) return NaN;
-	return hours * millisecondsInHour + minutes * millisecondsInMinute + seconds * 1e3;
-}
-function parseTimeUnit(value) {
-	return value && parseFloat(value.replace(",", ".")) || 0;
-}
-function parseTimezone(timezoneString) {
-	if (timezoneString === "Z") return 0;
-	const captures = timezoneString.match(timezoneRegex);
-	if (!captures) return 0;
-	const sign = captures[1] === "+" ? -1 : 1;
-	const hours = parseInt(captures[2]);
-	const minutes = captures[3] && parseInt(captures[3]) || 0;
-	if (!validateTimezone(hours, minutes)) return NaN;
-	return sign * (hours * millisecondsInHour + minutes * millisecondsInMinute);
-}
-function dayOfISOWeekYear(isoWeekYear, week, day) {
-	const date = /* @__PURE__ */ new Date(0);
-	date.setUTCFullYear(isoWeekYear, 0, 4);
-	const fourthOfJanuaryDay = date.getUTCDay() || 7;
-	const diff = (week - 1) * 7 + day + 1 - fourthOfJanuaryDay;
-	date.setUTCDate(date.getUTCDate() + diff);
-	return date;
-}
-var daysInMonths = [
-	31,
-	null,
-	31,
-	30,
-	31,
-	30,
-	31,
-	31,
-	30,
-	31,
-	30,
-	31
-];
-function isLeapYearIndex(year) {
-	return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
-}
-function validateDate(year, month, date) {
-	return month >= 0 && month <= 11 && date >= 1 && date <= (daysInMonths[month] || (isLeapYearIndex(year) ? 29 : 28));
-}
-function validateDayOfYearDate(year, dayOfYear) {
-	return dayOfYear >= 1 && dayOfYear <= (isLeapYearIndex(year) ? 366 : 365);
-}
-function validateWeekDate(_year, week, day) {
-	return week >= 1 && week <= 53 && day >= 0 && day <= 6;
-}
-function validateTime(hours, minutes, seconds) {
-	if (hours === 24) return minutes === 0 && seconds === 0;
-	return seconds >= 0 && seconds < 60 && minutes >= 0 && minutes < 60 && hours >= 0 && hours < 25;
-}
-function validateTimezone(_hours, minutes) {
-	return minutes >= 0 && minutes <= 59;
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/pt-BR/_lib/formatDistance.js
-var formatDistanceLocale = {
-	lessThanXSeconds: {
-		one: "menos de um segundo",
-		other: "menos de {{count}} segundos"
-	},
-	xSeconds: {
-		one: "1 segundo",
-		other: "{{count}} segundos"
-	},
-	halfAMinute: "meio minuto",
-	lessThanXMinutes: {
-		one: "menos de um minuto",
-		other: "menos de {{count}} minutos"
-	},
-	xMinutes: {
-		one: "1 minuto",
-		other: "{{count}} minutos"
-	},
-	aboutXHours: {
-		one: "cerca de 1 hora",
-		other: "cerca de {{count}} horas"
-	},
-	xHours: {
-		one: "1 hora",
-		other: "{{count}} horas"
-	},
-	xDays: {
-		one: "1 dia",
-		other: "{{count}} dias"
-	},
-	aboutXWeeks: {
-		one: "cerca de 1 semana",
-		other: "cerca de {{count}} semanas"
-	},
-	xWeeks: {
-		one: "1 semana",
-		other: "{{count}} semanas"
-	},
-	aboutXMonths: {
-		one: "cerca de 1 mês",
-		other: "cerca de {{count}} meses"
-	},
-	xMonths: {
-		one: "1 mês",
-		other: "{{count}} meses"
-	},
-	aboutXYears: {
-		one: "cerca de 1 ano",
-		other: "cerca de {{count}} anos"
-	},
-	xYears: {
-		one: "1 ano",
-		other: "{{count}} anos"
-	},
-	overXYears: {
-		one: "mais de 1 ano",
-		other: "mais de {{count}} anos"
-	},
-	almostXYears: {
-		one: "quase 1 ano",
-		other: "quase {{count}} anos"
-	}
-};
-var formatDistance = (token, count, options) => {
-	let result;
-	const tokenValue = formatDistanceLocale[token];
-	if (typeof tokenValue === "string") result = tokenValue;
-	else if (count === 1) result = tokenValue.one;
-	else result = tokenValue.other.replace("{{count}}", String(count));
-	if (options?.addSuffix) if (options.comparison && options.comparison > 0) return "em " + result;
-	else return "há " + result;
-	return result;
-};
-var formatLong = {
-	date: buildFormatLongFn({
-		formats: {
-			full: "EEEE, d 'de' MMMM 'de' y",
-			long: "d 'de' MMMM 'de' y",
-			medium: "d MMM y",
-			short: "dd/MM/yyyy"
-		},
-		defaultWidth: "full"
-	}),
-	time: buildFormatLongFn({
-		formats: {
-			full: "HH:mm:ss zzzz",
-			long: "HH:mm:ss z",
-			medium: "HH:mm:ss",
-			short: "HH:mm"
-		},
-		defaultWidth: "full"
-	}),
-	dateTime: buildFormatLongFn({
-		formats: {
-			full: "{{date}} 'às' {{time}}",
-			long: "{{date}} 'às' {{time}}",
-			medium: "{{date}}, {{time}}",
-			short: "{{date}}, {{time}}"
-		},
-		defaultWidth: "full"
-	})
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/pt-BR/_lib/formatRelative.js
-var formatRelativeLocale = {
-	lastWeek: (date) => {
-		const weekday = date.getDay();
-		return "'" + (weekday === 0 || weekday === 6 ? "último" : "última") + "' eeee 'às' p";
-	},
-	yesterday: "'ontem às' p",
-	today: "'hoje às' p",
-	tomorrow: "'amanhã às' p",
-	nextWeek: "eeee 'às' p",
-	other: "P"
-};
-var formatRelative = (token, date, _baseDate, _options) => {
-	const format = formatRelativeLocale[token];
-	if (typeof format === "function") return format(date);
-	return format;
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/pt-BR/_lib/localize.js
-var eraValues = {
-	narrow: ["AC", "DC"],
-	abbreviated: ["AC", "DC"],
-	wide: ["antes de cristo", "depois de cristo"]
-};
-var quarterValues = {
-	narrow: [
-		"1",
-		"2",
-		"3",
-		"4"
-	],
-	abbreviated: [
-		"T1",
-		"T2",
-		"T3",
-		"T4"
-	],
-	wide: [
-		"1º trimestre",
-		"2º trimestre",
-		"3º trimestre",
-		"4º trimestre"
-	]
-};
-var monthValues = {
-	narrow: [
-		"j",
-		"f",
-		"m",
-		"a",
-		"m",
-		"j",
-		"j",
-		"a",
-		"s",
-		"o",
-		"n",
-		"d"
-	],
-	abbreviated: [
-		"jan",
-		"fev",
-		"mar",
-		"abr",
-		"mai",
-		"jun",
-		"jul",
-		"ago",
-		"set",
-		"out",
-		"nov",
-		"dez"
-	],
-	wide: [
-		"janeiro",
-		"fevereiro",
-		"março",
-		"abril",
-		"maio",
-		"junho",
-		"julho",
-		"agosto",
-		"setembro",
-		"outubro",
-		"novembro",
-		"dezembro"
-	]
-};
-var dayValues = {
-	narrow: [
-		"D",
-		"S",
-		"T",
-		"Q",
-		"Q",
-		"S",
-		"S"
-	],
-	short: [
-		"dom",
-		"seg",
-		"ter",
-		"qua",
-		"qui",
-		"sex",
-		"sab"
-	],
-	abbreviated: [
-		"domingo",
-		"segunda",
-		"terça",
-		"quarta",
-		"quinta",
-		"sexta",
-		"sábado"
-	],
-	wide: [
-		"domingo",
-		"segunda-feira",
-		"terça-feira",
-		"quarta-feira",
-		"quinta-feira",
-		"sexta-feira",
-		"sábado"
-	]
-};
-var dayPeriodValues = {
-	narrow: {
-		am: "a",
-		pm: "p",
-		midnight: "mn",
-		noon: "md",
-		morning: "manhã",
-		afternoon: "tarde",
-		evening: "tarde",
-		night: "noite"
-	},
-	abbreviated: {
-		am: "AM",
-		pm: "PM",
-		midnight: "meia-noite",
-		noon: "meio-dia",
-		morning: "manhã",
-		afternoon: "tarde",
-		evening: "tarde",
-		night: "noite"
-	},
-	wide: {
-		am: "a.m.",
-		pm: "p.m.",
-		midnight: "meia-noite",
-		noon: "meio-dia",
-		morning: "manhã",
-		afternoon: "tarde",
-		evening: "tarde",
-		night: "noite"
-	}
-};
-var formattingDayPeriodValues = {
-	narrow: {
-		am: "a",
-		pm: "p",
-		midnight: "mn",
-		noon: "md",
-		morning: "da manhã",
-		afternoon: "da tarde",
-		evening: "da tarde",
-		night: "da noite"
-	},
-	abbreviated: {
-		am: "AM",
-		pm: "PM",
-		midnight: "meia-noite",
-		noon: "meio-dia",
-		morning: "da manhã",
-		afternoon: "da tarde",
-		evening: "da tarde",
-		night: "da noite"
-	},
-	wide: {
-		am: "a.m.",
-		pm: "p.m.",
-		midnight: "meia-noite",
-		noon: "meio-dia",
-		morning: "da manhã",
-		afternoon: "da tarde",
-		evening: "da tarde",
-		night: "da noite"
-	}
-};
-var ordinalNumber = (dirtyNumber, options) => {
-	const number = Number(dirtyNumber);
-	if (options?.unit === "week") return number + "ª";
-	return number + "º";
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/date-fns@4.1.0/node_modules/date-fns/locale/pt-BR.js
-/**
-* @category Locales
-* @summary Portuguese locale (Brazil).
-* @language Portuguese
-* @iso-639-2 por
-* @author Lucas Duailibe [@duailibe](https://github.com/duailibe)
-* @author Yago Carballo [@yagocarballo](https://github.com/YagoCarballo)
-*/
-var ptBR = {
-	code: "pt-BR",
-	formatDistance,
-	formatLong,
-	formatRelative,
-	localize: {
-		ordinalNumber,
-		era: buildLocalizeFn({
-			values: eraValues,
-			defaultWidth: "wide"
-		}),
-		quarter: buildLocalizeFn({
-			values: quarterValues,
-			defaultWidth: "wide",
-			argumentCallback: (quarter) => quarter - 1
-		}),
-		month: buildLocalizeFn({
-			values: monthValues,
-			defaultWidth: "wide"
-		}),
-		day: buildLocalizeFn({
-			values: dayValues,
-			defaultWidth: "wide"
-		}),
-		dayPeriod: buildLocalizeFn({
-			values: dayPeriodValues,
-			defaultWidth: "wide",
-			formattingValues: formattingDayPeriodValues,
-			defaultFormattingWidth: "wide"
-		})
-	},
-	match: {
-		ordinalNumber: buildMatchPatternFn({
-			matchPattern: /^(\d+)[ºªo]?/i,
-			parsePattern: /\d+/i,
-			valueCallback: (value) => parseInt(value, 10)
-		}),
-		era: buildMatchFn({
-			matchPatterns: {
-				narrow: /^(ac|dc|a|d)/i,
-				abbreviated: /^(a\.?\s?c\.?|d\.?\s?c\.?)/i,
-				wide: /^(antes de cristo|depois de cristo)/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: {
-				any: [/^ac/i, /^dc/i],
-				wide: [/^antes de cristo/i, /^depois de cristo/i]
-			},
-			defaultParseWidth: "any"
-		}),
-		quarter: buildMatchFn({
-			matchPatterns: {
-				narrow: /^[1234]/i,
-				abbreviated: /^T[1234]/i,
-				wide: /^[1234](º)? trimestre/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: { any: [
-				/1/i,
-				/2/i,
-				/3/i,
-				/4/i
-			] },
-			defaultParseWidth: "any",
-			valueCallback: (index) => index + 1
-		}),
-		month: buildMatchFn({
-			matchPatterns: {
-				narrow: /^[jfmajsond]/i,
-				abbreviated: /^(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)/i,
-				wide: /^(janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: {
-				narrow: [
-					/^j/i,
-					/^f/i,
-					/^m/i,
-					/^a/i,
-					/^m/i,
-					/^j/i,
-					/^j/i,
-					/^a/i,
-					/^s/i,
-					/^o/i,
-					/^n/i,
-					/^d/i
-				],
-				any: [
-					/^ja/i,
-					/^fev/i,
-					/^mar/i,
-					/^abr/i,
-					/^mai/i,
-					/^jun/i,
-					/^jul/i,
-					/^ago/i,
-					/^set/i,
-					/^out/i,
-					/^nov/i,
-					/^dez/i
-				]
-			},
-			defaultParseWidth: "any"
-		}),
-		day: buildMatchFn({
-			matchPatterns: {
-				narrow: /^(dom|[23456]ª?|s[aá]b)/i,
-				short: /^(dom|[23456]ª?|s[aá]b)/i,
-				abbreviated: /^(dom|seg|ter|qua|qui|sex|s[aá]b)/i,
-				wide: /^(domingo|(segunda|ter[cç]a|quarta|quinta|sexta)([- ]feira)?|s[aá]bado)/i
-			},
-			defaultMatchWidth: "wide",
-			parsePatterns: {
-				short: [
-					/^d/i,
-					/^2/i,
-					/^3/i,
-					/^4/i,
-					/^5/i,
-					/^6/i,
-					/^s[aá]/i
-				],
-				narrow: [
-					/^d/i,
-					/^2/i,
-					/^3/i,
-					/^4/i,
-					/^5/i,
-					/^6/i,
-					/^s[aá]/i
-				],
-				any: [
-					/^d/i,
-					/^seg/i,
-					/^t/i,
-					/^qua/i,
-					/^qui/i,
-					/^sex/i,
-					/^s[aá]b/i
-				]
-			},
-			defaultParseWidth: "any"
-		}),
-		dayPeriod: buildMatchFn({
-			matchPatterns: {
-				narrow: /^(a|p|mn|md|(da) (manhã|tarde|noite))/i,
-				any: /^([ap]\.?\s?m\.?|meia[-\s]noite|meio[-\s]dia|(da) (manhã|tarde|noite))/i
-			},
-			defaultMatchWidth: "any",
-			parsePatterns: { any: {
-				am: /^a/i,
-				pm: /^p/i,
-				midnight: /^mn|^meia[-\s]noite/i,
-				noon: /^md|^meio[-\s]dia/i,
-				morning: /manhã/i,
-				afternoon: /tarde/i,
-				evening: /tarde/i,
-				night: /noite/i
-			} },
-			defaultParseWidth: "any"
-		})
-	},
-	options: {
-		weekStartsOn: 0,
-		firstWeekContainsDate: 1
-	}
-};
-//#endregion
-//#region src/components/ui/card.tsx
-var Card = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:8:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("rounded-lg border bg-card text-card-foreground shadow-sm", className),
-	...props
-}));
-Card.displayName = "Card";
-var CardHeader = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:19:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("flex flex-col space-y-1.5 p-6", className),
-	...props
-}));
-CardHeader.displayName = "CardHeader";
-var CardTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:26:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("text-2xl font-semibold leading-none tracking-tight", className),
-	...props
-}));
-CardTitle.displayName = "CardTitle";
-var CardDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:37:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("text-sm text-muted-foreground", className),
-	...props
-}));
-CardDescription.displayName = "CardDescription";
-var CardContent = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:44:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("p-6 pt-0", className),
-	...props
-}));
-CardContent.displayName = "CardContent";
-var CardFooter = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	"data-uid": "src/components/ui/card.tsx:51:5",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("flex items-center p-6 pt-0", className),
-	...props
-}));
-CardFooter.displayName = "CardFooter";
+//#region src/assets/generatedimage_1773607389389-8494a.png
+var generatedimage_1773607389389_8494a_default = "/assets/generatedimage_1773607389389-8494a-DJJSnlaL.png";
 //#endregion
 //#region src/components/ui/badge.tsx
 var badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", {
@@ -33076,99 +24847,151 @@ function Badge({ className, variant, ...props }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		"data-uid": "src/components/ui/badge.tsx:30:10",
 		"data-prohibitions": "[editContent]",
-		className: cn$1(badgeVariants({ variant }), className),
+		className: cn(badgeVariants({ variant }), className),
 		...props
 	});
 }
 //#endregion
+//#region src/components/ui/card.tsx
+var Card = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	"data-uid": "src/components/ui/card.tsx:8:5",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("rounded-lg border bg-card text-card-foreground shadow-sm", className),
+	...props
+}));
+Card.displayName = "Card";
+var CardHeader = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	"data-uid": "src/components/ui/card.tsx:19:5",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("flex flex-col space-y-1.5 p-6", className),
+	...props
+}));
+CardHeader.displayName = "CardHeader";
+var CardTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	"data-uid": "src/components/ui/card.tsx:26:5",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("text-2xl font-semibold leading-none tracking-tight", className),
+	...props
+}));
+CardTitle.displayName = "CardTitle";
+var CardDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	"data-uid": "src/components/ui/card.tsx:37:5",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("text-sm text-muted-foreground", className),
+	...props
+}));
+CardDescription.displayName = "CardDescription";
+var CardContent = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	"data-uid": "src/components/ui/card.tsx:44:5",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("p-6 pt-0", className),
+	...props
+}));
+CardContent.displayName = "CardContent";
+var CardFooter = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	"data-uid": "src/components/ui/card.tsx:51:5",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn("flex items-center p-6 pt-0", className),
+	...props
+}));
+CardFooter.displayName = "CardFooter";
+//#endregion
 //#region src/components/ArticleCard.tsx
-function ArticleCard({ article, className }) {
-	const isUTI = article.category === "UTIP";
+function ArticleCard({ article }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-		"data-uid": "src/components/ArticleCard.tsx:19:5",
+		"data-uid": "src/components/ArticleCard.tsx:9:5",
 		"data-prohibitions": "[editContent]",
-		to: `/artigo/${article.slug}`,
-		className: "block h-full outline-none group",
+		to: `/article/${article.id}`,
+		className: "block h-full",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Card, {
-			"data-uid": "src/components/ArticleCard.tsx:20:7",
+			"data-uid": "src/components/ArticleCard.tsx:10:7",
 			"data-prohibitions": "[editContent]",
-			className: cn$1("h-full flex flex-col transition-all duration-300 hover:shadow-glow hover:-translate-y-1 bg-white/50 backdrop-blur-sm border-border/50", className),
+			className: "glass-card flex flex-col h-full overflow-hidden group border-white/10 relative",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CardHeader, {
-					"data-uid": "src/components/ArticleCard.tsx:26:9",
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/components/ArticleCard.tsx:11:9",
 					"data-prohibitions": "[editContent]",
-					className: "p-5 pb-3",
+					className: "absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-50 group-hover:opacity-100 transition-opacity"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CardHeader, {
+					"data-uid": "src/components/ArticleCard.tsx:13:9",
+					"data-prohibitions": "[editContent]",
+					className: "pb-4",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/ArticleCard.tsx:27:11",
+						"data-uid": "src/components/ArticleCard.tsx:14:11",
 						"data-prohibitions": "[editContent]",
-						className: "flex items-center justify-between mb-3",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/ArticleCard.tsx:28:13",
+						className: "flex justify-between items-start mb-2",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+							"data-uid": "src/components/ArticleCard.tsx:15:13",
 							"data-prohibitions": "[editContent]",
-							className: "flex gap-2 items-center",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-								"data-uid": "src/components/ArticleCard.tsx:29:15",
-								"data-prohibitions": "[editContent]",
-								variant: "secondary",
-								className: cn$1("font-medium", isUTI ? "bg-primary/10 text-primary hover:bg-primary/20" : "bg-secondary/10 text-secondary hover:bg-secondary/20"),
-								children: article.category
-							}), article.isNew && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-								"data-uid": "src/components/ArticleCard.tsx:41:17",
-								"data-prohibitions": "[]",
-								variant: "default",
-								className: "bg-amber-500 hover:bg-amber-600",
-								children: "Novo"
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/ArticleCard.tsx:46:13",
-							"data-prohibitions": "[editContent]",
-							className: "flex items-center text-xs text-muted-foreground",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, {
-								"data-uid": "src/components/ArticleCard.tsx:47:15",
-								"data-prohibitions": "[editContent]",
-								className: "mr-1 h-3 w-3"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", {
-								"data-uid": "src/components/ArticleCard.tsx:48:15",
-								"data-prohibitions": "[editContent]",
-								dateTime: article.date,
-								children: format(parseISO(article.date), "dd 'de' MMM, yyyy", { locale: ptBR })
-							})]
+							variant: "outline",
+							className: "bg-primary/10 text-primary border-primary/20 backdrop-blur-md",
+							children: article.category
+						}), article.isNew && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+							"data-uid": "src/components/ArticleCard.tsx:22:15",
+							"data-prohibitions": "[]",
+							className: "bg-accent/20 text-accent border-accent/20 hover:bg-accent/30",
+							children: "Novo"
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/components/ArticleCard.tsx:53:11",
+						"data-uid": "src/components/ArticleCard.tsx:27:11",
 						"data-prohibitions": "[editContent]",
-						className: "font-display text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2",
+						className: "text-xl font-bold leading-tight group-hover:text-primary transition-colors text-foreground",
 						children: article.title
 					})]
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardContent, {
-					"data-uid": "src/components/ArticleCard.tsx:57:9",
+					"data-uid": "src/components/ArticleCard.tsx:31:9",
 					"data-prohibitions": "[editContent]",
-					className: "p-5 pt-0 flex-grow",
+					className: "flex-grow",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/components/ArticleCard.tsx:58:11",
+						"data-uid": "src/components/ArticleCard.tsx:32:11",
 						"data-prohibitions": "[editContent]",
-						className: "text-sm text-muted-foreground line-clamp-3 leading-relaxed",
-						children: article.excerpt
+						className: "text-muted-foreground text-sm line-clamp-3",
+						children: article.summary
 					})
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(CardFooter, {
-					"data-uid": "src/components/ArticleCard.tsx:62:9",
+					"data-uid": "src/components/ArticleCard.tsx:34:9",
 					"data-prohibitions": "[editContent]",
-					className: "p-5 pt-0 flex items-center justify-between border-t border-transparent group-hover:border-border/30 transition-colors",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						"data-uid": "src/components/ArticleCard.tsx:63:11",
+					className: "pt-4 border-t border-white/5 flex items-center justify-between text-xs text-muted-foreground",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/ArticleCard.tsx:35:11",
 						"data-prohibitions": "[editContent]",
-						className: "text-xs font-medium text-muted-foreground truncate max-w-[150px]",
-						children: article.journal
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/ArticleCard.tsx:66:11",
-						"data-prohibitions": "[]",
-						className: "text-sm font-medium text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform",
-						children: ["Ler Resumo ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, {
-							"data-uid": "src/components/ArticleCard.tsx:67:24",
+						className: "flex items-center space-x-4",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/components/ArticleCard.tsx:36:13",
 							"data-prohibitions": "[editContent]",
-							className: "h-4 w-4"
+							className: "flex items-center",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CalendarDays, {
+								"data-uid": "src/components/ArticleCard.tsx:37:15",
+								"data-prohibitions": "[editContent]",
+								className: "mr-1 h-3 w-3"
+							}), article.date]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/components/ArticleCard.tsx:40:13",
+							"data-prohibitions": "[editContent]",
+							className: "flex items-center",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
+								"data-uid": "src/components/ArticleCard.tsx:41:15",
+								"data-prohibitions": "[editContent]",
+								className: "mr-1 h-3 w-3"
+							}), article.readTime]
+						})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/ArticleCard.tsx:45:11",
+						"data-prohibitions": "[]",
+						className: "flex items-center text-primary font-medium opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all",
+						children: ["Ler ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, {
+							"data-uid": "src/components/ArticleCard.tsx:46:17",
+							"data-prohibitions": "[editContent]",
+							className: "ml-1 h-3 w-3"
 						})]
 					})]
 				})
@@ -33178,1458 +25001,637 @@ function ArticleCard({ article, className }) {
 }
 //#endregion
 //#region src/pages/Index.tsx
-var Index = () => {
-	const setIsSearchOpen = useSearchStore((state) => state.setIsOpen);
-	const recentArticles = mockArticles.slice(0, 6);
+function Index() {
+	const recentArticles = articles.slice(0, 3);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Index.tsx:13:5",
+		"data-uid": "src/pages/Index.tsx:12:5",
 		"data-prohibitions": "[editContent]",
-		className: "w-full",
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:15:7",
+		className: "space-y-20",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+			"data-uid": "src/pages/Index.tsx:13:7",
+			"data-prohibitions": "[]",
+			className: "relative w-full rounded-3xl overflow-hidden glass-panel border-white/10 mt-4 shadow-2xl",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/Index.tsx:14:9",
 				"data-prohibitions": "[editContent]",
-				className: "container mx-auto px-4 sm:px-8 py-16 md:py-24 flex flex-col items-center text-center",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Index.tsx:16:9",
-						"data-prohibitions": "[]",
-						className: "inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary mb-8 animate-fade-in-up",
-						style: { animationDelay: "0ms" },
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/pages/Index.tsx:20:11",
-							"data-prohibitions": "[]",
-							className: "flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"
-						}), "Atualizações Clínicas Semanais"]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
-						"data-uid": "src/pages/Index.tsx:24:9",
-						"data-prohibitions": "[]",
-						className: "max-w-4xl text-4xl md:text-5xl lg:text-6xl font-display font-extrabold tracking-tight mb-6 animate-fade-in-up",
-						style: { animationDelay: "100ms" },
-						children: [
-							"Excelência em ",
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/Index.tsx:28:25",
-								"data-prohibitions": "[]",
-								className: "text-primary",
-								children: "Terapia Intensiva"
-							}),
-							" e Emergência Pediátrica"
-						]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/pages/Index.tsx:32:9",
-						"data-prohibitions": "[]",
-						className: "max-w-2xl text-lg text-muted-foreground mb-10 animate-fade-in-up",
-						style: { animationDelay: "200ms" },
-						children: "Resumos práticos dos artigos científicos mais relevantes para sua prática clínica. Evidência direto ao ponto para salvar vidas."
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Index.tsx:41:9",
-						"data-prohibitions": "[]",
-						className: "w-full max-w-xl relative group cursor-pointer animate-fade-in-up",
-						style: { animationDelay: "300ms" },
-						onClick: () => setIsSearchOpen(true),
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/Index.tsx:46:11",
-								"data-prohibitions": "[]",
-								className: "absolute inset-y-0 left-4 flex items-center pointer-events-none",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-									"data-uid": "src/pages/Index.tsx:47:13",
-									"data-prohibitions": "[editContent]",
-									className: "h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors"
-								})
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/Index.tsx:49:11",
-								"data-prohibitions": "[]",
-								className: "h-14 w-full rounded-full border border-input bg-background/50 backdrop-blur-sm px-12 py-3 text-left text-muted-foreground shadow-sm flex items-center group-hover:border-primary/50 group-hover:ring-2 group-hover:ring-primary/20 transition-all",
-								children: "Buscar temas (ex: ventilação, sepse, trauma)..."
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/Index.tsx:52:11",
-								"data-prohibitions": "[]",
-								className: "absolute inset-y-0 right-2 flex items-center",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("kbd", {
-									"data-uid": "src/pages/Index.tsx:53:13",
-									"data-prohibitions": "[]",
-									className: "hidden sm:inline-flex h-8 items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground opacity-100",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/Index.tsx:54:15",
-										"data-prohibitions": "[]",
-										className: "text-xs",
-										children: "⌘"
-									}), "K"]
-								})
-							})
-						]
-					})
-				]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
-				"data-uid": "src/pages/Index.tsx:61:7",
+				className: "absolute inset-0 ekg-bg opacity-10 mix-blend-screen pointer-events-none"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Index.tsx:15:9",
 				"data-prohibitions": "[]",
-				className: "container mx-auto px-4 sm:px-8 py-12",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Index.tsx:62:9",
+				className: "grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 lg:p-16",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/Index.tsx:16:11",
 					"data-prohibitions": "[]",
-					className: "grid md:grid-cols-2 gap-6 max-w-5xl mx-auto",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-						"data-uid": "src/pages/Index.tsx:63:11",
-						"data-prohibitions": "[]",
-						to: "/uti-pediatrica",
-						className: "group outline-none block",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/Index.tsx:64:13",
-							"data-prohibitions": "[]",
-							className: "relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-soft hover:-translate-y-1 hover:border-primary/50",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/Index.tsx:65:15",
-									"data-prohibitions": "[editContent]",
-									className: "absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -z-10 transition-transform group-hover:scale-110"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/Index.tsx:66:15",
-									"data-prohibitions": "[]",
-									className: "bg-primary/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(HeartPulse, {
-										"data-uid": "src/pages/Index.tsx:67:17",
-										"data-prohibitions": "[editContent]",
-										className: "h-7 w-7 text-primary"
-									})
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-									"data-uid": "src/pages/Index.tsx:69:15",
-									"data-prohibitions": "[]",
-									className: "text-2xl font-display font-bold mb-2",
-									children: "Terapia Intensiva (UTIP)"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/Index.tsx:70:15",
-									"data-prohibitions": "[]",
-									className: "text-muted-foreground mb-6",
-									children: "Ventilação mecânica, hemodinâmica, sedação e neurointensivismo."
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/Index.tsx:73:15",
-									"data-prohibitions": "[]",
-									className: "flex items-center text-primary font-medium",
-									children: [
-										"Ver Artigos",
-										" ",
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight$1, {
-											"data-uid": "src/pages/Index.tsx:75:17",
-											"data-prohibitions": "[editContent]",
-											className: "ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"
-										})
-									]
-								})
-							]
-						})
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-						"data-uid": "src/pages/Index.tsx:80:11",
-						"data-prohibitions": "[]",
-						to: "/emergencia",
-						className: "group outline-none block",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/Index.tsx:81:13",
-							"data-prohibitions": "[]",
-							className: "relative overflow-hidden rounded-2xl border bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-soft hover:-translate-y-1 hover:border-secondary/50",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/Index.tsx:82:15",
-									"data-prohibitions": "[editContent]",
-									className: "absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-bl-full -z-10 transition-transform group-hover:scale-110"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/Index.tsx:83:15",
-									"data-prohibitions": "[]",
-									className: "bg-secondary/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stethoscope, {
-										"data-uid": "src/pages/Index.tsx:84:17",
-										"data-prohibitions": "[editContent]",
-										className: "h-7 w-7 text-secondary"
-									})
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-									"data-uid": "src/pages/Index.tsx:86:15",
-									"data-prohibitions": "[]",
-									className: "text-2xl font-display font-bold mb-2",
-									children: "Urgência & Emergência"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/Index.tsx:87:15",
-									"data-prohibitions": "[]",
-									className: "text-muted-foreground mb-6",
-									children: "Reanimação, trauma, intoxicações e manejo inicial de quadros agudos."
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/Index.tsx:90:15",
-									"data-prohibitions": "[]",
-									className: "flex items-center text-secondary font-medium",
-									children: [
-										"Ver Artigos",
-										" ",
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight$1, {
-											"data-uid": "src/pages/Index.tsx:92:17",
-											"data-prohibitions": "[editContent]",
-											className: "ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"
-										})
-									]
-								})
-							]
-						})
-					})]
-				})
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:100:7",
-				"data-prohibitions": "[editContent]",
-				className: "container mx-auto px-4 sm:px-8 py-16",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Index.tsx:101:9",
-						"data-prohibitions": "[]",
-						className: "flex items-center justify-between mb-10",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/Index.tsx:102:11",
-							"data-prohibitions": "[]",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-								"data-uid": "src/pages/Index.tsx:103:13",
-								"data-prohibitions": "[]",
-								className: "text-3xl font-display font-bold mb-2",
-								children: "Resumos Recentes"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/Index.tsx:104:13",
-								"data-prohibitions": "[]",
-								className: "text-muted-foreground",
-								children: "Mantenha-se atualizado com as últimas publicações."
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/Index.tsx:108:11",
-							"data-prohibitions": "[]",
-							variant: "outline",
-							className: "hidden sm:flex",
-							asChild: true,
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								"data-uid": "src/pages/Index.tsx:109:13",
-								"data-prohibitions": "[]",
-								to: "/uti-pediatrica",
-								children: "Ver Todos"
-							})
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:113:9",
-						"data-prohibitions": "[editContent]",
-						className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
-						children: recentArticles.map((article, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/Index.tsx:115:13",
-							"data-prohibitions": "[]",
-							className: "animate-fade-in-up",
-							style: { animationDelay: `${index * 100}ms` },
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
-								"data-uid": "src/pages/Index.tsx:120:15",
-								"data-prohibitions": "[editContent]",
-								article
-							})
-						}, article.id))
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:125:9",
-						"data-prohibitions": "[]",
-						className: "mt-8 flex justify-center sm:hidden",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/Index.tsx:126:11",
-							"data-prohibitions": "[]",
-							variant: "outline",
-							className: "w-full",
-							asChild: true,
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								"data-uid": "src/pages/Index.tsx:127:13",
-								"data-prohibitions": "[]",
-								to: "/uti-pediatrica",
-								children: "Ver Todos"
-							})
-						})
-					})
-				]
-			})
-		]
-	});
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-use-previous@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-previous/dist/index.mjs
-function usePrevious(value) {
-	const ref = import_react.useRef({
-		value,
-		previous: value
-	});
-	return import_react.useMemo(() => {
-		if (ref.current.value !== value) {
-			ref.current.previous = ref.current.value;
-			ref.current.value = value;
-		}
-		return ref.current.previous;
-	}, [value]);
-}
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-checkbox@1.3.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+rea_a9bfe74df417688e01ae6068318bf0dd/node_modules/@radix-ui/react-checkbox/dist/index.mjs
-var CHECKBOX_NAME = "Checkbox";
-var [createCheckboxContext, createCheckboxScope] = createContextScope(CHECKBOX_NAME);
-var [CheckboxProviderImpl, useCheckboxContext] = createCheckboxContext(CHECKBOX_NAME);
-function CheckboxProvider(props) {
-	const { __scopeCheckbox, checked: checkedProp, children, defaultChecked, disabled, form, name, onCheckedChange, required, value = "on", internal_do_not_use_render } = props;
-	const [checked, setChecked] = useControllableState({
-		prop: checkedProp,
-		defaultProp: defaultChecked ?? false,
-		onChange: onCheckedChange,
-		caller: CHECKBOX_NAME
-	});
-	const [control, setControl] = import_react.useState(null);
-	const [bubbleInput, setBubbleInput] = import_react.useState(null);
-	const hasConsumerStoppedPropagationRef = import_react.useRef(false);
-	const isFormControl = control ? !!form || !!control.closest("form") : true;
-	const context = {
-		checked,
-		disabled,
-		setChecked,
-		control,
-		setControl,
-		name,
-		form,
-		value,
-		hasConsumerStoppedPropagationRef,
-		required,
-		defaultChecked: isIndeterminate(defaultChecked) ? false : defaultChecked,
-		isFormControl,
-		bubbleInput,
-		setBubbleInput
-	};
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxProviderImpl, {
-		scope: __scopeCheckbox,
-		...context,
-		children: isFunction(internal_do_not_use_render) ? internal_do_not_use_render(context) : children
-	});
-}
-var TRIGGER_NAME = "CheckboxTrigger";
-var CheckboxTrigger = import_react.forwardRef(({ __scopeCheckbox, onKeyDown, onClick, ...checkboxProps }, forwardedRef) => {
-	const { control, value, disabled, checked, required, setControl, setChecked, hasConsumerStoppedPropagationRef, isFormControl, bubbleInput } = useCheckboxContext(TRIGGER_NAME, __scopeCheckbox);
-	const composedRefs = useComposedRefs(forwardedRef, setControl);
-	const initialCheckedStateRef = import_react.useRef(checked);
-	import_react.useEffect(() => {
-		const form = control?.form;
-		if (form) {
-			const reset = () => setChecked(initialCheckedStateRef.current);
-			form.addEventListener("reset", reset);
-			return () => form.removeEventListener("reset", reset);
-		}
-	}, [control, setChecked]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
-		type: "button",
-		role: "checkbox",
-		"aria-checked": isIndeterminate(checked) ? "mixed" : checked,
-		"aria-required": required,
-		"data-state": getState(checked),
-		"data-disabled": disabled ? "" : void 0,
-		disabled,
-		value,
-		...checkboxProps,
-		ref: composedRefs,
-		onKeyDown: composeEventHandlers(onKeyDown, (event) => {
-			if (event.key === "Enter") event.preventDefault();
-		}),
-		onClick: composeEventHandlers(onClick, (event) => {
-			setChecked((prevChecked) => isIndeterminate(prevChecked) ? true : !prevChecked);
-			if (bubbleInput && isFormControl) {
-				hasConsumerStoppedPropagationRef.current = event.isPropagationStopped();
-				if (!hasConsumerStoppedPropagationRef.current) event.stopPropagation();
-			}
-		})
-	});
-});
-CheckboxTrigger.displayName = TRIGGER_NAME;
-var Checkbox$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeCheckbox, name, checked, defaultChecked, required, disabled, value, onCheckedChange, form, ...checkboxProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxProvider, {
-		__scopeCheckbox,
-		checked,
-		defaultChecked,
-		disabled,
-		required,
-		onCheckedChange,
-		name,
-		form,
-		value,
-		internal_do_not_use_render: ({ isFormControl }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxTrigger, {
-			...checkboxProps,
-			ref: forwardedRef,
-			__scopeCheckbox
-		}), isFormControl && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxBubbleInput, { __scopeCheckbox })] })
-	});
-});
-Checkbox$1.displayName = CHECKBOX_NAME;
-var INDICATOR_NAME = "CheckboxIndicator";
-var CheckboxIndicator = import_react.forwardRef((props, forwardedRef) => {
-	const { __scopeCheckbox, forceMount, ...indicatorProps } = props;
-	const context = useCheckboxContext(INDICATOR_NAME, __scopeCheckbox);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
-		present: forceMount || isIndeterminate(context.checked) || context.checked === true,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.span, {
-			"data-state": getState(context.checked),
-			"data-disabled": context.disabled ? "" : void 0,
-			...indicatorProps,
-			ref: forwardedRef,
-			style: {
-				pointerEvents: "none",
-				...props.style
-			}
-		})
-	});
-});
-CheckboxIndicator.displayName = INDICATOR_NAME;
-var BUBBLE_INPUT_NAME = "CheckboxBubbleInput";
-var CheckboxBubbleInput = import_react.forwardRef(({ __scopeCheckbox, ...props }, forwardedRef) => {
-	const { control, hasConsumerStoppedPropagationRef, checked, defaultChecked, required, disabled, name, value, form, bubbleInput, setBubbleInput } = useCheckboxContext(BUBBLE_INPUT_NAME, __scopeCheckbox);
-	const composedRefs = useComposedRefs(forwardedRef, setBubbleInput);
-	const prevChecked = usePrevious(checked);
-	const controlSize = useSize(control);
-	import_react.useEffect(() => {
-		const input = bubbleInput;
-		if (!input) return;
-		const inputProto = window.HTMLInputElement.prototype;
-		const setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
-		const bubbles = !hasConsumerStoppedPropagationRef.current;
-		if (prevChecked !== checked && setChecked) {
-			const event = new Event("click", { bubbles });
-			input.indeterminate = isIndeterminate(checked);
-			setChecked.call(input, isIndeterminate(checked) ? false : checked);
-			input.dispatchEvent(event);
-		}
-	}, [
-		bubbleInput,
-		prevChecked,
-		checked,
-		hasConsumerStoppedPropagationRef
-	]);
-	const defaultCheckedRef = import_react.useRef(isIndeterminate(checked) ? false : checked);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.input, {
-		type: "checkbox",
-		"aria-hidden": true,
-		defaultChecked: defaultChecked ?? defaultCheckedRef.current,
-		required,
-		disabled,
-		name,
-		value,
-		form,
-		...props,
-		tabIndex: -1,
-		ref: composedRefs,
-		style: {
-			...props.style,
-			...controlSize,
-			position: "absolute",
-			pointerEvents: "none",
-			opacity: 0,
-			margin: 0,
-			transform: "translateX(-100%)"
-		}
-	});
-});
-CheckboxBubbleInput.displayName = BUBBLE_INPUT_NAME;
-function isFunction(value) {
-	return typeof value === "function";
-}
-function isIndeterminate(checked) {
-	return checked === "indeterminate";
-}
-function getState(checked) {
-	return isIndeterminate(checked) ? "indeterminate" : checked ? "checked" : "unchecked";
-}
-//#endregion
-//#region src/components/ui/checkbox.tsx
-var Checkbox = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Checkbox$1, {
-	"data-uid": "src/components/ui/checkbox.tsx:12:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1("peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground", className),
-	...props,
-	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxIndicator, {
-		"data-uid": "src/components/ui/checkbox.tsx:20:5",
-		"data-prohibitions": "[editContent]",
-		className: cn$1("flex items-center justify-center text-current"),
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, {
-			"data-uid": "src/components/ui/checkbox.tsx:21:7",
-			"data-prohibitions": "[editContent]",
-			className: "h-4 w-4"
-		})
-	})
-}));
-Checkbox.displayName = Checkbox$1.displayName;
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-label@2.1.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@_55fa612a976b7bdfbf4dcdd93d861aab/node_modules/@radix-ui/react-label/dist/index.mjs
-var NAME$1 = "Label";
-var Label$1 = import_react.forwardRef((props, forwardedRef) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.label, {
-		...props,
-		ref: forwardedRef,
-		onMouseDown: (event) => {
-			if (event.target.closest("button, input, select, textarea")) return;
-			props.onMouseDown?.(event);
-			if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
-		}
-	});
-});
-Label$1.displayName = NAME$1;
-var Root$1 = Label$1;
-//#endregion
-//#region src/components/ui/label.tsx
-var labelVariants = cva("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
-var Label = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$1, {
-	"data-uid": "src/components/ui/label.tsx:16:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1(labelVariants(), className),
-	...props
-}));
-Label.displayName = Root$1.displayName;
-//#endregion
-//#region src/pages/CategoryPage.tsx
-var CategoryPage = () => {
-	const location = useLocation();
-	const categoryInfo = (0, import_react.useMemo)(() => {
-		if (location.pathname.includes("uti-pediatrica")) return {
-			id: "UTIP",
-			title: "UTI Pediátrica",
-			icon: HeartPulse,
-			color: "text-primary",
-			bg: "bg-primary/10"
-		};
-		return {
-			id: "Emergência",
-			title: "Urgência & Emergência",
-			icon: Stethoscope,
-			color: "text-secondary",
-			bg: "bg-secondary/10"
-		};
-	}, [location.pathname]);
-	const [selectedTopics, setSelectedTopics] = (0, import_react.useState)([]);
-	const allTopics = (0, import_react.useMemo)(() => {
-		const topics = /* @__PURE__ */ new Set();
-		mockArticles.filter((a) => a.category === categoryInfo.id).forEach((a) => {
-			a.topics.forEach((t) => topics.add(t));
-		});
-		return Array.from(topics).sort();
-	}, [categoryInfo.id]);
-	const filteredArticles = (0, import_react.useMemo)(() => {
-		return mockArticles.filter((article) => {
-			if (article.category !== categoryInfo.id) return false;
-			if (selectedTopics.length > 0) {
-				if (!article.topics.some((t) => selectedTopics.includes(t))) return false;
-			}
-			return true;
-		});
-	}, [categoryInfo.id, selectedTopics]);
-	const toggleTopic = (topic) => {
-		setSelectedTopics((prev) => prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]);
-	};
-	const Icon = categoryInfo.icon;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/CategoryPage.tsx:64:5",
-		"data-prohibitions": "[editContent]",
-		className: "container mx-auto px-4 sm:px-8 py-10 flex-1",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/CategoryPage.tsx:66:7",
-			"data-prohibitions": "[editContent]",
-			className: "mb-10 animate-fade-in-up",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/CategoryPage.tsx:67:9",
-				"data-prohibitions": "[editContent]",
-				className: "flex items-center gap-4 mb-4",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:68:11",
-					"data-prohibitions": "[editContent]",
-					className: `${categoryInfo.bg} p-3 rounded-xl`,
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon, {
-						"data-uid": "src/pages/CategoryPage.tsx:69:13",
-						"data-prohibitions": "[editContent]",
-						className: `h-8 w-8 ${categoryInfo.color}`
-					})
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-					"data-uid": "src/pages/CategoryPage.tsx:71:11",
-					"data-prohibitions": "[editContent]",
-					className: "text-3xl md:text-4xl font-display font-bold",
-					children: categoryInfo.title
-				})]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				"data-uid": "src/pages/CategoryPage.tsx:73:9",
-				"data-prohibitions": "[]",
-				className: "text-muted-foreground text-lg max-w-2xl",
-				children: "Navegue pelos resumos focados em evidências essenciais para o cuidado intensivo e emergencial."
-			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/CategoryPage.tsx:79:7",
-			"data-prohibitions": "[editContent]",
-			className: "flex flex-col lg:flex-row gap-8",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", {
-				"data-uid": "src/pages/CategoryPage.tsx:81:9",
-				"data-prohibitions": "[editContent]",
-				className: "w-full lg:w-64 shrink-0 animate-fade-in-up",
-				style: { animationDelay: "100ms" },
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:85:11",
-					"data-prohibitions": "[editContent]",
-					className: "sticky top-24 bg-card border rounded-xl p-5 shadow-sm",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/CategoryPage.tsx:86:13",
-						"data-prohibitions": "[editContent]",
-						className: "flex items-center justify-between mb-4",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							"data-uid": "src/pages/CategoryPage.tsx:87:15",
-							"data-prohibitions": "[]",
-							className: "font-semibold text-lg",
-							children: "Filtros"
-						}), selectedTopics.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/CategoryPage.tsx:89:17",
-							"data-prohibitions": "[]",
-							variant: "ghost",
-							size: "sm",
-							onClick: () => setSelectedTopics([]),
-							className: "h-8 px-2 text-xs",
-							children: "Limpar"
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/CategoryPage.tsx:100:13",
-						"data-prohibitions": "[editContent]",
-						className: "space-y-4",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/CategoryPage.tsx:101:15",
-							"data-prohibitions": "[editContent]",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
-								"data-uid": "src/pages/CategoryPage.tsx:102:17",
-								"data-prohibitions": "[]",
-								className: "text-sm font-medium mb-3 text-muted-foreground",
-								children: "Tópicos"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/CategoryPage.tsx:103:17",
-								"data-prohibitions": "[editContent]",
-								className: "space-y-2.5",
-								children: allTopics.map((topic) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/CategoryPage.tsx:105:21",
-									"data-prohibitions": "[editContent]",
-									className: "flex items-center space-x-2",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Checkbox, {
-										"data-uid": "src/pages/CategoryPage.tsx:106:23",
-										"data-prohibitions": "[editContent]",
-										id: `topic-${topic}`,
-										checked: selectedTopics.includes(topic),
-										onCheckedChange: () => toggleTopic(topic)
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
-										"data-uid": "src/pages/CategoryPage.tsx:111:23",
-										"data-prohibitions": "[editContent]",
-										htmlFor: `topic-${topic}`,
-										className: "text-sm cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-										children: topic
-									})]
-								}, topic))
-							})]
-						})
-					})]
-				})
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/CategoryPage.tsx:126:9",
-				"data-prohibitions": "[editContent]",
-				className: "flex-1 min-w-0",
-				children: filteredArticles.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:128:13",
-					"data-prohibitions": "[editContent]",
-					className: "grid grid-cols-1 md:grid-cols-2 gap-6",
-					children: filteredArticles.map((article, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/CategoryPage.tsx:130:17",
-						"data-prohibitions": "[]",
-						className: "animate-fade-in-up",
-						style: { animationDelay: `${index % 6 * 50 + 150}ms` },
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
-							"data-uid": "src/pages/CategoryPage.tsx:135:19",
-							"data-prohibitions": "[editContent]",
-							article
-						})
-					}, article.id))
-				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/CategoryPage.tsx:140:13",
-					"data-prohibitions": "[]",
-					className: "flex flex-col items-center justify-center py-20 text-center border rounded-xl bg-card/50 border-dashed animate-fade-in",
+					className: "space-y-6 z-10 animate-fade-in-up",
 					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FunnelX, {
-							"data-uid": "src/pages/CategoryPage.tsx:141:15",
-							"data-prohibitions": "[editContent]",
-							className: "h-12 w-12 text-muted-foreground mb-4 opacity-50"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							"data-uid": "src/pages/CategoryPage.tsx:142:15",
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/Index.tsx:17:13",
 							"data-prohibitions": "[]",
-							className: "text-lg font-medium mb-2",
-							children: "Nenhum artigo encontrado"
+							className: "inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent backdrop-blur-md",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/pages/Index.tsx:18:15",
+								"data-prohibitions": "[editContent]",
+								className: "flex w-2 h-2 rounded-full bg-accent mr-2 animate-pulse"
+							}), "Excelência Médica"]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
+							"data-uid": "src/pages/Index.tsx:21:13",
+							"data-prohibitions": "[]",
+							className: "text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight",
+							children: [
+								"Ponto Crítico ",
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("br", {
+									"data-uid": "src/pages/Index.tsx:22:29",
+									"data-prohibitions": "[editContent]"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/pages/Index.tsx:23:15",
+									"data-prohibitions": "[]",
+									className: "text-primary text-glow",
+									children: "Pediátrico"
+								})
+							]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/CategoryPage.tsx:143:15",
+							"data-uid": "src/pages/Index.tsx:25:13",
 							"data-prohibitions": "[]",
-							className: "text-muted-foreground max-w-sm mb-6",
-							children: "Tente remover alguns filtros para ver mais resultados nesta categoria."
+							className: "text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed",
+							children: "Proteção Técnica em Terapia Intensiva e Urgências Pediátricas. Acesso rápido a resumos e diretrizes atualizadas."
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/CategoryPage.tsx:146:15",
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/Index.tsx:29:13",
 							"data-prohibitions": "[]",
-							onClick: () => setSelectedTopics([]),
-							variant: "outline",
-							children: "Limpar Filtros"
+							className: "flex flex-wrap gap-4 pt-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								"data-uid": "src/pages/Index.tsx:30:15",
+								"data-prohibitions": "[]",
+								size: "lg",
+								className: "bg-accent hover:bg-accent/90 text-white font-semibold rounded-full px-8 shadow-[0_0_20px_rgba(255,87,34,0.4)] hover:shadow-[0_0_30px_rgba(255,87,34,0.6)] transition-all h-12",
+								children: "Explorar Artigos"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+								"data-uid": "src/pages/Index.tsx:36:15",
+								"data-prohibitions": "[]",
+								to: "/about",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+									"data-uid": "src/pages/Index.tsx:37:17",
+									"data-prohibitions": "[]",
+									size: "lg",
+									variant: "outline",
+									className: "rounded-full px-8 border-white/20 hover:bg-white/10 text-white h-12",
+									children: "Nossa Missão"
+								})
+							})]
 						})
 					]
-				})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/Index.tsx:47:11",
+					"data-prohibitions": "[]",
+					className: "relative z-10 flex justify-center animate-fade-in-up",
+					style: { animationDelay: "0.2s" },
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Index.tsx:51:13",
+						"data-prohibitions": "[]",
+						className: "relative w-full max-w-md aspect-square rounded-2xl overflow-hidden shadow-2xl border border-white/10 group",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/Index.tsx:52:15",
+								"data-prohibitions": "[editContent]",
+								className: "absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent z-10 opacity-80"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+								"data-uid": "src/pages/Index.tsx:53:15",
+								"data-prohibitions": "[editContent]",
+								src: generatedimage_1773607389389_8494a_default,
+								alt: "Ponto Crítico Pediátrico Hero",
+								className: "w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/Index.tsx:58:15",
+								"data-prohibitions": "[]",
+								className: "absolute bottom-6 left-6 right-6 z-20",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									"data-uid": "src/pages/Index.tsx:59:17",
+									"data-prohibitions": "[]",
+									className: "glass p-4 rounded-xl border-white/20",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										"data-uid": "src/pages/Index.tsx:60:19",
+										"data-prohibitions": "[]",
+										className: "text-sm font-medium text-white/90",
+										children: "Destaque do Mês"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										"data-uid": "src/pages/Index.tsx:61:19",
+										"data-prohibitions": "[]",
+										className: "text-primary font-bold",
+										children: "Atualizações em Ventilação Mecânica"
+									})]
+								})
+							})
+						]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:65:13",
+						"data-prohibitions": "[editContent]",
+						className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/20 rounded-full blur-[100px] -z-10"
+					})]
+				})]
 			})]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+			"data-uid": "src/pages/Index.tsx:70:7",
+			"data-prohibitions": "[editContent]",
+			className: "space-y-8 animate-fade-in-up",
+			style: { animationDelay: "0.3s" },
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/Index.tsx:71:9",
+					"data-prohibitions": "[]",
+					className: "flex justify-between items-end",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Index.tsx:72:11",
+						"data-prohibitions": "[]",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+							"data-uid": "src/pages/Index.tsx:73:13",
+							"data-prohibitions": "[]",
+							className: "text-3xl font-bold text-white mb-2",
+							children: "Artigos Recentes"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							"data-uid": "src/pages/Index.tsx:74:13",
+							"data-prohibitions": "[]",
+							className: "text-muted-foreground",
+							children: "Últimas atualizações e resumos clínicos."
+						})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+						"data-uid": "src/pages/Index.tsx:76:11",
+						"data-prohibitions": "[]",
+						to: "/category/uti-pediatrica",
+						className: "hidden sm:flex items-center text-primary hover:text-primary/80 font-medium transition-colors",
+						children: ["Ver todos ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, {
+							"data-uid": "src/pages/Index.tsx:80:23",
+							"data-prohibitions": "[editContent]",
+							className: "w-4 h-4 ml-1"
+						})]
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/Index.tsx:84:9",
+					"data-prohibitions": "[editContent]",
+					className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+					children: recentArticles.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
+						"data-uid": "src/pages/Index.tsx:86:13",
+						"data-prohibitions": "[editContent]",
+						article
+					}, article.id))
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/Index.tsx:90:9",
+					"data-prohibitions": "[]",
+					className: "sm:hidden flex justify-center mt-6",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+						"data-uid": "src/pages/Index.tsx:91:11",
+						"data-prohibitions": "[]",
+						to: "/category/uti-pediatrica",
+						className: "w-full",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+							"data-uid": "src/pages/Index.tsx:92:13",
+							"data-prohibitions": "[]",
+							variant: "outline",
+							className: "w-full rounded-full border-white/20",
+							children: "Ver todos os artigos"
+						})
+					})
+				})
+			]
 		})]
 	});
-};
-//#endregion
-//#region ../../cache/modules/ponto-critico-pediatrico-245d9/node_modules/.pnpm/@radix-ui+react-separator@1.1.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_aa2d5d85a81bb702303f0548763b9797/node_modules/@radix-ui/react-separator/dist/index.mjs
-var NAME = "Separator";
-var DEFAULT_ORIENTATION = "horizontal";
-var ORIENTATIONS = ["horizontal", "vertical"];
-var Separator$1 = import_react.forwardRef((props, forwardedRef) => {
-	const { decorative, orientation: orientationProp = DEFAULT_ORIENTATION, ...domProps } = props;
-	const orientation = isValidOrientation(orientationProp) ? orientationProp : DEFAULT_ORIENTATION;
-	const ariaOrientation = orientation === "vertical" ? orientation : void 0;
-	const semanticProps = decorative ? { role: "none" } : {
-		"aria-orientation": ariaOrientation,
-		role: "separator"
-	};
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
-		"data-orientation": orientation,
-		...semanticProps,
-		...domProps,
-		ref: forwardedRef
-	});
-});
-Separator$1.displayName = NAME;
-function isValidOrientation(orientation) {
-	return ORIENTATIONS.includes(orientation);
 }
-var Root = Separator$1;
-//#endregion
-//#region src/components/ui/separator.tsx
-var Separator = import_react.forwardRef(({ className, orientation = "horizontal", decorative = true, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
-	"data-uid": "src/components/ui/separator.tsx:11:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	decorative,
-	orientation,
-	className: cn$1("shrink-0 bg-border", orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]", className),
-	...props
-}));
-Separator.displayName = Root.displayName;
 //#endregion
 //#region src/pages/ArticlePage.tsx
-var ArticlePage = () => {
-	const { slug } = useParams();
-	const { toast } = useToast();
-	const articleIndex = (0, import_react.useMemo)(() => mockArticles.findIndex((a) => a.slug === slug), [slug]);
-	const article = articleIndex !== -1 ? mockArticles[articleIndex] : null;
-	const prevArticle = articleIndex > 0 ? mockArticles[articleIndex - 1] : null;
-	const nextArticle = articleIndex < mockArticles.length - 1 ? mockArticles[articleIndex + 1] : null;
-	if (!article) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Navigate, {
-		"data-uid": "src/pages/ArticlePage.tsx:33:12",
-		"data-prohibitions": "[editContent]",
-		to: "/404",
-		replace: true
+function ArticlePage() {
+	const { id } = useParams();
+	const article = articles.find((a) => a.id === id);
+	if (!article) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		"data-uid": "src/pages/ArticlePage.tsx:10:24",
+		"data-prohibitions": "[]",
+		className: "text-center py-20 text-white",
+		children: "Artigo não encontrado."
 	});
-	const isUTI = article.category === "UTIP";
-	const accentColor = isUTI ? "text-primary" : "text-secondary";
-	const accentBg = isUTI ? "bg-primary/10" : "bg-secondary/10";
-	const copyLink = () => {
-		navigator.clipboard.writeText(window.location.href);
-		toast({
-			title: "Link copiado!",
-			description: "O link para este artigo foi copiado para a área de transferência."
-		});
-	};
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-		"data-uid": "src/pages/ArticlePage.tsx:49:5",
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/ArticlePage.tsx:13:5",
 		"data-prohibitions": "[editContent]",
-		className: "container mx-auto px-4 sm:px-8 py-8 md:py-12",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			"data-uid": "src/pages/ArticlePage.tsx:51:7",
-			"data-prohibitions": "[editContent]",
-			className: "mb-8",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-				"data-uid": "src/pages/ArticlePage.tsx:52:9",
-				"data-prohibitions": "[editContent]",
+		className: "max-w-3xl mx-auto animate-fade-in-up",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+			"data-uid": "src/pages/ArticlePage.tsx:14:7",
+			"data-prohibitions": "[]",
+			to: "/",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+				"data-uid": "src/pages/ArticlePage.tsx:15:9",
+				"data-prohibitions": "[]",
 				variant: "ghost",
-				size: "sm",
-				asChild: true,
-				className: "-ml-2 text-muted-foreground",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-					"data-uid": "src/pages/ArticlePage.tsx:53:11",
+				className: "mb-6 text-muted-foreground hover:text-white hover:bg-white/5",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
+					"data-uid": "src/pages/ArticlePage.tsx:19:11",
 					"data-prohibitions": "[editContent]",
-					to: isUTI ? "/uti-pediatrica" : "/emergencia",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
-							"data-uid": "src/pages/ArticlePage.tsx:54:13",
-							"data-prohibitions": "[editContent]",
-							className: "mr-2 h-4 w-4"
-						}),
-						"Voltar para ",
-						isUTI ? "UTI Pediátrica" : "Emergências"
-					]
-				})
+					className: "mr-2 h-4 w-4"
+				}), " Voltar"]
 			})
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/ArticlePage.tsx:60:7",
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+			"data-uid": "src/pages/ArticlePage.tsx:22:7",
 			"data-prohibitions": "[editContent]",
-			className: "grid grid-cols-1 lg:grid-cols-12 gap-10",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/ArticlePage.tsx:62:9",
+			className: "glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/ArticlePage.tsx:23:9",
 				"data-prohibitions": "[editContent]",
-				className: "lg:col-span-8 animate-fade-in-up",
+				className: "absolute -top-32 -right-32 w-64 h-64 bg-primary/20 rounded-full blur-[60px]"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/ArticlePage.tsx:24:9",
+				"data-prohibitions": "[editContent]",
+				className: "relative z-10",
 				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-						"data-uid": "src/pages/ArticlePage.tsx:64:11",
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/ArticlePage.tsx:25:11",
 						"data-prohibitions": "[editContent]",
-						className: "mb-10",
+						className: "flex flex-wrap items-center gap-4 mb-6 text-sm text-muted-foreground",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/ArticlePage.tsx:65:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								"data-uid": "src/pages/ArticlePage.tsx:26:13",
 								"data-prohibitions": "[editContent]",
-								className: "flex flex-wrap items-center gap-3 mb-4",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-									"data-uid": "src/pages/ArticlePage.tsx:66:15",
+								className: "flex items-center text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, {
+									"data-uid": "src/pages/ArticlePage.tsx:27:15",
 									"data-prohibitions": "[editContent]",
-									variant: "secondary",
-									className: cn$1("font-medium", isUTI ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"),
-									children: article.category
-								}), article.topics.map((topic) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-									"data-uid": "src/pages/ArticlePage.tsx:76:17",
-									"data-prohibitions": "[editContent]",
-									variant: "outline",
-									className: "text-muted-foreground",
-									children: topic
-								}, topic))]
+									className: "w-3 h-3 mr-2"
+								}), article.category]
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-								"data-uid": "src/pages/ArticlePage.tsx:82:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								"data-uid": "src/pages/ArticlePage.tsx:30:13",
 								"data-prohibitions": "[editContent]",
-								className: "text-3xl md:text-4xl lg:text-5xl font-display font-bold leading-tight mb-6",
-								children: article.title
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/ArticlePage.tsx:86:13",
-								"data-prohibitions": "[editContent]",
-								className: "flex flex-wrap items-center gap-6 text-sm text-muted-foreground border-y py-4",
+								className: "flex items-center",
 								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										"data-uid": "src/pages/ArticlePage.tsx:87:15",
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CalendarDays, {
+										"data-uid": "src/pages/ArticlePage.tsx:31:15",
 										"data-prohibitions": "[editContent]",
-										className: "flex items-center",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, {
-											"data-uid": "src/pages/ArticlePage.tsx:88:17",
-											"data-prohibitions": "[editContent]",
-											className: "mr-2 h-4 w-4"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											"data-uid": "src/pages/ArticlePage.tsx:89:17",
-											"data-prohibitions": "[editContent]",
-											className: "font-medium text-foreground",
-											children: article.journal
-										})]
+										className: "w-4 h-4 mr-2"
 									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										"data-uid": "src/pages/ArticlePage.tsx:91:15",
+									" ",
+									article.date
+								]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								"data-uid": "src/pages/ArticlePage.tsx:33:13",
+								"data-prohibitions": "[editContent]",
+								className: "flex items-center",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
+										"data-uid": "src/pages/ArticlePage.tsx:34:15",
 										"data-prohibitions": "[editContent]",
-										className: "flex items-center",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, {
-											"data-uid": "src/pages/ArticlePage.tsx:92:17",
-											"data-prohibitions": "[editContent]",
-											className: "mr-2 h-4 w-4"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", {
-											"data-uid": "src/pages/ArticlePage.tsx:93:17",
-											"data-prohibitions": "[editContent]",
-											dateTime: article.date,
-											children: format(parseISO(article.date), "dd 'de' MMMM, yyyy", { locale: ptBR })
-										})]
+										className: "w-4 h-4 mr-2"
 									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										"data-uid": "src/pages/ArticlePage.tsx:97:15",
-										"data-prohibitions": "[editContent]",
-										className: "flex items-center",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, {
-												"data-uid": "src/pages/ArticlePage.tsx:98:17",
-												"data-prohibitions": "[editContent]",
-												className: "mr-2 h-4 w-4"
-											}),
-											"Evidência: ",
-											article.evidenceLevel
-										]
-									})
+									" ",
+									article.readTime
 								]
 							})
 						]
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/ArticlePage.tsx:105:11",
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+						"data-uid": "src/pages/ArticlePage.tsx:37:11",
 						"data-prohibitions": "[editContent]",
-						className: "space-y-12 text-lg leading-relaxed text-slate-700 dark:text-slate-300",
+						className: "text-3xl md:text-5xl font-extrabold text-white mb-8 leading-tight",
+						children: article.title
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/ArticlePage.tsx:40:11",
+						"data-prohibitions": "[editContent]",
+						className: "prose prose-invert prose-lg max-w-none prose-headings:text-white prose-a:text-primary",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-								"data-uid": "src/pages/ArticlePage.tsx:106:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								"data-uid": "src/pages/ArticlePage.tsx:41:13",
 								"data-prohibitions": "[editContent]",
-								className: "scroll-mt-24",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:107:15",
-									"data-prohibitions": "[editContent]",
-									className: "flex items-center gap-3 mb-4",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										"data-uid": "src/pages/ArticlePage.tsx:108:17",
-										"data-prohibitions": "[editContent]",
-										className: cn$1("p-2 rounded-lg", accentBg),
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Target, {
-											"data-uid": "src/pages/ArticlePage.tsx:109:19",
-											"data-prohibitions": "[editContent]",
-											className: cn$1("h-5 w-5", accentColor)
-										})
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-										"data-uid": "src/pages/ArticlePage.tsx:111:17",
-										"data-prohibitions": "[]",
-										className: "text-2xl font-display font-bold text-foreground",
-										children: "Contexto"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/ArticlePage.tsx:113:15",
-									"data-prohibitions": "[editContent]",
-									children: article.context
-								})]
+								className: "text-xl text-muted-foreground mb-8 leading-relaxed font-medium",
+								children: article.summary
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-								"data-uid": "src/pages/ArticlePage.tsx:116:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/ArticlePage.tsx:44:13",
 								"data-prohibitions": "[editContent]",
-								className: "scroll-mt-24",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:117:15",
-									"data-prohibitions": "[editContent]",
-									className: "flex items-center gap-3 mb-4",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										"data-uid": "src/pages/ArticlePage.tsx:118:17",
-										"data-prohibitions": "[editContent]",
-										className: cn$1("p-2 rounded-lg", accentBg),
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(List, {
-											"data-uid": "src/pages/ArticlePage.tsx:119:19",
-											"data-prohibitions": "[editContent]",
-											className: cn$1("h-5 w-5", accentColor)
-										})
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-										"data-uid": "src/pages/ArticlePage.tsx:121:17",
-										"data-prohibitions": "[]",
-										className: "text-2xl font-display font-bold text-foreground",
-										children: "Metodologia"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/ArticlePage.tsx:123:15",
-									"data-prohibitions": "[editContent]",
-									children: article.methodology
-								})]
+								className: "h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-8"
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-								"data-uid": "src/pages/ArticlePage.tsx:126:13",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								"data-uid": "src/pages/ArticlePage.tsx:45:13",
 								"data-prohibitions": "[editContent]",
-								className: "bg-muted/30 p-6 sm:p-8 rounded-2xl border",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
-									"data-uid": "src/pages/ArticlePage.tsx:127:15",
-									"data-prohibitions": "[editContent]",
-									className: "text-xl font-display font-bold text-foreground mb-6 flex items-center",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, {
-										"data-uid": "src/pages/ArticlePage.tsx:128:17",
-										"data-prohibitions": "[editContent]",
-										className: cn$1("mr-3 h-6 w-6", accentColor)
-									}), "Pontos Chave"]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-									"data-uid": "src/pages/ArticlePage.tsx:131:15",
-									"data-prohibitions": "[editContent]",
-									className: "space-y-4",
-									children: article.keyPoints.map((point, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-										"data-uid": "src/pages/ArticlePage.tsx:133:19",
-										"data-prohibitions": "[editContent]",
-										className: "flex gap-4",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											"data-uid": "src/pages/ArticlePage.tsx:134:21",
-											"data-prohibitions": "[editContent]",
-											className: cn$1("font-bold text-lg leading-none mt-1", accentColor),
-											children: [i + 1, "."]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											"data-uid": "src/pages/ArticlePage.tsx:137:21",
-											"data-prohibitions": "[editContent]",
-											children: point
-										})]
-									}, i))
-								})]
+								className: "text-foreground/90 leading-relaxed",
+								children: article.content
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-								"data-uid": "src/pages/ArticlePage.tsx:143:13",
-								"data-prohibitions": "[editContent]",
-								className: "relative overflow-hidden",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:144:15",
-									"data-prohibitions": "[editContent]",
-									className: cn$1("absolute inset-y-0 left-0 w-1 rounded-full", isUTI ? "bg-primary" : "bg-secondary")
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:150:15",
-									"data-prohibitions": "[editContent]",
-									className: "pl-6",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-										"data-uid": "src/pages/ArticlePage.tsx:151:17",
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+								"data-uid": "src/pages/ArticlePage.tsx:46:13",
+								"data-prohibitions": "[]",
+								className: "text-2xl font-bold mt-10 mb-6",
+								children: "Pontos Chave e Diretrizes"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
+								"data-uid": "src/pages/ArticlePage.tsx:47:13",
+								"data-prohibitions": "[]",
+								className: "list-disc pl-5 space-y-3 text-foreground/90",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+										"data-uid": "src/pages/ArticlePage.tsx:48:15",
 										"data-prohibitions": "[]",
-										className: "text-2xl font-display font-bold text-foreground mb-4",
-										children: "Conclusão Prática"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										"data-uid": "src/pages/ArticlePage.tsx:154:17",
-										"data-prohibitions": "[editContent]",
-										className: "font-medium text-foreground",
-										children: article.conclusion
-									})]
-								})]
+										children: "Monitoramento contínuo dos sinais vitais e estabilização imediata."
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+										"data-uid": "src/pages/ArticlePage.tsx:49:15",
+										"data-prohibitions": "[]",
+										children: "Avaliação rápida do estado neurológico e perfusão periférica."
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+										"data-uid": "src/pages/ArticlePage.tsx:50:15",
+										"data-prohibitions": "[]",
+										children: "Intervenção guiada por metas baseada nos protocolos mais recentes."
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+										"data-uid": "src/pages/ArticlePage.tsx:51:15",
+										"data-prohibitions": "[]",
+										children: "Documentação detalhada e reavaliação seriada da conduta adotada."
+									})
+								]
 							})
 						]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Separator, {
-						"data-uid": "src/pages/ArticlePage.tsx:160:11",
-						"data-prohibitions": "[editContent]",
-						className: "my-10"
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/ArticlePage.tsx:161:11",
-						"data-prohibitions": "[editContent]",
-						className: "flex flex-col sm:flex-row justify-between gap-4",
-						children: [prevArticle ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/ArticlePage.tsx:163:15",
-							"data-prohibitions": "[editContent]",
-							variant: "outline",
-							className: "justify-start h-auto py-3 px-4 flex-1 text-left",
-							asChild: true,
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-								"data-uid": "src/pages/ArticlePage.tsx:168:17",
-								"data-prohibitions": "[editContent]",
-								to: `/artigo/${prevArticle.slug}`,
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
-									"data-uid": "src/pages/ArticlePage.tsx:169:19",
-									"data-prohibitions": "[editContent]",
-									className: "mr-2 h-4 w-4 shrink-0"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:170:19",
-									"data-prohibitions": "[editContent]",
-									className: "truncate",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/ArticlePage.tsx:171:21",
-										"data-prohibitions": "[]",
-										className: "block text-xs text-muted-foreground mb-1 font-normal",
-										children: "Anterior"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/ArticlePage.tsx:174:21",
-										"data-prohibitions": "[editContent]",
-										className: "block truncate max-w-[200px]",
-										children: prevArticle.title
-									})]
-								})]
-							})
-						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/ArticlePage.tsx:179:15",
-							"data-prohibitions": "[]",
-							className: "flex-1"
-						}), nextArticle ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/ArticlePage.tsx:183:15",
-							"data-prohibitions": "[editContent]",
-							variant: "outline",
-							className: "justify-end h-auto py-3 px-4 flex-1 text-right",
-							asChild: true,
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-								"data-uid": "src/pages/ArticlePage.tsx:188:17",
-								"data-prohibitions": "[editContent]",
-								to: `/artigo/${nextArticle.slug}`,
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:189:19",
-									"data-prohibitions": "[editContent]",
-									className: "truncate",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/ArticlePage.tsx:190:21",
-										"data-prohibitions": "[]",
-										className: "block text-xs text-muted-foreground mb-1 font-normal",
-										children: "Próximo"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/ArticlePage.tsx:193:21",
-										"data-prohibitions": "[editContent]",
-										className: "block truncate max-w-[200px]",
-										children: nextArticle.title
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, {
-									"data-uid": "src/pages/ArticlePage.tsx:195:19",
-									"data-prohibitions": "[editContent]",
-									className: "ml-2 h-4 w-4 shrink-0"
-								})]
-							})
-						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/ArticlePage.tsx:199:15",
-							"data-prohibitions": "[]",
-							className: "flex-1"
-						})]
 					})
 				]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", {
-				"data-uid": "src/pages/ArticlePage.tsx:205:9",
+			})]
+		})]
+	});
+}
+//#endregion
+//#region src/pages/CategoryPage.tsx
+function CategoryPage() {
+	const { slug } = useParams();
+	const isUti = slug === "uti-pediatrica";
+	const categoryName = isUti ? "UTI Pediátrica" : "Urgências";
+	const Icon = isUti ? Stethoscope : ShieldAlert;
+	const filteredArticles = articles.filter((a) => a.category === categoryName);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/CategoryPage.tsx:16:5",
+		"data-prohibitions": "[editContent]",
+		className: "space-y-12 animate-fade-in-up",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/pages/CategoryPage.tsx:17:7",
+			"data-prohibitions": "[editContent]",
+			className: "glass-panel rounded-3xl p-8 md:p-12 relative overflow-hidden",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/CategoryPage.tsx:18:9",
 				"data-prohibitions": "[editContent]",
-				className: "lg:col-span-4",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/ArticlePage.tsx:206:11",
+				className: "absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/CategoryPage.tsx:19:9",
+				"data-prohibitions": "[editContent]",
+				className: "relative z-10 flex items-center gap-6",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:20:11",
+					"data-prohibitions": "[]",
+					className: "w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-white/10 flex items-center justify-center text-primary shadow-lg",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon, {
+						"data-uid": "src/pages/CategoryPage.tsx:21:13",
+						"data-prohibitions": "[editContent]",
+						className: "w-8 h-8"
+					})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:23:11",
 					"data-prohibitions": "[editContent]",
-					className: "sticky top-24 space-y-8 animate-fade-in-up",
-					style: { animationDelay: "200ms" },
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/ArticlePage.tsx:210:13",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+						"data-uid": "src/pages/CategoryPage.tsx:24:13",
+						"data-prohibitions": "[editContent]",
+						className: "text-3xl md:text-4xl font-extrabold text-white mb-2",
+						children: categoryName
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+						"data-uid": "src/pages/CategoryPage.tsx:25:13",
+						"data-prohibitions": "[editContent]",
+						className: "text-muted-foreground",
+						children: [
+							"Artigos, resumos e diretrizes focadas em ",
+							categoryName.toLowerCase(),
+							"."
+						]
+					})]
+				})]
+			})]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-uid": "src/pages/CategoryPage.tsx:32:7",
+			"data-prohibitions": "[editContent]",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/CategoryPage.tsx:33:9",
+				"data-prohibitions": "[editContent]",
+				className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+				children: filteredArticles.length > 0 ? filteredArticles.map((article) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticleCard, {
+					"data-uid": "src/pages/CategoryPage.tsx:35:47",
+					"data-prohibitions": "[editContent]",
+					article
+				}, article.id)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/CategoryPage.tsx:37:13",
+					"data-prohibitions": "[]",
+					className: "col-span-full py-20 text-center text-muted-foreground",
+					children: "Nenhum artigo encontrado nesta categoria."
+				})
+			})
+		})]
+	});
+}
+//#endregion
+//#region src/pages/AboutPage.tsx
+function AboutPage() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/AboutPage.tsx:5:5",
+		"data-prohibitions": "[editContent]",
+		className: "max-w-4xl mx-auto space-y-12 animate-fade-in-up",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/pages/AboutPage.tsx:6:7",
+			"data-prohibitions": "[]",
+			className: "text-center space-y-4",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
+				"data-uid": "src/pages/AboutPage.tsx:7:9",
+				"data-prohibitions": "[]",
+				className: "text-4xl md:text-5xl font-extrabold text-white",
+				children: ["Sobre o ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					"data-uid": "src/pages/AboutPage.tsx:8:19",
+					"data-prohibitions": "[]",
+					className: "text-primary text-glow",
+					children: "Ponto Crítico"
+				})]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				"data-uid": "src/pages/AboutPage.tsx:10:9",
+				"data-prohibitions": "[]",
+				className: "text-xl text-muted-foreground max-w-2xl mx-auto",
+				children: "Nossa missão é fornecer proteção técnica e conhecimento baseado em evidências para profissionais que atuam na terapia intensiva e urgências pediátricas."
+			})]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/pages/AboutPage.tsx:15:7",
+			"data-prohibitions": "[editContent]",
+			className: "glass-panel p-8 md:p-12 rounded-3xl grid md:grid-cols-2 gap-12 items-center",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/AboutPage.tsx:16:9",
+				"data-prohibitions": "[editContent]",
+				className: "space-y-6",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+						"data-uid": "src/pages/AboutPage.tsx:17:11",
+						"data-prohibitions": "[]",
+						className: "text-3xl font-bold text-white",
+						children: "Conhecimento que Salva Vidas"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/AboutPage.tsx:18:11",
+						"data-prohibitions": "[]",
+						className: "text-muted-foreground leading-relaxed",
+						children: "Acreditamos que a atualização constante é a chave para a excelência no atendimento pediátrico crítico. Nossa plataforma reúne os protocolos mais recentes e resumos focados na prática clínica, permitindo decisões rápidas e seguras."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+						"data-uid": "src/pages/AboutPage.tsx:23:11",
+						"data-prohibitions": "[editContent]",
+						className: "space-y-3",
+						children: [
+							"Protocolos Atualizados",
+							"Resumos Clínicos Rápidos",
+							"Diretrizes Baseadas em Evidências"
+						].map((item, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+							"data-uid": "src/pages/AboutPage.tsx:29:15",
+							"data-prohibitions": "[editContent]",
+							className: "flex items-center text-foreground font-medium",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/pages/AboutPage.tsx:30:17",
+								"data-prohibitions": "[]",
+								className: "w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mr-3 text-primary border border-primary/30",
+								children: "✓"
+							}), item]
+						}, i))
+					})
+				]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/AboutPage.tsx:38:9",
+				"data-prohibitions": "[]",
+				className: "relative",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/AboutPage.tsx:39:11",
+					"data-prohibitions": "[]",
+					className: "aspect-square rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 border border-white/10 flex items-center justify-center relative overflow-hidden group",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/AboutPage.tsx:40:13",
+						"data-prohibitions": "[]",
+						className: "absolute inset-0 ekg-bg opacity-30"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/AboutPage.tsx:41:13",
+						"data-prohibitions": "[]",
+						className: "w-48 h-48 rounded-2xl overflow-hidden relative shadow-2xl border border-white/20 transform group-hover:scale-105 transition-transform duration-500",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+							"data-uid": "src/pages/AboutPage.tsx:42:15",
+							"data-prohibitions": "[editContent]",
+							src: generatedimage_1773607393240_f55fc_default,
+							alt: "Brand Shield",
+							className: "w-full h-full object-cover"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/AboutPage.tsx:43:15",
 							"data-prohibitions": "[]",
-							className: "bg-card border rounded-xl p-6 shadow-sm",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/ArticlePage.tsx:211:15",
-								"data-prohibitions": "[]",
-								className: "font-semibold mb-4",
-								children: "Ações"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-								"data-uid": "src/pages/ArticlePage.tsx:212:15",
-								"data-prohibitions": "[]",
-								onClick: copyLink,
-								variant: "secondary",
-								className: "w-full justify-start",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Share2, {
-									"data-uid": "src/pages/ArticlePage.tsx:213:17",
-									"data-prohibitions": "[editContent]",
-									className: "mr-2 h-4 w-4"
-								}), "Copiar Link"]
-							})]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/ArticlePage.tsx:218:13",
-							"data-prohibitions": "[editContent]",
-							className: "bg-card border rounded-xl p-6 shadow-sm",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/ArticlePage.tsx:219:15",
-								"data-prohibitions": "[]",
-								className: "font-semibold mb-4 text-lg",
-								children: "Artigos Relacionados"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/ArticlePage.tsx:220:15",
-								"data-prohibitions": "[editContent]",
-								className: "space-y-4",
-								children: mockArticles.filter((a) => a.id !== article.id && a.category === article.category).slice(0, 3).map((related) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/ArticlePage.tsx:225:21",
-									"data-prohibitions": "[editContent]",
-									className: "group cursor-pointer",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-										"data-uid": "src/pages/ArticlePage.tsx:226:23",
-										"data-prohibitions": "[editContent]",
-										to: `/artigo/${related.slug}`,
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
-											"data-uid": "src/pages/ArticlePage.tsx:227:25",
-											"data-prohibitions": "[editContent]",
-											className: "text-sm font-medium group-hover:text-primary transition-colors line-clamp-2 leading-snug",
-											children: related.title
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											"data-uid": "src/pages/ArticlePage.tsx:230:25",
-											"data-prohibitions": "[editContent]",
-											className: "text-xs text-muted-foreground mt-1 block",
-											children: format(parseISO(related.date), "MMM yyyy", { locale: ptBR })
-										})]
-									})
-								}, related.id))
-							})]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/ArticlePage.tsx:239:13",
-							"data-prohibitions": "[editContent]",
-							className: cn$1("rounded-xl p-6 text-white text-center shadow-soft", isUTI ? "bg-primary" : "bg-secondary"),
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-									"data-uid": "src/pages/ArticlePage.tsx:245:15",
-									"data-prohibitions": "[]",
-									className: "font-bold text-lg mb-2",
-									children: "Não perca nenhuma atualização"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/ArticlePage.tsx:246:15",
-									"data-prohibitions": "[]",
-									className: "text-sm opacity-90 mb-4",
-									children: "Receba resumos semanais direto no seu e-mail."
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/ArticlePage.tsx:249:15",
-									"data-prohibitions": "[]",
-									variant: "secondary",
-									className: "w-full font-semibold",
-									children: "Assinar Newsletter Grátis"
-								})
-							]
-						})
-					]
+							className: "absolute inset-0 bg-primary/10 mix-blend-overlay"
+						})]
+					})]
 				})
 			})]
 		})]
 	});
-};
-//#endregion
-//#region src/pages/AboutPage.tsx
-var AboutPage = () => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		"data-uid": "src/pages/AboutPage.tsx:5:5",
-		"data-prohibitions": "[]",
-		className: "container mx-auto px-4 sm:px-8 py-12 md:py-20 max-w-3xl",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/AboutPage.tsx:6:7",
-			"data-prohibitions": "[]",
-			className: "animate-fade-in-up",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/AboutPage.tsx:7:9",
-					"data-prohibitions": "[]",
-					className: "flex justify-center mb-8",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/AboutPage.tsx:8:11",
-						"data-prohibitions": "[]",
-						className: "bg-primary/10 p-4 rounded-2xl",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
-							"data-uid": "src/pages/AboutPage.tsx:9:13",
-							"data-prohibitions": "[editContent]",
-							className: "h-12 w-12 text-primary"
-						})
-					})
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-					"data-uid": "src/pages/AboutPage.tsx:13:9",
-					"data-prohibitions": "[]",
-					className: "text-3xl md:text-5xl font-display font-bold text-center mb-6",
-					children: "Sobre o Projeto"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/AboutPage.tsx:17:9",
-					"data-prohibitions": "[]",
-					className: "prose prose-lg dark:prose-invert mx-auto text-muted-foreground leading-relaxed",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/AboutPage.tsx:18:11",
-							"data-prohibitions": "[]",
-							className: "text-xl text-foreground font-medium text-center mb-10",
-							children: "Transformando o excesso de informação médica em conhecimento prático, direto ao ponto."
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-							"data-uid": "src/pages/AboutPage.tsx:22:11",
-							"data-prohibitions": "[]",
-							className: "text-foreground font-display font-semibold text-2xl mt-8 mb-4",
-							children: "Nossa Missão"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-							"data-uid": "src/pages/AboutPage.tsx:25:11",
-							"data-prohibitions": "[]",
-							children: [
-								"O ",
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", {
-									"data-uid": "src/pages/AboutPage.tsx:26:15",
-									"data-prohibitions": "[]",
-									children: "Ponto Crítico Pediátrico"
-								}),
-								" nasceu da necessidade de médicos residentes, intensivistas e emergencistas pediátricos se manterem atualizados em meio a um volume assustador de novas publicações científicas mensais."
-							]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/AboutPage.tsx:30:11",
-							"data-prohibitions": "[]",
-							children: "Nossa missão é curar, analisar e resumir os artigos mais relevantes publicados nos principais periódicos mundiais (como PCCM, Intensive Care Medicine, Pediatrics), extraindo exatamente o que você precisa saber para aplicar na beira do leito."
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-							"data-uid": "src/pages/AboutPage.tsx:36:11",
-							"data-prohibitions": "[]",
-							className: "text-foreground font-display font-semibold text-2xl mt-8 mb-4",
-							children: "Como Funciona"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/AboutPage.tsx:39:11",
-							"data-prohibitions": "[]",
-							children: "Nossa equipe editorial seleciona os artigos com maior potencial de impacto na prática clínica diária. Cada estudo passa por uma leitura crítica estruturada para extrair:"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
-							"data-uid": "src/pages/AboutPage.tsx:43:11",
-							"data-prohibitions": "[]",
-							className: "list-disc pl-6 space-y-2 mb-6 text-foreground/80",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-									"data-uid": "src/pages/AboutPage.tsx:44:13",
-									"data-prohibitions": "[]",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", {
-										"data-uid": "src/pages/AboutPage.tsx:45:15",
-										"data-prohibitions": "[]",
-										children: "Contexto:"
-									}), " O porquê do estudo."]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-									"data-uid": "src/pages/AboutPage.tsx:47:13",
-									"data-prohibitions": "[]",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", {
-										"data-uid": "src/pages/AboutPage.tsx:48:15",
-										"data-prohibitions": "[]",
-										children: "Metodologia:"
-									}), " A validade e nível de evidência."]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-									"data-uid": "src/pages/AboutPage.tsx:50:13",
-									"data-prohibitions": "[]",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", {
-										"data-uid": "src/pages/AboutPage.tsx:51:15",
-										"data-prohibitions": "[]",
-										children: "Pontos Chave:"
-									}), " Os resultados crus."]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-									"data-uid": "src/pages/AboutPage.tsx:53:13",
-									"data-prohibitions": "[]",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", {
-										"data-uid": "src/pages/AboutPage.tsx:54:15",
-										"data-prohibitions": "[]",
-										children: "Conclusão Prática:"
-									}), " A mensagem principal a ser lembrada durante o plantão."]
-								})
-							]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/AboutPage.tsx:59:11",
-							"data-prohibitions": "[]",
-							className: "bg-muted p-6 rounded-xl border mt-10 text-center",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/AboutPage.tsx:60:13",
-								"data-prohibitions": "[]",
-								className: "text-sm font-medium text-foreground mb-0",
-								children: "Aviso Legal: O conteúdo deste site destina-se exclusivamente a profissionais de saúde e estudantes de medicina. Os resumos aqui apresentados têm caráter informativo e educacional, não substituindo a leitura do artigo original e, sob nenhuma circunstância, o julgamento clínico individualizado."
-							})
-						})
-					]
-				})
-			]
-		})
-	});
-};
+}
 //#endregion
 //#region src/pages/NotFound.tsx
-var NotFound = () => {
-	const location = useLocation();
-	(0, import_react.useEffect)(() => {
-		console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-	}, [location.pathname]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		"data-uid": "src/pages/NotFound.tsx:13:5",
+function NotFound() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/NotFound.tsx:6:5",
 		"data-prohibitions": "[]",
-		className: "min-h-screen flex items-center justify-center bg-gray-100",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/NotFound.tsx:14:7",
-			"data-prohibitions": "[]",
-			className: "text-center",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-					"data-uid": "src/pages/NotFound.tsx:15:9",
-					"data-prohibitions": "[]",
-					className: "text-4xl font-bold mb-4",
-					children: "404"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+		className: "min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-fade-in-up",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/NotFound.tsx:7:7",
+				"data-prohibitions": "[]",
+				className: "text-9xl font-extrabold text-primary/10 mb-4 tracking-tighter drop-shadow-lg",
+				children: "404"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+				"data-uid": "src/pages/NotFound.tsx:10:7",
+				"data-prohibitions": "[]",
+				className: "text-4xl font-bold text-white mb-4",
+				children: "Página não encontrada"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				"data-uid": "src/pages/NotFound.tsx:11:7",
+				"data-prohibitions": "[]",
+				className: "text-muted-foreground max-w-md mx-auto mb-8 text-lg",
+				children: "A página que você está procurando pode ter sido removida, teve seu nome alterado ou está temporariamente indisponível."
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+				"data-uid": "src/pages/NotFound.tsx:15:7",
+				"data-prohibitions": "[]",
+				to: "/",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 					"data-uid": "src/pages/NotFound.tsx:16:9",
 					"data-prohibitions": "[]",
-					className: "text-xl text-gray-600 mb-4",
-					children: "Oops! Page not found"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
-					"data-uid": "src/pages/NotFound.tsx:17:9",
-					"data-prohibitions": "[]",
-					href: "/",
-					className: "text-blue-500 hover:text-blue-700 underline",
-					children: "Return to Home"
+					size: "lg",
+					className: "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8",
+					children: "Voltar para o Início"
 				})
-			]
-		})
+			})
+		]
 	});
-};
+}
 //#endregion
 //#region src/App.tsx
 var router = createBrowserRouter([{
+	path: "/",
 	element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
-		"data-uid": "src/App.tsx:15:14",
+		"data-uid": "src/App.tsx:12:14",
+		"data-prohibitions": "[editContent]"
+	}),
+	errorElement: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
+		"data-uid": "src/App.tsx:13:19",
 		"data-prohibitions": "[editContent]"
 	}),
 	children: [
 		{
-			path: "/",
+			index: true,
 			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
-				"data-uid": "src/App.tsx:17:29",
+				"data-uid": "src/App.tsx:15:31",
 				"data-prohibitions": "[editContent]"
 			})
 		},
 		{
-			path: "/uti-pediatrica",
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CategoryPage, {
-				"data-uid": "src/App.tsx:18:43",
-				"data-prohibitions": "[editContent]"
-			})
-		},
-		{
-			path: "/emergencia",
-			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CategoryPage, {
-				"data-uid": "src/App.tsx:19:39",
-				"data-prohibitions": "[editContent]"
-			})
-		},
-		{
-			path: "/artigo/:slug",
+			path: "article/:id",
 			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArticlePage, {
-				"data-uid": "src/App.tsx:20:41",
+				"data-uid": "src/App.tsx:16:39",
 				"data-prohibitions": "[editContent]"
 			})
 		},
 		{
-			path: "/sobre",
+			path: "category/:slug",
+			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CategoryPage, {
+				"data-uid": "src/App.tsx:17:42",
+				"data-prohibitions": "[editContent]"
+			})
+		},
+		{
+			path: "about",
 			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AboutPage, {
-				"data-uid": "src/App.tsx:21:34",
+				"data-uid": "src/App.tsx:18:33",
+				"data-prohibitions": "[editContent]"
+			})
+		},
+		{
+			path: "*",
+			element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
+				"data-uid": "src/App.tsx:19:29",
 				"data-prohibitions": "[editContent]"
 			})
 		}
 	]
-}, {
-	path: "*",
-	element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
-		"data-uid": "src/App.tsx:26:14",
-		"data-prohibitions": "[editContent]"
-	})
 }]);
-var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, {
-	"data-uid": "src/App.tsx:31:3",
-	"data-prohibitions": "[]",
-	children: [
-		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster$2, {
-			"data-uid": "src/App.tsx:32:5",
-			"data-prohibitions": "[editContent]"
-		}),
-		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
-			"data-uid": "src/App.tsx:33:5",
-			"data-prohibitions": "[editContent]"
-		}),
-		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RouterProvider2, {
-			"data-uid": "src/App.tsx:34:5",
-			"data-prohibitions": "[editContent]",
-			router
-		})
-	]
-});
+function App() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RouterProvider2, {
+		"data-uid": "src/App.tsx:25:10",
+		"data-prohibitions": "[editContent]",
+		router
+	});
+}
 //#endregion
 //#region src/main.tsx
 (0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(App, {
@@ -34638,4 +25640,4 @@ var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, {
 }));
 //#endregion
 
-//# sourceMappingURL=index-DOVy2q1U.js.map
+//# sourceMappingURL=index-Bp5gh-zN.js.map

@@ -1,73 +1,50 @@
-import { Activity } from 'lucide-react'
+import logoImg from '@/assets/generatedimage_1773607393240-f55fc.png'
 
-const AboutPage = () => {
+export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-12 md:py-20 max-w-3xl">
-      <div className="animate-fade-in-up">
-        <div className="flex justify-center mb-8">
-          <div className="bg-primary/10 p-4 rounded-2xl">
-            <Activity className="h-12 w-12 text-primary" />
-          </div>
-        </div>
-
-        <h1 className="text-3xl md:text-5xl font-display font-bold text-center mb-6">
-          Sobre o Projeto
+    <div className="max-w-4xl mx-auto space-y-12 animate-fade-in-up">
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-white">
+          Sobre o <span className="text-primary text-glow">Ponto Crítico</span>
         </h1>
-
-        <div className="prose prose-lg dark:prose-invert mx-auto text-muted-foreground leading-relaxed">
-          <p className="text-xl text-foreground font-medium text-center mb-10">
-            Transformando o excesso de informação médica em conhecimento prático, direto ao ponto.
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Nossa missão é fornecer proteção técnica e conhecimento baseado em evidências para
+          profissionais que atuam na terapia intensiva e urgências pediátricas.
+        </p>
+      </div>
+      <div className="glass-panel p-8 md:p-12 rounded-3xl grid md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold text-white">Conhecimento que Salva Vidas</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Acreditamos que a atualização constante é a chave para a excelência no atendimento
+            pediátrico crítico. Nossa plataforma reúne os protocolos mais recentes e resumos focados
+            na prática clínica, permitindo decisões rápidas e seguras.
           </p>
-
-          <h2 className="text-foreground font-display font-semibold text-2xl mt-8 mb-4">
-            Nossa Missão
-          </h2>
-          <p>
-            O <strong>Ponto Crítico Pediátrico</strong> nasceu da necessidade de médicos residentes,
-            intensivistas e emergencistas pediátricos se manterem atualizados em meio a um volume
-            assustador de novas publicações científicas mensais.
-          </p>
-          <p>
-            Nossa missão é curar, analisar e resumir os artigos mais relevantes publicados nos
-            principais periódicos mundiais (como PCCM, Intensive Care Medicine, Pediatrics),
-            extraindo exatamente o que você precisa saber para aplicar na beira do leito.
-          </p>
-
-          <h2 className="text-foreground font-display font-semibold text-2xl mt-8 mb-4">
-            Como Funciona
-          </h2>
-          <p>
-            Nossa equipe editorial seleciona os artigos com maior potencial de impacto na prática
-            clínica diária. Cada estudo passa por uma leitura crítica estruturada para extrair:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 mb-6 text-foreground/80">
-            <li>
-              <strong>Contexto:</strong> O porquê do estudo.
-            </li>
-            <li>
-              <strong>Metodologia:</strong> A validade e nível de evidência.
-            </li>
-            <li>
-              <strong>Pontos Chave:</strong> Os resultados crus.
-            </li>
-            <li>
-              <strong>Conclusão Prática:</strong> A mensagem principal a ser lembrada durante o
-              plantão.
-            </li>
+          <ul className="space-y-3">
+            {[
+              'Protocolos Atualizados',
+              'Resumos Clínicos Rápidos',
+              'Diretrizes Baseadas em Evidências',
+            ].map((item, i) => (
+              <li key={i} className="flex items-center text-foreground font-medium">
+                <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mr-3 text-primary border border-primary/30">
+                  ✓
+                </span>
+                {item}
+              </li>
+            ))}
           </ul>
-
-          <div className="bg-muted p-6 rounded-xl border mt-10 text-center">
-            <p className="text-sm font-medium text-foreground mb-0">
-              Aviso Legal: O conteúdo deste site destina-se exclusivamente a profissionais de saúde
-              e estudantes de medicina. Os resumos aqui apresentados têm caráter informativo e
-              educacional, não substituindo a leitura do artigo original e, sob nenhuma
-              circunstância, o julgamento clínico individualizado.
-            </p>
+        </div>
+        <div className="relative">
+          <div className="aspect-square rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 border border-white/10 flex items-center justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 ekg-bg opacity-30"></div>
+            <div className="w-48 h-48 rounded-2xl overflow-hidden relative shadow-2xl border border-white/20 transform group-hover:scale-105 transition-transform duration-500">
+              <img src={logoImg} alt="Brand Shield" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
-export default AboutPage
