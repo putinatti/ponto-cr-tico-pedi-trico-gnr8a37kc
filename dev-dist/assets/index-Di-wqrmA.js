@@ -20824,12 +20824,12 @@ function Index() {
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				"data-uid": "src/pages/Index.tsx:25:9",
 				"data-prohibitions": "[]",
-				className: "max-w-5xl mx-auto relative z-10 text-center",
+				className: "max-w-5xl mx-auto relative z-10 text-center flex flex-col items-center",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						"data-uid": "src/pages/Index.tsx:26:11",
 						"data-prohibitions": "[]",
-						className: "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/50 border border-teal-700/50 mb-6",
+						className: "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/50 border border-teal-700/50 mb-6 text-center",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Activity, {
 							"data-uid": "src/pages/Index.tsx:27:13",
 							"data-prohibitions": "[editContent]",
@@ -20844,7 +20844,7 @@ function Index() {
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
 						"data-uid": "src/pages/Index.tsx:30:11",
 						"data-prohibitions": "[]",
-						className: "text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight",
+						className: "text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-center",
 						children: [
 							"Decisões rápidas salvam",
 							" ",
@@ -20859,18 +20859,18 @@ function Index() {
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 						"data-uid": "src/pages/Index.tsx:36:11",
 						"data-prohibitions": "[]",
-						className: "text-lg md:text-xl text-teal-100 mb-10 max-w-2xl mx-auto leading-relaxed",
+						className: "text-lg md:text-xl text-teal-100 mb-10 max-w-2xl mx-auto leading-relaxed text-center",
 						children: "Resumos práticos e baseados em evidências sobre terapia intensiva e emergências pediátricas, direto ao ponto para a beira do leito."
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						"data-uid": "src/pages/Index.tsx:40:11",
 						"data-prohibitions": "[]",
-						className: "flex flex-col sm:flex-row gap-4 justify-center",
+						className: "flex flex-col sm:flex-row gap-4 justify-center items-center",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
 							"data-uid": "src/pages/Index.tsx:41:13",
 							"data-prohibitions": "[]",
 							href: "#categorias",
-							className: "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors gap-2 shadow-lg shadow-orange-500/20",
+							className: "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors gap-2 shadow-lg shadow-orange-500/20 text-center",
 							children: ["Explorar Temas ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, {
 								"data-uid": "src/pages/Index.tsx:45:30",
 								"data-prohibitions": "[editContent]",
@@ -20880,7 +20880,7 @@ function Index() {
 							"data-uid": "src/pages/Index.tsx:47:13",
 							"data-prohibitions": "[]",
 							to: "/sobre",
-							className: "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-teal-800 text-white font-semibold hover:bg-teal-700 transition-colors gap-2 border border-teal-700 shadow-sm",
+							className: "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-teal-800 text-white font-semibold hover:bg-teal-700 transition-colors gap-2 border border-teal-700 shadow-sm text-center",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, {
 								"data-uid": "src/pages/Index.tsx:51:15",
 								"data-prohibitions": "[editContent]",
@@ -20898,7 +20898,7 @@ function Index() {
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				"data-uid": "src/pages/Index.tsx:58:9",
 				"data-prohibitions": "[]",
-				className: "text-center mb-16",
+				className: "text-center mb-16 flex flex-col items-center",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 						"data-uid": "src/pages/Index.tsx:59:11",
@@ -20913,13 +20913,13 @@ function Index() {
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
 						"data-uid": "src/pages/Index.tsx:62:11",
 						"data-prohibitions": "[]",
-						className: "text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4",
+						className: "text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4 text-center",
 						children: "Navegue por Categorias"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 						"data-uid": "src/pages/Index.tsx:65:11",
 						"data-prohibitions": "[]",
-						className: "text-lg text-slate-600 max-w-2xl mx-auto",
+						className: "text-lg text-slate-600 max-w-2xl mx-auto text-center",
 						children: "Acesse rapidamente os protocolos, resumos e artigos mais relevantes para sua prática clínica na pediatria."
 					})
 				]
@@ -20931,7 +20931,7 @@ function Index() {
 					"data-uid": "src/pages/Index.tsx:73:13",
 					"data-prohibitions": "[editContent]",
 					to: `/categoria/${cat.id}`,
-					className: "group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900",
+					className: "group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-center",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 							"data-uid": "src/pages/Index.tsx:78:15",
@@ -20946,18 +20946,28 @@ function Index() {
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 							"data-uid": "src/pages/Index.tsx:86:15",
 							"data-prohibitions": "[editContent]",
-							className: "absolute inset-0 bg-gradient-to-t from-teal-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+							className: "absolute inset-0 bg-gradient-to-t from-teal-900/90 via-teal-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300 z-10 backdrop-blur-[2px]"
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/Index.tsx:87:15",
-							"data-prohibitions": "[editContent]",
-							className: "absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem]"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 							"data-uid": "src/pages/Index.tsx:88:15",
 							"data-prohibitions": "[editContent]",
-							className: "sr-only",
-							children: cat.name
+							className: "absolute inset-0 flex flex-col justify-end items-center p-6 md:p-8 z-20 text-center",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/Index.tsx:89:17",
+								"data-prohibitions": "[editContent]",
+								className: "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center transform group-hover:-translate-y-2 transition-all duration-500 shadow-xl",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/pages/Index.tsx:90:19",
+									"data-prohibitions": "[editContent]",
+									className: "text-white text-lg md:text-xl font-bold tracking-wide block text-center",
+									children: cat.name
+								})
+							})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/Index.tsx:96:15",
+							"data-prohibitions": "[editContent]",
+							className: "absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem] z-30 pointer-events-none"
 						})
 					]
 				}, cat.id))
@@ -21837,4 +21847,4 @@ function App() {
 }));
 //#endregion
 
-//# sourceMappingURL=index-CN91zdV-.js.map
+//# sourceMappingURL=index-Di-wqrmA.js.map
