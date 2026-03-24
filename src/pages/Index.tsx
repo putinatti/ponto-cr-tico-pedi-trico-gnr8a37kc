@@ -73,7 +73,7 @@ export default function Index() {
             <Link
               key={cat.id}
               to={`/categoria/${cat.id}`}
-              className="group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-left"
+              className="group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-center"
             >
               <div
                 className="absolute inset-0 w-full h-full bg-no-repeat transition-transform duration-700 group-hover:scale-105"
@@ -85,9 +85,9 @@ export default function Index() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-teal-900/90 via-teal-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300 z-10 backdrop-blur-[2px]" />
 
-              <div className="absolute inset-0 flex flex-col justify-end items-start p-6 md:p-8 z-20 text-left">
-                <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-left transform group-hover:-translate-y-2 transition-all duration-500 shadow-xl">
-                  <span className="text-white text-lg md:text-xl font-bold tracking-wide block text-left">
+              <div className="absolute inset-0 flex flex-col justify-end items-center p-6 md:p-8 z-20 text-center">
+                <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-center transform group-hover:-translate-y-2 transition-all duration-500 shadow-xl">
+                  <span className="text-white text-lg md:text-xl font-bold tracking-wide block text-center">
                     {cat.name}
                   </span>
                 </div>
