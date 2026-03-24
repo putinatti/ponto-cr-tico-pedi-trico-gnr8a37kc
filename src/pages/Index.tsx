@@ -22,31 +22,31 @@ export default function Index() {
           <div className="absolute -bottom-8 left-20 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
 
-        <div className="max-w-5xl mx-auto relative z-10 text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/50 border border-teal-700/50 mb-6 text-center">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/50 border border-teal-700/50 mb-6">
             <Activity className="w-4 h-4 text-orange-400" />
             <span className="text-sm font-medium text-teal-100">Atualizado para 2026</span>
           </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-center">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl">
             Decisões rápidas salvam{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-300">
               pequenas vidas.
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-teal-100 mb-10 max-w-2xl mx-auto leading-relaxed text-center">
+          <p className="text-lg md:text-xl text-teal-100 mb-10 max-w-2xl leading-relaxed">
             Resumos práticos e baseados em evidências sobre terapia intensiva e emergências
             pediátricas, direto ao ponto para a beira do leito.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="#categorias"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors gap-2 shadow-lg shadow-orange-500/20 text-center"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors gap-2 shadow-lg shadow-orange-500/20"
             >
               Explorar Temas <ArrowRight className="w-4 h-4" />
             </a>
             <Link
               to="/sobre"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-teal-800 text-white font-semibold hover:bg-teal-700 transition-colors gap-2 border border-teal-700 shadow-sm text-center"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-teal-800 text-white font-semibold hover:bg-teal-700 transition-colors gap-2 border border-teal-700 shadow-sm"
             >
               <BookOpen className="w-4 h-4" /> Sobre o Projeto
             </Link>
@@ -55,14 +55,14 @@ export default function Index() {
       </section>
 
       <section id="categorias" className="py-20 px-4 max-w-6xl mx-auto w-full">
-        <div className="text-center mb-16 flex flex-col items-center">
+        <div className="mb-16">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-100 mb-4 text-teal-800 shadow-sm">
             <Stethoscope className="w-6 h-6" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">
             Navegue por Categorias
           </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto text-center">
+          <p className="text-lg text-slate-600 max-w-2xl">
             Acesse rapidamente os protocolos, resumos e artigos mais relevantes para sua prática
             clínica na pediatria.
           </p>
@@ -73,7 +73,7 @@ export default function Index() {
             <Link
               key={cat.id}
               to={`/categoria/${cat.id}`}
-              className="group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-center"
+              className="group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-left"
             >
               <div
                 className="absolute inset-0 w-full h-full bg-no-repeat transition-transform duration-700 group-hover:scale-105"
@@ -85,9 +85,9 @@ export default function Index() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-teal-900/90 via-teal-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300 z-10 backdrop-blur-[2px]" />
 
-              <div className="absolute inset-0 flex flex-col justify-end items-center p-6 md:p-8 z-20 text-center">
-                <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center transform group-hover:-translate-y-2 transition-all duration-500 shadow-xl">
-                  <span className="text-white text-lg md:text-xl font-bold tracking-wide block text-center">
+              <div className="absolute inset-0 flex flex-col justify-end items-start p-6 md:p-8 z-20 text-left">
+                <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-left transform group-hover:-translate-y-2 transition-all duration-500 shadow-xl">
+                  <span className="text-white text-lg md:text-xl font-bold tracking-wide block text-left">
                     {cat.name}
                   </span>
                 </div>
