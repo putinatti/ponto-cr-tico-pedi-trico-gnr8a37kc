@@ -86,9 +86,6 @@ export default function Index() {
                     backgroundPosition: `${cat.bgX} ${cat.bgY}`,
                   }}
                 />
-                <h3 className="text-xl md:text-2xl font-bold text-white text-center leading-tight">
-                  {cat.name}
-                </h3>
               </div>
 
               <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem] z-30 pointer-events-none" />
