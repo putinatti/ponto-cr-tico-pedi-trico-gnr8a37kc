@@ -85,13 +85,7 @@ export default function Index() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-teal-900/90 via-teal-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300 z-10 backdrop-blur-[2px]" />
 
-              <div className="absolute inset-0 flex flex-col justify-end items-center p-6 md:p-8 z-20 text-center">
-                <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-center transform group-hover:-translate-y-2 transition-all duration-500 shadow-xl">
-                  <span className="text-white text-lg md:text-xl font-bold tracking-wide block text-center">
-                    {cat.name}
-                  </span>
-                </div>
-              </div>
+              <div className="absolute inset-0 flex flex-col justify-end items-center p-6 md:p-8 z-20 text-center"></div>
 
               <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem] z-30 pointer-events-none" />
             </Link>
