@@ -3,13 +3,13 @@ import { ArrowRight, Activity, BookOpen, Stethoscope } from 'lucide-react'
 import spriteImg from '@/assets/editedimage_1773608286853-085b3.png'
 
 const CATEGORIES = [
-  { id: 'uti-pediatrica', name: 'UTI Pediátrica', bgX: '0%', bgY: '0%' },
-  { id: 'emergencias-pediatricas', name: 'Emergências Pediátricas', bgX: '50%', bgY: '0%' },
-  { id: 'sepse', name: 'Sepse', bgX: '100%', bgY: '0%' },
-  { id: 'ventilacao-mecanica', name: 'Ventilação Mecânica', bgX: '50%', bgY: '50%' },
-  { id: 'choque', name: 'Choque', bgX: '100%', bgY: '50%' },
-  { id: 'artigo-comentado', name: 'Artigo Comentado', bgX: '0%', bgY: '100%' },
-  { id: 'ponto-critico', name: 'Ponto Crítico', bgX: '50%', bgY: '100%' },
+  { id: 'uti-pediatrica', name: 'UTI Pediátrica' },
+  { id: 'emergencias-pediatricas', name: 'Emergências Pediátricas' },
+  { id: 'sepse', name: 'Sepse' },
+  { id: 'ventilacao-mecanica', name: 'Ventilação Mecânica' },
+  { id: 'choque', name: 'Choque' },
+  { id: 'artigo-comentado', name: 'Artigo Comentado' },
+  { id: 'ponto-critico', name: 'Ponto Crítico' },
 ]
 
 export default function Index() {
@@ -82,8 +82,8 @@ export default function Index() {
                   className="w-32 h-32 md:w-40 md:h-40 mb-6 bg-no-repeat transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl"
                   style={{
                     backgroundImage: `url(${spriteImg})`,
-                    backgroundSize: '300% 300%',
-                    backgroundPosition: `${cat.bgX} ${cat.bgY}`,
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'center',
                   }}
                 />
               </div>
