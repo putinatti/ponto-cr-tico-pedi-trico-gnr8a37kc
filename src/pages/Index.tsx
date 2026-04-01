@@ -73,19 +73,22 @@ export default function Index() {
             <Link
               key={cat.id}
               to={`/categoria/${cat.id}`}
-              className="group relative block w-full aspect-square overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-center"
+              className="group relative flex flex-col justify-center items-center w-full h-full min-h-[12rem] overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-center p-6 md:p-8"
             >
               <div className="absolute inset-0 bg-gradient-to-t from-teal-950/90 via-teal-900/60 to-teal-800/30 opacity-90 group-hover:opacity-100 transition-opacity duration-300 z-10 backdrop-blur-[2px]" />
 
-              <div className="absolute inset-0 flex flex-col justify-end items-center p-6 md:p-8 z-20 text-center">
+              <div className="relative flex flex-col items-center z-20 text-center">
                 <div
-                  className="w-32 h-32 md:w-40 md:h-40 mb-6 bg-no-repeat transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl"
+                  className="w-20 h-20 md:w-24 md:h-24 mb-4 bg-no-repeat transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl"
                   style={{
                     backgroundImage: `url(${spriteImg})`,
                     backgroundSize: 'contain',
                     backgroundPosition: 'center',
                   }}
                 />
+                <h3 className="text-lg md:text-xl font-bold text-teal-50 drop-shadow-md">
+                  {cat.name}
+                </h3>
               </div>
 
               <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem] z-30 pointer-events-none" />
