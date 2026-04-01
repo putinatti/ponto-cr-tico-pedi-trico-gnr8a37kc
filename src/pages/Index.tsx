@@ -39,21 +39,21 @@ export default function Index() {
         {/* Compact Navigation Menu */}
         <section className="mb-20">
           <h2 className="sr-only">Navegação Principal</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 md:gap-8 justify-items-center max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 justify-items-center max-w-4xl mx-auto">
             {navigationItems.map((item) => (
               <Link
                 key={item.title}
                 to={item.href}
                 className="flex flex-col items-center group focus:outline-none"
               >
-                <div className="w-24 h-24 rounded-[1.5rem] bg-white shadow-sm hover:shadow-md border border-slate-100 flex items-center justify-center p-4 transition-all duration-300 group-hover:scale-110 group-focus-visible:scale-110 group-focus-visible:ring-4 group-focus-visible:ring-teal-500/30">
+                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[2rem] bg-white shadow-sm hover:shadow-md border border-slate-100 flex items-center justify-center p-6 sm:p-8 transition-all duration-300 group-hover:scale-110 group-focus-visible:scale-110 group-focus-visible:ring-4 group-focus-visible:ring-teal-500/30">
                   <img
                     src={brandImage}
                     alt={`Ícone para ${item.title}`}
                     className="w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
-                <span className="mt-4 text-[15px] font-semibold text-slate-700 group-hover:text-teal-700 transition-colors text-center">
+                <span className="mt-6 text-base sm:text-lg font-bold text-slate-700 group-hover:text-teal-700 transition-colors text-center">
                   {item.title}
                 </span>
               </Link>
