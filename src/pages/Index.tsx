@@ -1,101 +1,134 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Activity, BookOpen, Stethoscope } from 'lucide-react'
-import spriteImg from '@/assets/editedimage_1773608286853-085b3.png'
+import { Search, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import brandImage from '@/assets/ponto-critico-42ebb.png'
 
-const CATEGORIES = [
-  { id: 'uti-pediatrica', name: 'UTI Pediátrica' },
-  { id: 'emergencias-pediatricas', name: 'Emergências Pediátricas' },
-  { id: 'sepse', name: 'Sepse' },
-  { id: 'ventilacao-mecanica', name: 'Ventilação Mecânica' },
-  { id: 'choque', name: 'Choque' },
-  { id: 'artigo-comentado', name: 'Artigo Comentado' },
-  { id: 'ponto-critico', name: 'Ponto Crítico' },
+const navigationItems = [
+  { title: 'Resumos', href: '/resumos' },
+  { title: 'Artigos', href: '/artigos' },
+  { title: 'Calculadoras', href: '/calculadoras' },
+  { title: 'Protocolos', href: '/protocolos' },
+  { title: 'Drogas', href: '/drogas' },
+  { title: 'Sobre', href: '/sobre' },
 ]
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <section className="bg-teal-900 text-white py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div className="flex flex-col min-h-screen bg-slate-50">
+      {/* Header / Hero Section */}
+      <header className="bg-teal-900 text-white pt-16 pb-20 px-4 md:px-6 lg:px-8 text-center rounded-b-[2.5rem] shadow-sm">
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+          Ponto Crítico Pediátrico
+        </h1>
+        <p className="text-teal-100 max-w-2xl mx-auto text-lg md:text-xl mb-10 leading-relaxed">
+          Resumos atualizados e práticos sobre terapia intensiva pediátrica e urgências, feitos para
+          quem está na linha de frente.
+        </p>
+        <div className="max-w-xl mx-auto relative group">
+          <Input
+            type="search"
+            placeholder="Buscar resumos, artigos, calculadoras..."
+            className="w-full pl-14 pr-4 py-7 rounded-2xl text-slate-900 bg-white border-none shadow-xl focus-visible:ring-4 focus-visible:ring-teal-500/30 text-lg transition-all"
+          />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-teal-600 transition-colors" />
         </div>
+      </header>
 
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/50 border border-teal-700/50 mb-6">
-            <Activity className="w-4 h-4 text-orange-400" />
-            <span className="text-sm font-medium text-teal-100">Atualizado para 2026</span>
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 md:px-6 py-16">
+        {/* Compact Navigation Menu */}
+        <section className="mb-20">
+          <h2 className="sr-only">Navegação Principal</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 md:gap-8 justify-items-center max-w-4xl mx-auto">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.title}
+                to={item.href}
+                className="flex flex-col items-center group focus:outline-none"
+              >
+                <div className="w-24 h-24 rounded-[1.5rem] bg-white shadow-sm hover:shadow-md border border-slate-100 flex items-center justify-center p-4 transition-all duration-300 group-hover:scale-110 group-focus-visible:scale-110 group-focus-visible:ring-4 group-focus-visible:ring-teal-500/30">
+                  <img
+                    src={brandImage}
+                    alt={`Ícone para ${item.title}`}
+                    className="w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <span className="mt-4 text-[15px] font-semibold text-slate-700 group-hover:text-teal-700 transition-colors text-center">
+                  {item.title}
+                </span>
+              </Link>
+            ))}
           </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl">
-            Decisões rápidas salvam{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-300">
-              pequenas vidas.
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-teal-100 mb-10 max-w-2xl leading-relaxed">
-            Resumos práticos e baseados em evidências sobre terapia intensiva e emergências
-            pediátricas, direto ao ponto para a beira do leito.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="#categorias"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors gap-2 shadow-lg shadow-orange-500/20"
+        </section>
+
+        {/* Latest Publications Section */}
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-slate-800">Últimas Publicações</h2>
+            <Button
+              variant="ghost"
+              className="text-teal-700 hover:text-teal-800 hover:bg-teal-50 font-semibold"
             >
-              Explorar Temas <ArrowRight className="w-4 h-4" />
-            </a>
-            <Link
-              to="/sobre"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-teal-800 text-white font-semibold hover:bg-teal-700 transition-colors gap-2 border border-teal-700 shadow-sm"
-            >
-              <BookOpen className="w-4 h-4" /> Sobre o Projeto
-            </Link>
+              Ver todas <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
           </div>
-        </div>
-      </section>
 
-      <section id="categorias" className="py-20 px-4 max-w-6xl mx-auto w-full">
-        <div className="mb-16">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-100 mb-4 text-teal-800 shadow-sm">
-            <Stethoscope className="w-6 h-6" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">
-            Navegue por Categorias
-          </h2>
-          <p className="text-lg text-slate-600 max-w-2xl">
-            Acesse rapidamente os protocolos, resumos e artigos mais relevantes para sua prática
-            clínica na pediatria.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {CATEGORIES.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/categoria/${cat.id}`}
-              className="group relative flex flex-col justify-center items-center w-full h-full min-h-[12rem] overflow-hidden rounded-[2rem] shadow-md transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/20 bg-teal-900 text-center p-6 md:p-8"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-teal-950/90 via-teal-900/60 to-teal-800/30 opacity-90 group-hover:opacity-100 transition-opacity duration-300 z-10 backdrop-blur-[2px]" />
-
-              <div className="relative flex flex-col items-center z-20 text-center">
-                <div
-                  className="w-20 h-20 md:w-24 md:h-24 mb-4 bg-no-repeat transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl"
-                  style={{
-                    backgroundImage: `url(${spriteImg})`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                  }}
-                />
-                <h3 className="text-lg md:text-xl font-bold text-teal-50 drop-shadow-md">
-                  {cat.name}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                tag: 'Resumo',
+                date: '15 Mar 2026',
+                title: 'Manejo de Sepsis em UTIP: Atualizações do Novo Guideline',
+                desc: 'Uma análise completa das novas diretrizes para o tratamento da sepse em pacientes pediátricos, incluindo fluidoterapia e uso de vasopressores precoces.',
+              },
+              {
+                tag: 'Artigo',
+                date: '10 Mar 2026',
+                title: 'Ventilação Mecânica Não Invasiva na Bronquiolite',
+                desc: 'Revisão sistemática sobre a eficácia da VNI e cateter nasal de alto fluxo na prevenção da intubação em lactentes graves.',
+              },
+              {
+                tag: 'Protocolo',
+                date: '05 Mar 2026',
+                title: 'Protocolo Institucional de Sedoanalgesia',
+                desc: 'Atualização das doses e escolhas de primeira linha para sedação contínua e analgesia em ventilação mecânica prolongada.',
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col hover:shadow-lg transition-all duration-300 cursor-pointer group"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    {item.tag}
+                  </span>
+                  <span className="text-slate-400 text-xs font-medium">{item.date}</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-3 leading-snug group-hover:text-teal-700 transition-colors">
+                  {item.title}
                 </h3>
+                <p className="text-slate-600 text-sm mb-6 line-clamp-3 leading-relaxed">
+                  {item.desc}
+                </p>
+                <div className="mt-auto flex items-center text-teal-700 text-sm font-bold group-hover:translate-x-1 transition-transform">
+                  Ler material completo <ChevronRight className="w-4 h-4 ml-1" />
+                </div>
               </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
-              <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2rem] z-30 pointer-events-none" />
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-10 text-center px-4">
+        <p className="text-sm font-medium">
+          © 2026 Ponto Crítico Pediátrico. Todos os direitos reservados.
+        </p>
+        <p className="text-xs mt-3 max-w-md mx-auto text-slate-500">
+          Este site é para fins educacionais voltado para profissionais de saúde e não substitui o
+          julgamento clínico.
+        </p>
+      </footer>
     </div>
   )
 }
