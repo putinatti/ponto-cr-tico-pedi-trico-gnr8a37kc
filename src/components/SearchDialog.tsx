@@ -9,13 +9,20 @@ import {
 import { Input } from '@/components/ui/input'
 import { Search, FileText } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { articles } from '@/data/articles'
 import useSearchStore from '@/stores/useSearchStore'
+import { getArticles } from '@/services/content'
 
 export function SearchDialog() {
   const { isOpen, setIsOpen } = useSearchStore()
   const [query, setQuery] = useState('')
+  const [articles, setArticles] = useState<any[]>([])
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isOpen) {
+      getArticles().then(setArticles)
+    }
+  }, [isOpen])
 
   const results =
     query.trim() === ''
@@ -23,7 +30,7 @@ export function SearchDialog() {
       : articles.filter(
           (a) =>
             a.title.toLowerCase().includes(query.toLowerCase()) ||
-            a.category.toLowerCase().includes(query.toLowerCase()),
+            a.categoryId?.toLowerCase().includes(query.toLowerCase()),
         )
 
   useEffect(() => {
@@ -71,7 +78,7 @@ export function SearchDialog() {
                   </div>
                   <div>
                     <div className="font-medium text-white">{article.title}</div>
-                    <div className="text-xs text-muted-foreground">{article.category}</div>
+                    <div className="text-xs text-muted-foreground">{article.categoryId}</div>
                   </div>
                 </button>
               ))}

@@ -1,67 +1,46 @@
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, BookOpen, Tag } from 'lucide-react'
+import { ArrowLeft, BookOpen, Tag, Activity } from 'lucide-react'
 import spriteImg from '@/assets/editedimage_1773608286853-085b3.png'
 import { Button } from '@/components/ui/button'
 import { ArticleCard } from '@/components/ArticleCard'
-import { MOCK_ARTICLES } from '@/data/articles'
-
-const CATEGORIES = [
-  {
-    id: 'uti-pediatrica',
-    name: 'UTI Pediátrica',
-    bgX: '0%',
-    bgY: '0%',
-    desc: 'Protocolos e manejos em Unidade de Terapia Intensiva.',
-  },
-  {
-    id: 'emergencias-pediatricas',
-    name: 'Emergências Pediátricas',
-    bgX: '50%',
-    bgY: '0%',
-    desc: 'Atendimentos de urgência e emergência no pronto-socorro.',
-  },
-  {
-    id: 'sepse',
-    name: 'Sepse',
-    bgX: '100%',
-    bgY: '0%',
-    desc: 'Reconhecimento precoce e tratamento da sepse na pediatria.',
-  },
-  {
-    id: 'ventilacao-mecanica',
-    name: 'Ventilação Mecânica',
-    bgX: '50%',
-    bgY: '50%',
-    desc: 'Parâmetros e estratégias de ventilação mecânica.',
-  },
-  {
-    id: 'choque',
-    name: 'Choque',
-    bgX: '100%',
-    bgY: '50%',
-    desc: 'Tipos de choque, reposição volêmica e drogas vasoativas.',
-  },
-  {
-    id: 'artigo-comentado',
-    name: 'Artigo Comentado',
-    bgX: '0%',
-    bgY: '100%',
-    desc: 'Análises aprofundadas sobre a literatura médica recente.',
-  },
-  {
-    id: 'ponto-critico',
-    name: 'Ponto Crítico',
-    bgX: '50%',
-    bgY: '100%',
-    desc: 'Dicas rápidas e insights valiosos para a beira do leito.',
-  },
-]
+import { useEffect, useState } from 'react'
+import { getCategories, getArticles } from '@/services/content'
 
 export default function CategoryPage() {
   const { categoryId } = useParams()
+  const [category, setCategory] = useState<any>(null)
+  const [articles, setArticles] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const category = CATEGORIES.find((c) => c.id === categoryId)
-  const articles = MOCK_ARTICLES.filter((a) => a.categoryId === categoryId)
+  useEffect(() => {
+    async function load() {
+      if (!categoryId) return
+      setLoading(true)
+      try {
+        const cats = await getCategories()
+        const found = cats.find((c: any) => c.id === categoryId)
+        setCategory(found)
+        if (found) {
+          const arts = await getArticles(categoryId)
+          setArticles(arts)
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [categoryId])
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-4 text-center text-teal-700">
+        <Activity className="w-10 h-10 animate-spin mb-4" />
+        <p>Carregando categoria...</p>
+      </div>
+    )
+  }
 
   if (!category) {
     return (
@@ -85,7 +64,7 @@ export default function CategoryPage() {
           style={{
             backgroundImage: `url(${spriteImg})`,
             backgroundSize: '300% 300%',
-            backgroundPosition: `${category.bgX} ${category.bgY}`,
+            backgroundPosition: `${category.bg_x || '0%'} ${category.bg_y || '0%'}`,
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-50 to-transparent bottom-0 h-16 pointer-events-none" />
@@ -95,7 +74,7 @@ export default function CategoryPage() {
             to="/"
             className="inline-flex items-center text-teal-200 hover:text-white mb-8 transition-colors text-sm font-medium"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para Categorias
+            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar ao Início
           </Link>
 
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
@@ -104,7 +83,7 @@ export default function CategoryPage() {
               style={{
                 backgroundImage: `url(${spriteImg})`,
                 backgroundSize: '300% 300%',
-                backgroundPosition: `${category.bgX} ${category.bgY}`,
+                backgroundPosition: `${category.bg_x || '0%'} ${category.bg_y || '0%'}`,
               }}
             />
             <div className="text-center md:text-left pt-2 md:pt-4">
@@ -115,7 +94,7 @@ export default function CategoryPage() {
                 {category.name}
               </h1>
               <p className="text-teal-100 text-lg md:text-xl max-w-xl leading-relaxed">
-                {category.desc}
+                {category.description}
               </p>
             </div>
           </div>
